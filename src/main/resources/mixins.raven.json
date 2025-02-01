@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "package": "keystrokesmod.mixins.impl",
+  "refmap": "mixins.raven.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "entity.MixinEntity",
+    "render.MixinFontRenderer",
+    "entity.MixinEntityPlayerSP",
+    "render.MixinModelBiped",
+    "entity.MixinEntityLivingBase",
+    "network.MixinNetworkManager",
+    "entity.EntityAccessor",
+    "entity.MixinEntityPlayer",
+    "render.MixinRendererLivingEntity",
+    "render.ItemRendererAccessor",
+    "render.MixinEntityRenderer",
+    "render.MixinScoreboard",
+    "network.MixinModList",
+    "client.PlayerControllerMPAccessor",
+    "client.MixinMovementInputFromOptions"
+  ]
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "modid": "keystrokesmod",
+    "name": "Neoclient - ",
+    "description": "Neoclient",
+    "version": "I forget to update this",
+    "url": "",
+    "updateUrl": "",
+    "authorList": ["panagiotis3149"],
+    "credits": "go check the skidded clients list",
+    "logoFile": "assets/keystrokesmod/textures/gui/Logo.png",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
