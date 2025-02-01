@@ -15,7 +15,8 @@ public enum Theme {
     Royal(new Color(125, 204, 241), new Color(30, 71, 170)), // 7
     Sky(new Color(160, 230, 225), new Color(15, 190, 220)), // 8
     Vine(new Color(17, 192, 45), new Color(201, 234, 198)), // 9
-    Steelvoid(new Color(55, 73, 98), new Color(125, 170, 223)); // 10
+    Steelvoid(new Color(55, 73, 98), new Color(125, 170, 223)), // 10
+    Mist(new Color(94, 228, 154), new Color(40, 139, 207)); // 11
 
     private final Color firstGradient;
     private final Color secondGradient;
@@ -78,6 +79,9 @@ public enum Theme {
         } else if (selectedTheme == 10) { // Steelvoid
             firstGradient = new Color(47, 64, 84);
             secondGradient = new Color(125, 179, 223);
+        } else if (selectedTheme == 11) {
+            firstGradient = new Color(94, 228, 154);
+            secondGradient = new Color(40, 139, 207);
         }
 
         int firstColor = firstGradient != null ? 0xFF000000 | firstGradient.getRGB() : Utils.getChroma(2, 0);
@@ -111,7 +115,7 @@ public enum Theme {
         return new int[]{0, 0};
     }
 
-    public static String[] themes = new String[]{"Rainbow", "Cherry", "Cotton candy", "Flare", "Flower", "Gold", "Grayscale", "Royal", "Sky", "Vine", "Steelvoid"};
+    public static String[] themes = new String[]{"Rainbow", "Cherry", "Cotton candy", "Flare", "Flower", "Gold", "Grayscale", "Royal", "Sky", "Vine", "Steelvoid", "Mist"};
 
         public static int getGradient(double index, double delay) {
             if (index > 0) {

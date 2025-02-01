@@ -62,6 +62,24 @@ public class RenderUtils {
                 interpolateInt(color1.getAlpha(), color2.getAlpha(), amount));
     }
 
+    public static Color toColor(int argb) {
+        return new Color(argb, true); // true ensures that the alpha channel is respected
+    }
+
+    public static Color toRgbColor(int rgb) {
+        return new Color(rgb); // No alpha channel is considered
+    }
+
+
+    public static int toArgb(Color color, int alpha) {
+        return ((alpha & 0xFF) << 24) | (color.getRGB() & 0xFFFFFF);
+    }
+
+    public static int toArgb(int rgb, int alpha) {
+        return ((alpha & 0xFF) << 24) | (rgb & 0xFFFFFF);
+    }
+
+
 
     public static void drawRect(double left, double top, double right, double bottom, int color) {
         float f3 = (color >> 24 & 255) / 255.0F;

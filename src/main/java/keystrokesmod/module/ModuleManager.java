@@ -41,6 +41,7 @@ public class ModuleManager {
     public static KillAura killAura;
     public static Module autoClicker;
     public static Module hitBox;
+    public static NewHUD newHUD;
     public static Module reach;
     public static BedESP bedESP;
     public static HUD hud;
@@ -92,6 +93,7 @@ public class ModuleManager {
         this.addModule(new InvMove());
         this.addModule(new AntiAim());
         this.addModule(new Enabler());
+        this.addModule(newHUD = new NewHUD());
         this.addModule(targetStrafe = new TargetStrafe());
         this.addModule(new Trajectories());
         this.addModule(potions = new Potions());
@@ -205,8 +207,13 @@ public class ModuleManager {
     public static void sort() {
         FontRenderer fontRenderer;
 
+
+
         switch ((int) HUD.Mode.getInput()) {
             case 2:
+                fontRenderer = null;
+                break;
+            case 3:
                 fontRenderer = null;
                 break;
             default:
@@ -214,9 +221,15 @@ public class ModuleManager {
                 break;
         }
 
+        if (newHUD.isEnabled()) {
+          fontRenderer = FontManager.googleRegular20;
+        }
+
+
         if (HUD.alphabeticalSort.isToggled()) {
             Collections.sort(organizedModules, Comparator.comparing(Module::getName));
         } else {
+            FontRenderer finalFontRenderer = fontRenderer;
             Collections.sort(organizedModules, (m1, m2) -> {
                 String nameWithInfo1 = m1.getName() + (HUD.showInfo.isToggled() && !m1.getInfo().isEmpty() ? " " + m1.getInfo() : "");
                 String nameWithInfo2 = m2.getName() + (HUD.showInfo.isToggled() && !m2.getInfo().isEmpty() ? " " + m2.getInfo() : "");
@@ -224,9 +237,9 @@ public class ModuleManager {
                 double width1;
                 double width2;
 
-                if (fontRenderer != null) {
-                    width1 = fontRenderer.getStringWidth(nameWithInfo1) + 10;
-                    width2 = fontRenderer.getStringWidth(nameWithInfo2) + 10;
+                if (finalFontRenderer != null) {
+                    width1 = finalFontRenderer.getStringWidth(nameWithInfo1) + 10;
+                    width2 = finalFontRenderer.getStringWidth(nameWithInfo2) + 10;
                 } else {
                     width1 = MinecraftFontRenderer.INSTANCE.width(nameWithInfo1) + 10;
                     width2 = MinecraftFontRenderer.INSTANCE.width(nameWithInfo2) + 10;
