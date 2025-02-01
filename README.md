@@ -1,17 +1,26 @@
-# Raven bS
+# *Neoclient*
 
-Raven B4, but for those who can't afford it, or too paranoid to get it. We highly value our user's privacy.
+## State of the art shitcode, Disguised as a minecraft client.
 
-Quality features like AntiFireball, ItemESP, and more. No Bloat, no junk, based off b3, with the help of b4 src.
+## Based on Raven bS.
 
-![image](https://github.com/Strangerrrs/Raven-bS/assets/166373671/bff24a21-60e3-4955-aa88-4b732cbea6b0)
+### Minecraft Forge 1.8.9 Mod
 
+Neoclient skidded clients:
+Liquidbounce Legacy
+Liquidbounce Nextgen
+Raven bS
+Raven xD
+Raven B+
+Haru (Deleted in current version)
+Rise 6.2.4
+Nixon (Deleted in current version)
+FDP
+Pulsive
+Tenacity (Deleted in current version)
+Nexus (Deleted in current version)
+Zazu Recode 5.2
 
-
-
-
-
-Discord:
-
-<a href="https://discord.gg/ZWttByQD5N"><img src="https://invidget.switchblade.xyz/ZWttByQD5N" alt="https://discord.gg/ZWttByQD5N"/></a><br>
+Neoclient code contributors:
+ChatGPT 
 
