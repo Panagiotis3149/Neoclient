@@ -1,6 +1,8 @@
-# *Neoclient*
+## *Neoclient*
 
 # State of the art shitcode, Disguised as a minecraft client.
+
+# Based on Raven bS.
 
 Neoclient skidded clients:
 Liquidbounce Legacy
