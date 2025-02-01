@@ -1,10 +1,13 @@
 # *Neoclient*
+## Discord: https://discord.gg/r9W822npYq
 
 ## State of the art shitcode, Disguised as a minecraft client.
 
 ## Based on Raven bS.
 
 ### Minecraft Forge 1.8.9 Mod
+
+
 
 Neoclient skidded clients:
 Liquidbounce Legacy
