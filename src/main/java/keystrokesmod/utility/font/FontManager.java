@@ -18,7 +18,8 @@ public class FontManager {
             ptSans24,
             productSans16, productSans20, productSansLight16, productSansLight22, productSansMedium,
             tenacity16, tenacity20, tenacity80,
-            google, googleMedium, googleRegular20, googleMedium20;
+            google, googleMedium, googleRegular20, googleMedium20,
+            googleSansMedium, googleSansBold, googleSansRegular16, googleSansRegular20, googleSansMedium16;
 
     private static int prevScale;
 
@@ -32,6 +33,10 @@ public class FontManager {
         if (scale != prevScale) {
             prevScale = scale;
             google = new FontRenderer(FontUtil.getResource(locationMap, "GoogleRegular.ttf", 16));
+            googleSansRegular16 = new FontRenderer(FontUtil.getResource(locationMap, "googlesansregular.ttf", 16));
+            googleSansBold = new FontRenderer(FontUtil.getResource(locationMap, "googlesansbold.ttf", 20));
+            googleSansMedium = new FontRenderer(FontUtil.getResource(locationMap, "googlesansmedium.ttf", 20));
+            googleSansRegular16 = new FontRenderer(FontUtil.getResource(locationMap, "googlesansmedium.ttf", 16));
             googleRegular20 = new FontRenderer(FontUtil.getResource(locationMap, "GoogleRegular.ttf", 20));
             googleMedium = new FontRenderer(FontUtil.getResource(locationMap, "GoogleMedium.ttf", 18));
             googleMedium20 = new FontRenderer(FontUtil.getResource(locationMap, "GoogleMedium.ttf", 20));

@@ -4,6 +4,7 @@ import keystrokesmod.Raven;
 import keystrokesmod.module.Module;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
+import keystrokesmod.utility.Theme;
 import keystrokesmod.utility.Utils;
 
 public class Gui extends Module {
@@ -14,7 +15,7 @@ public class Gui extends Module {
     public Gui() {
         super("Gui", category.client, 54);
         this.registerSetting(removePlayerModel = new ButtonSetting("Remove player model", true));
-        this.registerSetting(theme = new SliderSetting("Theme", keystrokesmod.utility.Theme.themes, 1));
+        this.registerSetting(theme = new SliderSetting("Theme", Theme.themes, 1));
         this.registerSetting(translucentBackground = new ButtonSetting("test", false));
     }
 

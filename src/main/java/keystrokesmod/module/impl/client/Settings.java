@@ -24,6 +24,7 @@ public class Settings extends Module {
     public Settings() {
         super("Settings", category.client, 0);
         this.registerSetting(new DescriptionSetting("General"));
+        this.registerSetting(toggleSound = new SliderSetting("Toggle sound", new String[]{"None", "Rise", "Sigma", "QuickMacro"}, 1));
         this.registerSetting(weaponAxe = new ButtonSetting("Set axe as weapon", false));
         this.registerSetting(weaponRod = new ButtonSetting("Set rod as weapon", false));
         this.registerSetting(weaponStick = new ButtonSetting("Set stick as weapon", false));
@@ -36,8 +37,6 @@ public class Settings extends Module {
         this.registerSetting(new DescriptionSetting("Profiles"));
         this.registerSetting(sendMessage = new ButtonSetting("Send message on enable", true));
         this.registerSetting(new DescriptionSetting("Theme colors"));
-        this.registerSetting(toggleSound = new SliderSetting("Toggle sound", new String[]{"None", "Rise", "Sigma", "QuickMacro"}, 1));
-
         this.registerSetting(offset = new SliderSetting("Offset", 0.5, -3.0, 3.0, 0.1));
         this.registerSetting(timeMultiplier = new SliderSetting("Time multiplier", 0.5, 0.1, 4.0, 0.1));
         this.canBeEnabled = false;

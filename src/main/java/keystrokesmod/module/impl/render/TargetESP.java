@@ -10,6 +10,7 @@ import keystrokesmod.utility.Theme;
 import keystrokesmod.utility.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
@@ -53,7 +54,7 @@ public class TargetESP extends Module {
     }
 
     @SubscribeEvent
-    public void onRender2D(Render2DEvent e) {
+    public void onRenderWorld(RenderWorldLastEvent e) {
         if (KillAura.target == null) return;
         switch ((int) mode.getInput()) {
             case 0:

@@ -29,7 +29,6 @@ import static keystrokesmod.utility.Theme.getColors;
 
 public class TargetHUD extends Module {
     private SliderSetting theme;
-    private ButtonSetting renderEsp;
     private ButtonSetting showStatus;
     private ButtonSetting healthColor;
     private Timer fadeTimer;
@@ -55,7 +54,6 @@ public class TargetHUD extends Module {
         this.registerSetting(new DescriptionSetting("Only works with Aura."));
         this.registerSetting(theme = new SliderSetting("Theme", Theme.themes, 0));
         this.registerSetting(mode = new SliderSetting("Mode", modes, 0));
-        this.registerSetting(renderEsp = new ButtonSetting("Render ESP", true));
         this.registerSetting(showStatus = new ButtonSetting("Show win or loss", true));
         this.registerSetting(healthColor = new ButtonSetting("Traditional health color", true));
     }
@@ -101,18 +99,7 @@ public class TargetHUD extends Module {
         }
     }
 
-    @SubscribeEvent
-    public void onRenderWorld(RenderWorldLastEvent renderWorldLastEvent) {
-        if (!renderEsp.isToggled() || !Utils.nullCheck()) {
-            return;
-        }
-        if (KillAura.target != null) {
-            RenderUtils.renderEntity(KillAura.target, 2, 0.0, 0.0, Theme.getGradient((int) theme.getInput(), 0), false);
-        }
-        else if (renderEntity != null) {
-            RenderUtils.renderEntity(renderEntity, 2, 0.0, 0.0, Theme.getGradient((int) theme.getInput(), 0), false);
-        }
-    }
+
 
     public void select(Timer cd, String string, double health, String name) {
         switch ((int) mode.getInput()) {
@@ -389,7 +376,7 @@ public class TargetHUD extends Module {
                 RenderUtils.drawPlayerHead(playerHeadX2, playerHeadY2, playerHeadSize2, target);
 
 
-                float healthBarW = (width - 2) * (target.getHealth() / target.getMaxHealth());
+                float healthBarW = (width + 21) * (target.getHealth() / target.getMaxHealth());
                 float healthBarH = 6;
                 int hbx = (int) (x5 + 4);
                 int hby = (int) (y5 + height - 10);

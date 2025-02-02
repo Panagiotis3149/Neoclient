@@ -1,6 +1,13 @@
 package keystrokesmod.clickgui.menu;
 
+import keystrokesmod.module.impl.client.Gui;
+import keystrokesmod.module.impl.render.HUD;
 import keystrokesmod.utility.RenderUtils;
+import keystrokesmod.utility.Theme;
+import keystrokesmod.utility.font.FontManager;
+import keystrokesmod.utility.font.impl.FontRenderer;
+import keystrokesmod.utility.shader.BlurUtils;
+import keystrokesmod.utility.shader.RoundedUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.resources.I18n;
@@ -8,17 +15,22 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+import java.awt.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 public class MainMenu extends GuiScreen {
 
 
     public static final ResourceLocation CUSTOM_LOGO = new ResourceLocation("keystrokesmod", "textures/gui/Logo.png");
+    public static final ResourceLocation FRAG_SHADER = new ResourceLocation("keystrokesmod", "shaders/mainmenu.frag");
+
 
     private static final float SCALE_FACTOR = 0.25f;
     private static final int BUTTON_OFFSET_Y = 130;
-    private static final int LOGO_Y_OFFSET = -130;
 
-    private static final int BG_WIDTH = 1440;
-    private static final int BG_HEIGHT = 810;
     private static int shaderProgram;
     private float time = 0.0f;
 
@@ -32,7 +44,11 @@ public class MainMenu extends GuiScreen {
         this.buttonList.add(new CustomButton(4, this.width / 2 - 100, buttonY + 72, I18n.format("menu.quit")));
        // TODO: ADD ALT MANAGER - this.buttonList.add(new CustomButton(5, this.width / 2 - 100, buttonY + 96, "Alt Manager"));
         // this.buttonList.add(new CustomButton(5, this.width / 2 - 100, buttonY + 96, "Alt Manager"));
-        shaderProgram = createShaderProgram();
+        try {
+            shaderProgram = createShaderProgram();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -61,40 +77,60 @@ public class MainMenu extends GuiScreen {
 
     public void renderShaderBackground() {
         if (shaderProgram != 0) {
+            int displayWidth = Minecraft.getMinecraft().displayWidth;
+            int displayHeight = Minecraft.getMinecraft().displayHeight;
+
+            // Bind shader and update uniforms using full display size
             GL20.glUseProgram(shaderProgram);
-            GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "resolution"), this.width, this.height);
+            GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "resolution"), displayWidth, displayHeight);
             GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "time"), time);
 
-            float aspectRatio = (float) BG_WIDTH / BG_HEIGHT;
-            float screenAspectRatio = (float) this.width / this.height;
+            // Save current GL state
+            GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+            GL11.glPushMatrix();
 
-            float scaledWidth = this.width;
-            float scaledHeight = this.height;
+            // Set up the projection for full-screen rendering using display dimensions
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glPushMatrix();
+            GL11.glLoadIdentity();
+            GL11.glOrtho(0, displayWidth, displayHeight, 0, -1, 1);
 
-            if (screenAspectRatio > aspectRatio) {
-                scaledWidth = this.height * aspectRatio;
-            } else {
-                scaledHeight = this.width / aspectRatio;
-            }
+            // Switch back to modelview matrix and reset it
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glPushMatrix();
+            GL11.glLoadIdentity();
 
-            float xOffset = (this.width - scaledWidth) / 2.0f;
-            float yOffset = (this.height - scaledHeight) / 2.0f;
+            // Set the viewport to cover the entire display
+            GL11.glViewport(0, 0, displayWidth, displayHeight);
 
+            // Draw the full-screen quad
             GL11.glBegin(GL11.GL_QUADS);
             GL11.glTexCoord2f(0, 0);
-            GL11.glVertex2f(xOffset, yOffset);
+            GL11.glVertex2f(0, 0);
             GL11.glTexCoord2f(1, 0);
-            GL11.glVertex2f(xOffset + scaledWidth, yOffset);
+            GL11.glVertex2f(displayWidth, 0);
             GL11.glTexCoord2f(1, 1);
-            GL11.glVertex2f(xOffset + scaledWidth, yOffset + scaledHeight);
+            GL11.glVertex2f(displayWidth, displayHeight);
             GL11.glTexCoord2f(0, 1);
-            GL11.glVertex2f(xOffset, yOffset + scaledHeight);
+            GL11.glVertex2f(0, displayHeight);
             GL11.glEnd();
 
+            // Restore GL state so the main menu is unaffected
+            GL11.glPopMatrix(); // Modelview
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glPopMatrix(); // Projection
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+            GL11.glPopMatrix();
+            GL11.glPopAttrib();
 
             GL20.glUseProgram(0);
         }
     }
+
+
+
+
+
 
 
     private void drawModalRectWithCustomSizedTexture(int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight) {
@@ -114,45 +150,20 @@ public class MainMenu extends GuiScreen {
         GL11.glEnd();
         GL11.glDisable(GL11.GL_BLEND);
     }
-
-    private int createShaderProgram() {
+    private int createShaderProgram() throws IOException {
         String vertexShaderSource =
                 "#version 120\n" +
                         "void main() {\n" +
                         "    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n" +
                         "}";
 
-        String fragmentShaderSource =
-                "#ifdef GL_ES\n" +
-                        "precision mediump float;\n" +
-                        "#endif\n" +
-                        "#extension GL_OES_standard_derivatives : enable\n" +
-                        "uniform vec2 resolution;\n" +
-                        "uniform float time;\n" +
-                        "mat2 m(float a) {\n" +
-                        "    float c = cos(a), s = sin(a);\n" +
-                        "    return mat2(c, -s, s, c);\n" +
-                        "}\n" +
-                        "float map(vec3 p) {\n" +
-                        "    p.xz *= m(time * 0.4);\n" +
-                        "    p.xy *= m(time * 0.1);\n" +
-                        "    vec3 q = p * 2.0 + time;\n" +
-                        "    return length(p + vec3(sin(time * 0.7))) * log(length(p) + 1.0) + sin(q.x + sin(q.z + sin(q.y))) * 0.5 - 1.0;\n" +
-                        "}\n" +
-                        "void main() {\n" +
-                        "    vec2 a = gl_FragCoord.xy / resolution - vec2(0.5, 0.5);\n" +
-                        "    vec3 cl = vec3(1.0);\n" +
-                        "    float d = 2.5;\n" +
-                        "    for (int i = 0; i <= 5; i++) {\n" +
-                        "        vec3 p = vec3(0, 0, 4.0) + normalize(vec3(a, -1.0)) * d;\n" +
-                        "        float rz = map(p);\n" +
-                        "        float f = clamp((rz - map(p + 0.1)) * 0.5, -0.1, 1.0);\n" +
-                        "        vec3 l = vec3(0.1, 0.3, 0.4) + vec3(5.0, 2.5, 3.0) * f;\n" +
-                        "        cl = cl * l + smoothstep(2.5, 0.0, rz) * 0.6 * l;\n" +
-                        "        d += min(rz, 1.0);\n" +
-                        "    }\n" +
-                        "    gl_FragColor = vec4(cl, 1.0);\n" +
-                        "}";
+        // Load the fragment shader source from the resource file
+        String fragmentShaderSource = loadShaderFromResource(FRAG_SHADER);
+
+        if (fragmentShaderSource == null) {
+            System.err.println("Failed to load fragment shader.");
+            return 0;
+        }
 
         int vertexShader = GL20.glCreateShader(GL20.GL_VERTEX_SHADER);
         GL20.glShaderSource(vertexShader, vertexShaderSource);
@@ -188,6 +199,24 @@ public class MainMenu extends GuiScreen {
         return shaderProgram;
     }
 
+    private String loadShaderFromResource(ResourceLocation resourceLocation) throws IOException {
+        try {
+            InputStream inputStream = Minecraft.getMinecraft().getResourceManager().getResource(resourceLocation).getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder shaderSource = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                shaderSource.append(line).append("\n");
+            }
+            reader.close();
+            return shaderSource.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
     @Override
     protected void actionPerformed(GuiButton button) {
         if (button.id == 1) {
@@ -213,7 +242,7 @@ public class MainMenu extends GuiScreen {
         private float hoverAnimation = 0.0F; // For hover effect
 
         public CustomButton(int buttonId, int x, int y, String buttonText) {
-            super(buttonId, x, y, 200, 20, buttonText);
+            super(buttonId, x, y, 160, 20, buttonText);
         }
 
         @Override
@@ -224,7 +253,7 @@ public class MainMenu extends GuiScreen {
 
 
                 if (this.hovered) {
-                    hoverAnimation = Math.min(hoverAnimation + 0.1F, 1.0F); // Ease in
+                    hoverAnimation = Math.min(hoverAnimation + 0.1F, 1.0F);
                 } else {
                     hoverAnimation = Math.max(hoverAnimation - 0.1F, 0.0F); // Ease out
                 }
@@ -232,21 +261,25 @@ public class MainMenu extends GuiScreen {
 
                 int hoverOffset = (int) (hoverAnimation * 2);
 
-
-                RenderUtils.drawRoundedRectangle(this.xPosition, this.yPosition - hoverOffset,
-                        this.xPosition + this.width, this.yPosition + this.height - hoverOffset, 12, BUTTON_COLOR);
-
-                RenderUtils.drawOutline(this.xPosition,this.yPosition - hoverOffset,this.xPosition + this.width,this.yPosition + this.height - hoverOffset,2, 0XFF00BCD4);
+                BlurUtils.prepareBlur();
+                RoundedUtils.drawRound(this.xPosition + 20 , this.yPosition - hoverOffset, this.width, this.height - hoverOffset, 12, true, Color.black);
+                BlurUtils.blurEnd(2, 2.5F);
 
                 this.mouseDragged(mc, mouseX, mouseY);
 
 
-                int textColor = this.enabled ? 0xFFFFFF : 10526880;
+                int textColor;
+             //   if (HUD.theme.getInput() == 0) {
+                textColor = this.enabled ? 0xFFFFFFFF : 0xFF526880;
+        //        } else {
+        //            textColor = this.enabled ? Theme.getGradient(Gui.theme.getInput(), 0.01) : 10526880;
+       //         }
 
-
-                this.drawCenteredString(mc.fontRendererObj, this.displayString,
-                        this.xPosition + this.width / 2,
-                        this.yPosition + (this.height - 8) / 2 - hoverOffset, textColor);
+                FontRenderer font = FontManager.googleSansMedium;
+                font.drawString(this.displayString, this.xPosition - 10 + this.width / 2, this.yPosition + (this.height - 8) / 2 - hoverOffset, textColor);
+               // this.drawCenteredString(mc.fontRendererObj, this.displayString,
+           //             this.xPosition + this.width / 2,
+           //             this.yPosition + (this.height - 8) / 2 - hoverOffset, textColor);
             }
         }
     }
