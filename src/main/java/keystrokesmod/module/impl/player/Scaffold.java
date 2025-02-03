@@ -10,6 +10,10 @@ import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.*;
 import keystrokesmod.utility.Timer;
+import keystrokesmod.utility.font.FontManager;
+import keystrokesmod.utility.font.impl.FontRenderer;
+import keystrokesmod.utility.shader.BlurUtils;
+import keystrokesmod.utility.shader.RoundedUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.client.gui.ScaledResolution;
@@ -31,6 +35,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.awt.*;
 import java.util.*;
 
 public class Scaffold extends Module {
@@ -83,6 +88,7 @@ public class Scaffold extends Module {
     private EnumFacing[] facings = {EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP};
     private BlockPos[] offsets = {new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 0, 1), new BlockPos(0, 0, -1), new BlockPos(0, -1, 0)};
     private keystrokesmod.event.ReceivePacketEvent ReceivePacketEvent;
+    private SliderSetting theme;
 
     public Scaffold() {
         super("Scaffold", category.player);
@@ -91,6 +97,7 @@ public class Scaffold extends Module {
         this.registerSetting(fastScaffold = new SliderSetting("Fast scaffold", fastScaffoldModes, 0));
         this.registerSetting(precision = new SliderSetting("Precision", precisionModes, 4));
         this.registerSetting(multiPlace = new SliderSetting("Multi-place", multiPlaceModes, 0));
+        this.registerSetting(theme = new SliderSetting("Theme (For Highlight)", Theme.themes, 0));
         this.registerSetting(autoSwap = new ButtonSetting("Auto Swap", false)); // Causes NullPointerException if set to true. - 17/08/24 - UPDATE: 14/10/24 - I (was) working on fixing this (EDITED) -
         this.registerSetting(delayOnJump = new ButtonSetting("Delay on jump", true));
         this.registerSetting(fastOnRMB = new ButtonSetting("Fast on RMB", false));
@@ -101,6 +108,7 @@ public class Scaffold extends Module {
         this.registerSetting(tower = new ButtonSetting("Tower", false));
         this.registerSetting(bypass = new ButtonSetting("Cancel Sprint Packet", false));
         this.registerSetting(moveFix = new ButtonSetting("MoveFix", false));
+
     }
 
     public void onDisable() {
@@ -431,7 +439,13 @@ public class Scaffold extends Module {
             } else {
                 color = "";
             }
-            mc.fontRendererObj.drawStringWithShadow(color + blocks + " §rblock" + (blocks == 1 ? "" : "s"), scaledResolution.getScaledWidth() / 2 + 8, scaledResolution.getScaledHeight() / 2 + 4, -1);
+            FontRenderer font = FontManager.googleMedium20;
+            int width = (int) Math.max(20, 14 + font.getStringWidth(color + blocks));
+            BlurUtils.prepareBlur();
+            RoundedUtils.drawRound((float) ((double) scaledResolution.getScaledWidth() / 2 - ((double) width / 2)), (float) ((double) scaledResolution.getScaledHeight() / 2 + 130), (float) width, 36, 6, true, Color.black);
+            BlurUtils.blurEnd(2, 1F);
+            RenderUtils.renderItemIcon((double) scaledResolution.getScaledWidth() / 2 - 8, (double) scaledResolution.getScaledHeight() / 2 + 130, mc.thePlayer.getHeldItem());
+            font.drawString(color + blocks, (double) scaledResolution.getScaledWidth() / 2 - (font.getStringWidth(color + blocks) / 2), (double) scaledResolution.getScaledHeight() / 2 + 130 + 26, -1, false);
         }
     }
 
@@ -565,7 +579,7 @@ public class Scaffold extends Module {
                 iterator.remove();
                 continue;
             }
-            RenderUtils.renderBlock(entry.getKey(), Utils.merge(Theme.getGradient((int) HUD.theme.getInput(), 0), alpha), true, false);
+            RenderUtils.renderBlock(entry.getKey(), Utils.merge(Theme.getGradient((int)theme.getInput(),0), alpha), true, false);
         }
     }
 

@@ -75,6 +75,10 @@ public class RenderUtils {
         return ((alpha & 0xFF) << 24) | (color.getRGB() & 0xFFFFFF);
     }
 
+    public static int toArgb(Color color, double alpha) {
+        return (((int)alpha & 0xFF) << 24) | (color.getRGB() & 0xFFFFFF);
+    }
+
     public static int toArgb(int rgb, int alpha) {
         return ((alpha & 0xFF) << 24) | (rgb & 0xFFFFFF);
     }

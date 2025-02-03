@@ -85,6 +85,9 @@ public class SliderComponent extends Component {
         } else if (selectedTheme == 10.0) { // Steelvoid
             firstGradient = new Color(55, 73, 98);
             secondGradient = new Color(125, 170, 223);
+        } else if (selectedTheme == 11) { // Mist
+            firstGradient = new Color(94, 228, 154);
+            secondGradient = new Color(40, 139, 207);
         }
 
         // Get the RGB values in RGBA Java Hex format

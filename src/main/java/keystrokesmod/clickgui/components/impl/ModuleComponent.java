@@ -177,6 +177,9 @@ public class ModuleComponent extends Component {
         } else if (selectedTheme == 10.0) { // Steelvoid
             firstGradient = new Color(47, 64, 84);
             secondGradient = new Color(125, 179, 223);
+        } else if (selectedTheme == 11) { // Mist
+            firstGradient = new Color(94, 228, 154);
+            secondGradient = new Color(40, 139, 207);
         }
 
 

@@ -1,9 +1,7 @@
 package keystrokesmod.module.impl.render;
 
-import keystrokesmod.event.Render2DEvent;
 import keystrokesmod.module.Module;
 import keystrokesmod.module.impl.combat.KillAura;
-import keystrokesmod.module.setting.impl.DescriptionSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.RenderUtils;
 import keystrokesmod.utility.Theme;
@@ -19,43 +17,24 @@ import java.awt.*;
 
 public class TargetESP extends Module {
 
-    private final SliderSetting normalRed;
-    private final SliderSetting normalGreen;
-    private final SliderSetting normalBlue;
-    private final SliderSetting normalAlpha;
-    private final SliderSetting hitRed;
-    private final SliderSetting hitGreen;
-    private final SliderSetting hitBlue;
-    private final SliderSetting hitAlpha;
-    private String[] modes = new String[]{"Sigma", "Ring", "Raven"};
+    private final SliderSetting alpha;
+    private String[] modes = new String[]{"Ring", "Vape", "Raven", "Both"};
     private final SliderSetting mode;
     private final SliderSetting theme;
-    Color color = new Color(255, 255, 255, 128);
+    public Color color;
 
     public TargetESP() {
         super("TargetESP", category.render);
-        this.registerSetting(new DescriptionSetting("Normal color"));
-        this.registerSetting(normalRed = new SliderSetting("Normal red", 100, 0, 255, 1));
-        this.registerSetting(normalGreen = new SliderSetting("Normal green", 100, 0, 255, 1));
-        this.registerSetting(normalBlue = new SliderSetting("Normal blue", 190, 0, 255, 1));
-        this.registerSetting(normalAlpha = new SliderSetting("Normal alpha", 100, 0, 255, 1));
-        this.registerSetting(new DescriptionSetting("Hit color"));
-        this.registerSetting(hitRed = new SliderSetting("Hit red", 255, 0, 255, 1));
-        this.registerSetting(hitGreen = new SliderSetting("Hit green", 0, 0, 255, 1));
-        this.registerSetting(hitBlue = new SliderSetting("Hit blue", 0, 0, 255, 1));
-        this.registerSetting(hitAlpha = new SliderSetting("Hit alpha", 100, 0, 255, 1));
         this.registerSetting(theme = new SliderSetting("Theme", Theme.themes, 0));
         this.registerSetting(mode = new SliderSetting("Mode", modes, 0));
-    }
-
-    @Override
-    public void onUpdate() {
-        color = new Color((int) normalRed.getInput(), (int) normalGreen.getInput(), (int) normalBlue.getInput(), (int) normalAlpha.getInput());
+        this.registerSetting(alpha = new SliderSetting("Alpha", 200, 0, 255, 5));
     }
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
         if (KillAura.target == null) return;
+
+        color = RenderUtils.toColor(RenderUtils.toArgb(RenderUtils.toRgbColor(Theme.getGradient(theme.getInput(), 0.0)), alpha.getInput()));
         switch ((int) mode.getInput()) {
             case 0:
                 renderSigma(KillAura.target);
@@ -65,6 +44,10 @@ public class TargetESP extends Module {
                 break;
             case 2:
                 renderRaven(KillAura.target);
+                break;
+            case 3:
+                renderVape(KillAura.target);
+                renderSigma(KillAura.target);
                 break;
             default:
                 Utils.sendDebugMessage("Invalid mode: " + mode.getInput());
@@ -174,18 +157,10 @@ public class TargetESP extends Module {
             double z2 = z + Math.cos((segments - 5) * Math.PI / 180F) * radius;
 
             GL11.glBegin(GL11.GL_QUADS);
-            if (target.hurtTime > 0) {
-                GL11.glColor4f((float) (hitRed.getInput() / 255f), (float) (hitGreen.getInput() / 255f), (float) (hitBlue.getInput() / 255f), (float) (hitAlpha.getInput() / 255f));
-            } else {
-                GL11.glColor4f((float) (normalRed.getInput() / 255f), (float) (normalGreen.getInput() / 255f), (float) (normalBlue.getInput() / 255f), (float) (normalAlpha.getInput() / 255f));
-            }
+            GL11.glColor4f((float) (color.getRed() / 255f), (float) (color.getGreen() / 255f), (float) (color.getBlue() / 255f), (float) (alpha.getInput() / 255f));
             GL11.glVertex3d(x1, y, z1);
             GL11.glVertex3d(x2, y, z2);
-            if (target.hurtTime > 0) {
-                GL11.glColor4f((float) (hitRed.getInput() / 255f), (float) (hitGreen.getInput() / 255f), (float) (hitBlue.getInput() / 255f), 0);
-            } else {
-                GL11.glColor4f((float) (normalRed.getInput() / 255f), (float) (normalGreen.getInput() / 255f), (float) (normalBlue.getInput() / 255f), 0);
-            }
+            GL11.glColor4f((float) (color.getRed() / 255f), (float) (color.getGreen() / 255f), (float) (color.getBlue() / 255f), 0);
             GL11.glVertex3d(x2, y + eased, z2);
             GL11.glVertex3d(x1, y + eased, z1);
             GL11.glEnd();

@@ -367,7 +367,7 @@ public class TargetHUD extends Module {
 
                 BlurUtils.prepareBlur();
                 RoundedUtils.drawRound((float) x5, (float) y5, width, height, 4.0f, true, Color.black);
-                BlurUtils.blurEnd(2, 1.5F);
+                BlurUtils.blurEnd(2, 1.75F);
                 RenderUtils.drawRoundedRectangle((float) x5, (float) y5, (float) x5 + width, (float) y5 + height, 4, 0x66161616);
 
                 int playerHeadSize2 = 23;
