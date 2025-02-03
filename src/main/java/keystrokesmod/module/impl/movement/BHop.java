@@ -114,14 +114,14 @@ public class BHop extends Module {
                 if (MoveUtil.isMoving()) {
                     Utils.getTimer().timerSpeed = 1.021F;
                     if (mc.thePlayer.onGround) {
-                        MoveUtil.strafe(MoveUtil.getAllowedHorizontalDistance() + 0.0035, mc.thePlayer);
+                        MoveUtil.strafe(MoveUtil.getAllowedHorizontalDistance() + 0.003, mc.thePlayer);
                         if (!Utils.jumpDown())
                             mc.thePlayer.jump();
                     } else {
                         MoveUtil.strafea();
                     }
                     if (offGroundTicks == 4 || offGroundTicks == 7) {
-                        mc.thePlayer.motionY *= 1.02F;
+                        mc.thePlayer.motionY *= 1.005F;
                      }
                     }
                 hopping = true;

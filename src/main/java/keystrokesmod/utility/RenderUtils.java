@@ -1276,8 +1276,6 @@ public class RenderUtils {
         return current;
     }
 
-
-
     public static void drawPlayerHead(int x, int y, int size, EntityLivingBase player) {
         NetworkPlayerInfo playerInfo = mc.getNetHandler().getPlayerInfo(player.getUniqueID());
         if (playerInfo != null) {

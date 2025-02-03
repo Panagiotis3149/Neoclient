@@ -376,7 +376,7 @@ public class TargetHUD extends Module {
                 RenderUtils.drawPlayerHead(playerHeadX2, playerHeadY2, playerHeadSize2, target);
 
 
-                float healthBarW = (width + 21) * (target.getHealth() / target.getMaxHealth());
+                float healthBarW = (width + 20) * (target.getHealth() / target.getMaxHealth());
                 float healthBarH = 6;
                 int hbx = (int) (x5 + 4);
                 int hby = (int) (y5 + height - 10);

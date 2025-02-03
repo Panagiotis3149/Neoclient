@@ -55,7 +55,8 @@ public class KillAura extends Module {
     private final ButtonSetting requireMouseDown;
     private final ButtonSetting silentSwing;
     private final ButtonSetting weaponOnly;
-    private final String[] autoBlockModes = new String[]{"Manual", "Vanilla", "Post", "Swap", "Interact A", "Interact B", "Fake", "Partial"};
+    private final ButtonSetting badPacketsCheck;
+    private final String[] autoBlockModes = new String[]{"Manual", "Vanilla", "Post", "Swap", "Interact A", "Interact B", "Fake", "Partial", "Test"};
     private final String[] rotationModes = new String[]{"None", "Silent", "Lock view"};
     private final String[] sortModes = new String[]{"Health", "Hurttime", "Distance", "Yaw"};
     private List<EntityLivingBase> availableTargets = new ArrayList<>();
@@ -111,6 +112,7 @@ public class KillAura extends Module {
         this.registerSetting(requireMouseDown = new ButtonSetting("Require mouse down", false));
         this.registerSetting(silentSwing = new ButtonSetting("Silent swing while blocking", false));
         this.registerSetting(weaponOnly = new ButtonSetting("Weapon only", false));
+        this.registerSetting(badPacketsCheck = new ButtonSetting("BadPacketsCheck", true));
     }
 
     public void onEnable() {
@@ -172,7 +174,7 @@ public class KillAura extends Module {
                 mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());
             }
         }
-        if (block.get() && (autoBlockMode.getInput() == 3 || autoBlockMode.getInput() == 4 || autoBlockMode.getInput() == 5) && Utils.holdingSword()) {
+        if (block.get() && (autoBlockMode.getInput() == 3 || autoBlockMode.getInput() == 4 || autoBlockMode.getInput() == 5 || autoBlockMode.getInput() == 8)  && Utils.holdingSword()) {
             setBlockState(block.get(), false, false);
             if (ModuleManager.bedAura.stopAutoblock) {
                 resetBlinkState(false);
@@ -216,6 +218,12 @@ public class KillAura extends Module {
                             lag = true;
                         }
                         break;
+                    case 9:
+                        if (lag) {
+                            blinking = true;
+                            unBlock();
+                            lag = false;
+                        }
                 }
                 return;
             }
@@ -264,7 +272,7 @@ public class KillAura extends Module {
 
             float[] controlPoint2 = {(rotations[0] + prevRotations[0]) / 2, (rotations[1] + prevRotations[1]) / 2};
 
-            float t = (float) Math.min(1.0f, 0.01 / 100.0f);
+            float t = (float) Math.min(1.0f, 0.15 / 100.0f);
             float bezierX = (1 - t) * (1 - t) * controlPoint1[0] + 2 * (1 - t) * t * controlPoint2[0] + t * t * rotations[0];
             float bezierY = (1 - t) * (1 - t) * controlPoint1[1] + 2 * (1 - t) * t * controlPoint2[1] + t * t * rotations[1];
 
@@ -334,7 +342,31 @@ public class KillAura extends Module {
         }
         blinkedPackets.add(e.getPacket());
         e.setCanceled(true);
+
+
+        // Basically a badpackets check
+        if (badPacketsCheck.isToggled()) {
+            AtomicBoolean isAttacking = new AtomicBoolean(false);
+            if (e.getPacket() instanceof C0BPacketEntityAction) {
+                C0BPacketEntityAction blockPacket = (C0BPacketEntityAction) e.getPacket();
+                if (blockPacket.getAction() == C0BPacketEntityAction.Action.START_SNEAKING && isAttacking.get()) {
+                    e.cancelEvent();
+                }
+            }
+            if (e.getPacket() instanceof C02PacketUseEntity) {
+                isAttacking.set(true);
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ewwor) {
+                        ewwor.printStackTrace();
+                    }
+                    isAttacking.set(false);
+                }).start();
+            }
+        }
     }
+
 
     @SubscribeEvent
     public void onMouse(final MouseEvent mouseEvent) {
@@ -357,6 +389,7 @@ public class KillAura extends Module {
                 }
                 mouseEvent.setCanceled(true);
             }
+
         }
     }
 
@@ -421,6 +454,9 @@ public class KillAura extends Module {
                 KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), down);
                 Reflection.setButton(1, down);
                 blocking = down;
+            case 8: // test
+                setBlockState(block.get(), false, false);
+                break;
         }
     }
 
