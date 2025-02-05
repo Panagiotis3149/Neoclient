@@ -98,7 +98,7 @@ public class Scaffold extends Module {
         this.registerSetting(precision = new SliderSetting("Precision", precisionModes, 4));
         this.registerSetting(multiPlace = new SliderSetting("Multi-place", multiPlaceModes, 0));
         this.registerSetting(theme = new SliderSetting("Theme (For Highlight)", Theme.themes, 0));
-        this.registerSetting(autoSwap = new ButtonSetting("Auto Swap", false)); // Causes NullPointerException if set to true. - 17/08/24 - UPDATE: 14/10/24 - I (was) working on fixing this (EDITED) -
+        this.registerSetting(autoSwap = new ButtonSetting("Auto Swap", false)); // Fixed (05/02/25)
         this.registerSetting(delayOnJump = new ButtonSetting("Delay on jump", true));
         this.registerSetting(fastOnRMB = new ButtonSetting("Fast on RMB", false));
         this.registerSetting(highlightBlocks = new ButtonSetting("Highlight blocks", true));
@@ -128,6 +128,12 @@ public class Scaffold extends Module {
         placedUp = false;
         blockSlot = -1;
         blocksPlaced = 0;
+        if (autoSwap.isToggled()) {
+            if (lastSlot != -1) {
+                mc.thePlayer.inventory.currentItem = lastSlot;
+                lastSlot = -1;
+            }
+        }
     }
 
     @SubscribeEvent
@@ -181,6 +187,20 @@ public class Scaffold extends Module {
         if (fastScaffold.getInput() == 7) {
             Utils.verusTestSelfDamage();
         }
+        if (autoSwap.isToggled()) {
+            ItemStack heldItem = mc.thePlayer.getHeldItem();
+            if (heldItem != null && !(heldItem.getItem() instanceof ItemBlock)) {
+                lastSlot = mc.thePlayer.inventory.currentItem;
+            }
+            for (int i = 0; i < 9; ++i) {
+                ItemStack itemStack = mc.thePlayer.inventory.mainInventory[i];
+                if (itemStack != null && itemStack.getItem() instanceof ItemBlock && itemStack.stackSize > (blockSlot == -1 ? -1 : mc.thePlayer.inventory.mainInventory[blockSlot].stackSize)) {
+                    mc.thePlayer.inventory.currentItem = i;
+                    blockSlot = i;
+                }
+            }
+        }
+
     }
 
     @SubscribeEvent
@@ -227,11 +247,10 @@ public class Scaffold extends Module {
             return;
         }
         final ItemStack heldItem = mc.thePlayer.getHeldItem();
-        if (!autoSwap.isToggled() || getSlot() == -1) {
-            if (heldItem == null || !(heldItem.getItem() instanceof ItemBlock)) {
-                return;
-            }
+        if (!autoSwap.isToggled() || getSlot() == -1 || !(heldItem != null && heldItem.getItem() instanceof ItemBlock)) {
+            return;
         }
+
 
         if (keepYPosition() && !down) {
             startPos = Math.floor(mc.thePlayer.posY);
@@ -300,27 +319,32 @@ public class Scaffold extends Module {
         }
 
         if (this.autoSwap.isToggled()) {
-            int slot = getSlot();
-            if (slot == -1) {
-                return;
+            int slot = -1;
+            int highestStack = -1;
+
+            for (int i = 0; i < 9; ++i) {
+                final ItemStack itemStack = mc.thePlayer.inventory.mainInventory[i];
+                if (itemStack != null && itemStack.getItem() instanceof ItemBlock && itemStack.stackSize > 0) {
+                    if (mc.thePlayer.inventory.mainInventory[i].stackSize > highestStack) { // swapToGreaterStack = true
+                        highestStack = mc.thePlayer.inventory.mainInventory[i].stackSize;
+                        slot = i;
+                    }
+                }
             }
-            if (blockSlot == -1) {
-                blockSlot = slot;
-            }
-            if (lastSlot == -1) {
-                lastSlot = mc.thePlayer.inventory.currentItem;
-            }
-            if (ModuleManager.autoSwap != null && ModuleManager.autoSwap.swapToGreaterStack != null) {
-                mc.thePlayer.inventory.currentItem = ModuleManager.autoSwap.swapToGreaterStack.isToggled() ? slot : blockSlot;
-            } else {
-                throw new NullPointerException("One of the required objects is null.");
-            }
+
+            if (slot == -1) return;
+            if (blockSlot == -1) blockSlot = slot;
+            if (lastSlot == -1) lastSlot = mc.thePlayer.inventory.currentItem;
+
+            mc.thePlayer.inventory.currentItem = slot;
 
             if (heldItem == null || !(heldItem.getItem() instanceof ItemBlock) || !Utils.canBePlaced((ItemBlock) heldItem.getItem())) {
                 blockSlot = -1;
-                return;
             }
         }
+
+
+
         MovingObjectPosition rayCasted = null;
         float searchYaw = 35;
         switch ((int) precision.getInput()) {
@@ -444,7 +468,7 @@ public class Scaffold extends Module {
             BlurUtils.prepareBlur();
             RoundedUtils.drawRound((float) ((double) scaledResolution.getScaledWidth() / 2 - ((double) width / 2)), (float) ((double) scaledResolution.getScaledHeight() / 2 + 130), (float) width, 36, 6, true, Color.black);
             BlurUtils.blurEnd(2, 1F);
-            RenderUtils.renderItemIcon((double) scaledResolution.getScaledWidth() / 2 - 8, (double) scaledResolution.getScaledHeight() / 2 + 130, mc.thePlayer.getHeldItem());
+            RenderUtils.renderItemIcon((double) scaledResolution.getScaledWidth() / 2 - 8, (double) scaledResolution.getScaledHeight() / 2 + 132, mc.thePlayer.getHeldItem());
             font.drawString(color + blocks, (double) scaledResolution.getScaledWidth() / 2 - (font.getStringWidth(color + blocks) / 2), (double) scaledResolution.getScaledHeight() / 2 + 130 + 26, -1, false);
         }
     }
