@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import static keystrokesmod.utility.RenderUtils.drawRoundedGradientRect;
+import static keystrokesmod.utility.Theme.getColors;
 
 public class SliderComponent extends Component {
     private SliderSetting sliderSetting;
@@ -46,55 +47,9 @@ public class SliderComponent extends Component {
                 0xE5141414
         );
 
-        // Get the selected theme as a double
-        double selectedTheme = Gui.theme.getInput();
-        Color firstGradient = null;
-        Color secondGradient = null;
-
-        // Determine the gradient colors based on the selected theme
-        if (selectedTheme == 0.0) { // Rainbow
-            firstGradient = null;
-            secondGradient = null;
-        } else if (selectedTheme == 1.0) { // Cherry
-            firstGradient = new Color(255, 200, 200);
-            secondGradient = new Color(243, 58, 106);
-        } else if (selectedTheme == 2.0) { // Cotton Candy
-            firstGradient = new Color(99, 249, 255);
-            secondGradient = new Color(255, 104, 204);
-        } else if (selectedTheme == 3.0) { // Flare
-            firstGradient = new Color(231, 39, 24);
-            secondGradient = new Color(245, 173, 49);
-        } else if (selectedTheme == 4.0) { // Flower
-            firstGradient = new Color(215, 166, 231);
-            secondGradient = new Color(211, 90, 232);
-        } else if (selectedTheme == 5.0) { // Gold
-            firstGradient = new Color(255, 215, 0);
-            secondGradient = new Color(240, 159, 0);
-        } else if (selectedTheme == 6.0) { // Grayscale
-            firstGradient = new Color(240, 240, 240);
-            secondGradient = new Color(110, 110, 110);
-        } else if (selectedTheme == 7.0) { // Royal
-            firstGradient = new Color(125, 204, 241);
-            secondGradient = new Color(30, 71, 170);
-        } else if (selectedTheme == 8.0) { // Sky
-            firstGradient = new Color(160, 230, 225);
-            secondGradient = new Color(15, 190, 220);
-        } else if (selectedTheme == 9.0) { // Vine
-            firstGradient = new Color(17, 192, 45);
-            secondGradient = new Color(201, 234, 198);
-        } else if (selectedTheme == 10.0) { // Steelvoid
-            firstGradient = new Color(55, 73, 98);
-            secondGradient = new Color(125, 170, 223);
-        } else if (selectedTheme == 11) { // Mist
-            firstGradient = new Color(94, 228, 154);
-            secondGradient = new Color(40, 139, 207);
-        }
-
-        // Get the RGB values in RGBA Java Hex format
-        int firstColor = firstGradient != null ? 0xFF000000 | firstGradient.getRGB() : Utils.getChroma(2, 0);
-        int secondColor = secondGradient != null ? 0xFF000000 | secondGradient.getRGB() : Utils.getChroma(2, 0);
-
-
+        int[] colors = getColors((int) Gui.theme.getInput());
+        int firstColor = colors[0];
+        int secondColor = colors[1];
 
         int l = this.moduleComponent.categoryComponent.getX() + 4;
         int r = this.moduleComponent.categoryComponent.getX() + 4 + (int) this.w;
