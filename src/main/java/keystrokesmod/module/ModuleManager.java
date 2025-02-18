@@ -216,6 +216,9 @@ public class ModuleManager {
             case 3:
                 fontRenderer = null;
                 break;
+            case 4:
+                fontRenderer = null;
+                break;
             default:
                 fontRenderer = FontManager.helveticaNeue;
                 break;

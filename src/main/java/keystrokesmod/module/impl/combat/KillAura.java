@@ -272,7 +272,7 @@ public class KillAura extends Module {
 
             float[] controlPoint2 = {(rotations[0] + prevRotations[0]) / 2, (rotations[1] + prevRotations[1]) / 2};
 
-            float t = (float) Math.min(1.0f, 0.15 / 100.0f);
+            float t = (float) Math.min(1.0f, 0.01 / 100.0f);
             float bezierX = (1 - t) * (1 - t) * controlPoint1[0] + 2 * (1 - t) * t * controlPoint2[0] + t * t * rotations[0];
             float bezierY = (1 - t) * (1 - t) * controlPoint1[1] + 2 * (1 - t) * t * controlPoint2[1] + t * t * rotations[1];
 
@@ -614,26 +614,25 @@ public class KillAura extends Module {
     private boolean canAttack() {
         if (this.j > 0L && this.i > 0L) {
             if (System.currentTimeMillis() > this.j) {
-                this.gd();
+                this.cookie();
                 return true;
             } else if (System.currentTimeMillis() > this.i) {
                 return false;
             }
         } else {
-            this.gd();
+            this.cookie();
         }
         return false;
     }
 
-
     private long outlierStartTime;
     private boolean isOutlierActive;
     private long outlierDuration;
-    private double previousCps; // For smoothing
+    private double previousCps;
     private List<Double> lastCpsValues = new ArrayList<>();
     private static final int HISTORY_SIZE = 32;
 
-    public void gd() {
+    public void cookie() { // Geometry Dash!
         double apsValue = aps.getInput();
         double minCps = Math.max(1, apsValue - 2);
         double maxCps = apsValue + 1;

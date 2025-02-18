@@ -120,11 +120,11 @@ public class AutoClicker extends Module {
                     this.j = 0L;
                 } else if (this.i != 0L && this.j != 0L) {
                     if (System.currentTimeMillis() > this.j) {
-                        this.gd();
+                        this.cookie();
                         this.inventoryClick(mc.currentScreen);
                     }
                 } else {
-                    this.gd();
+                    this.cookie();
                 }
             }
 
@@ -185,7 +185,7 @@ public class AutoClicker extends Module {
                     KeyBinding.onTick(getKeyCode);
                     Reflection.setButton(1, true);
                 }
-                this.gd();
+                this.cookie();
             } else if (System.currentTimeMillis() > this.i) {
                 KeyBinding.setKeyBindState(key, false);
                 Reflection.setButton(mouse, false);
@@ -195,12 +195,12 @@ public class AutoClicker extends Module {
                 }
             }
         } else {
-            this.gd();
+            this.cookie();
         }
 
     }
 
-    public void gd() {
+    public void cookie() {
         double c = Utils.getRandomValue(minCPS, maxCPS, this.rand) + 0.4D * this.rand.nextDouble();
         long d = (long) ((int) Math.round(1000.0D / c));
         if (System.currentTimeMillis() > this.k) {

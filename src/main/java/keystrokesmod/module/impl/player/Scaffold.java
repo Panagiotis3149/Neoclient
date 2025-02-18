@@ -192,14 +192,29 @@ public class Scaffold extends Module {
             if (heldItem != null && !(heldItem.getItem() instanceof ItemBlock)) {
                 lastSlot = mc.thePlayer.inventory.currentItem;
             }
+
+            int bestSlot = -1;
+            int maxStackSize = -1;
+
             for (int i = 0; i < 9; ++i) {
                 ItemStack itemStack = mc.thePlayer.inventory.mainInventory[i];
-                if (itemStack != null && itemStack.getItem() instanceof ItemBlock && itemStack.stackSize > (blockSlot == -1 ? -1 : mc.thePlayer.inventory.mainInventory[blockSlot].stackSize)) {
-                    mc.thePlayer.inventory.currentItem = i;
-                    blockSlot = i;
+                if (itemStack != null && itemStack.getItem() instanceof ItemBlock) {
+                    int stackSize = itemStack.stackSize;
+                    if (stackSize > maxStackSize) {
+                        bestSlot = i;
+                        maxStackSize = stackSize;
+                    }
                 }
             }
+
+            if (bestSlot != -1) {
+                mc.thePlayer.inventory.currentItem = bestSlot;
+                blockSlot = bestSlot;
+            } else {
+                blockSlot = -1;
+            }
         }
+
 
     }
 

@@ -9,6 +9,8 @@ import keystrokesmod.utility.RenderUtils;
 import keystrokesmod.utility.Theme;
 import keystrokesmod.utility.Utils;
 import keystrokesmod.utility.font.FontManager;
+import keystrokesmod.utility.shader.BlurUtils;
+import keystrokesmod.utility.shader.RoundedUtils;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -34,16 +36,14 @@ public class HUD extends Module {
     public static int hudY = 70;
     private boolean isAlphabeticalSort;
     private boolean canShowInfo;
-    public String[] modes = new String[]{"1", "2", "3", "4"};
+    public String[] modes = new String[]{"1", "2", "3", "4", "5"};
 
     public HUD() {
         super("HUD", Module.category.render);
         this.registerSetting(new DescriptionSetting("Right click bind to hide modules."));
         this.registerSetting(Mode = new SliderSetting("Mode", modes, 0));
         this.registerSetting(theme = new SliderSetting("Theme", Theme.themes, 0));
-        this.registerSetting(new ButtonSetting("Edit position", () -> {
-            mc.displayGuiScreen(new EditScreen());
-        }));
+        this.registerSetting(new ButtonSetting("Edit position", () -> mc.displayGuiScreen(new EditScreen())));
         this.registerSetting(alignRight = new ButtonSetting("Align right", true));
         this.registerSetting(alphabeticalSort = new ButtonSetting("Alphabetical sort", false));
         this.registerSetting(dropShadow = new ButtonSetting("Drop shadow", false));
@@ -51,13 +51,6 @@ public class HUD extends Module {
         this.registerSetting(showInfo = new ButtonSetting("Show module info", false));
     }
 
-    private Color averageColors(Color color1, Color color2) {
-        int r = (color1.getRed() + color2.getRed()) / 2;
-        int g = (color1.getGreen() + color2.getGreen()) / 2;
-        int b = (color1.getBlue() + color2.getBlue()) / 2;
-        int a = (color1.getAlpha() + color2.getAlpha()) / 2;
-        return new Color(r, g, b, a);
-    }
 
     @SubscribeEvent
     public void onRenderTick(RenderTickEvent ev) {
@@ -99,10 +92,13 @@ public class HUD extends Module {
                                     if (alignRight.isToggled()) {
                                         n3 -= width - 46;
                                     }
-                                        RenderUtils.drawRect(n3 - 1, n - 1, n3 + width, n + Math.round(font.height() + 1), new Color(0, 0, 0, 124).getRGB());
+                                        RenderUtils.drawRect(n3 - 3, n - 1, n3 + (width + 2), n + Math.round(font.height() + 1), RenderUtils.toArgb(e, 44));
+                                        BlurUtils.prepareBlur();
+                                        RoundedUtils.drawRound((float) (n3 - 3), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
+                                        BlurUtils.blurEnd(2, 0.75F);
                                         RenderUtils.drawRect(alignRight.isToggled() ? n3 + width : n3 - 2, n - 1, alignRight.isToggled() ? n3 + width + 1 : n3 - 1, n + Math.round(font.height() + 1), e);
                                     font.drawString(text, n3, n, e, dropShadow.isToggled());
-                                    n += font.height() + 2.5;
+                                    n += (int) (font.height() + 2.5);
                                 }
                             }
                         }
@@ -130,7 +126,7 @@ public class HUD extends Module {
                                     }
                                     RenderUtils.drawRect(alignRight.isToggled() ? n4 + width : n4 - 2, n - 1, alignRight.isToggled() ? n4 + width + 1 : n4 - 1, n + Math.round(font1.height() + 1), e);
                                     font1.drawString(text, n4, n, e, dropShadow.isToggled());
-                                    n += font1.height() + 2;
+                                    n += (int) (font1.height() + 2);
                                 }
                             }
                         }
@@ -158,7 +154,7 @@ public class HUD extends Module {
                                     }
                                     RenderUtils.drawRect(alignRight.isToggled() ? n4 + width : n4 - 2, n - 1, alignRight.isToggled() ? n4 + width + 1 : n4 - 1, n + Math.round(font.height() + 1), e);
                                     font.drawString(text, n4, n, e, dropShadow.isToggled());
-                                    n += font.height() + 1;
+                                    n += (int) (font.height() + 1);
                                 }
                             }
                         }
@@ -187,7 +183,39 @@ public class HUD extends Module {
                                     RenderUtils.drawRect(n4 - 1, n - 1, n4 + width, n + Math.round(font.height() + 1), new Color(0, 0, 0, 124).getRGB());
                                     RenderUtils.drawRect(alignRight.isToggled() ? n4 + width : n4 - 2, n - 1, alignRight.isToggled() ? n4 + width + 1 : n4 - 1, n + Math.round(font.height() + 1), e);
                                     font.drawString(text, n4, n, e, dropShadow.isToggled());
-                                    n += font.height() + 1;
+                                    n += (int) (font.height() + 1);
+                                }
+                            }
+                        }
+                        break;
+                    case 4:
+                        for (Module module : ModuleManager.organizedModules) {
+                            if (module.isEnabled() && module != this) {
+                                if (module.isHidden() || module == ModuleManager.commandLine) continue;
+                                String moduleName = module.getName();
+                                MinecraftFontRenderer font = MinecraftFontRenderer.INSTANCE;
+                                {
+                                    String text = moduleName;
+                                    if (lowercase.isToggled()) { text = moduleName.toLowerCase(); }
+                                    if (!lowercase.isToggled()) { text = moduleName; }
+                                    int ec = Theme.getGradient((int) theme.getInput(), n2);
+                                    if (theme.getInput() == 0) {
+                                        n2 -= 120;
+                                    } else {
+                                        n2 -= 12;
+                                    }
+                                    double n4 = hudX;
+                                    double width = font.width(text);
+                                    if (alignRight.isToggled()) {
+                                        n4 -= width - 46;
+                                    }
+                                    RenderUtils.drawRect(n4 - 1, n - 1, n4 + width, n + Math.round(font.height() + 1), RenderUtils.toArgb(ec, 22));
+                                    BlurUtils.prepareBlur();
+                                    RoundedUtils.drawRound((float) (n4 - 1), (float) (n - 1), (float) width, (float) Math.round(font.height() + 1), 0, true, Color.black);
+                                    BlurUtils.blurEnd(2, 0.5F);
+                                    RenderUtils.drawRect(alignRight.isToggled() ? n4 + width : n4 - 2, n - 1, alignRight.isToggled() ? n4 + width + 1 : n4 - 1, n + Math.round(font.height() + 1), ec);
+                                    font.drawString(text, n4, n, ec, dropShadow.isToggled());
+                                    n += (int) (font.height() + 1);
                                 }
                             }
                         }

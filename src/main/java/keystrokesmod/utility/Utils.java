@@ -685,8 +685,8 @@ public class Utils {
 
     public static void ss(double s, boolean m) {
         if (!m || isMoving()) {
-            mc.thePlayer.motionX = -Math.sin(gd()) * s;
-            mc.thePlayer.motionZ = Math.cos(gd()) * s;
+            mc.thePlayer.motionX = -Math.sin(cookie()) * s;
+            mc.thePlayer.motionZ = Math.cos(cookie()) * s;
         }
     }
 
@@ -698,7 +698,7 @@ public class Utils {
         return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
     }
 
-    public static float gd() {
+    public static float cookie() {
         float yw = mc.thePlayer.rotationYaw;
         if (mc.thePlayer.moveForward < 0.0F) {
             yw += 180.0F;

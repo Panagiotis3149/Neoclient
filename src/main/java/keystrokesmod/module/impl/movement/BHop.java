@@ -5,6 +5,7 @@ import keystrokesmod.module.Module;
 import keystrokesmod.module.impl.movement.funcs.KarhuSpeed;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
+import keystrokesmod.utility.Move;
 import keystrokesmod.utility.MoveUtil;
 import keystrokesmod.utility.Utils;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
@@ -23,7 +24,7 @@ public class BHop extends Module {
     private ButtonSetting liquidDisable;
     private ButtonSetting sneakDisable;
     private ButtonSetting stopMotion;
-    private String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "Miniblox", "Karhu"};
+    private String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "Miniblox", "Karhu", "VanillaX"};
     public boolean hopping;
     private int ticks = 0;
     private int ticksl = 0;
@@ -205,6 +206,18 @@ public class BHop extends Module {
                 break;
             case 9:
                 KarhuSpeed.KarhuSpeed();
+                break;
+            case 10:
+                Utils.resetTimer();
+                float xd = 2.47f;
+                if (!MoveUtil.isMoving()) return;
+                if (Utils.isMoving() && mc.thePlayer.onGround && autoJump.isToggled()) {
+                    MoveUtil.jump(0.46f);
+                }
+                if (Utils.getHorizontalSpeed() <= xd) {
+                    Utils.setSpeed(Utils.getHorizontalSpeed() + 0.083);
+                }
+                Utils.getTimer().timerSpeed = 1.06f;
                 break;
         }
     }
