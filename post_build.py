@@ -11,7 +11,7 @@ destination_dir = '' # Put your mods folder here.
 
 
 
-# Delete existing .jar files in the mods folder -- Only if you arent using any other mods
+# Delete existing .jar files in the mods folder -- Only if you arent using any other mods.
 for file_name in os.listdir(destination_dir):
     if file_name.endswith('.jar'):
         full_file_name = os.path.join(destination_dir, file_name)
