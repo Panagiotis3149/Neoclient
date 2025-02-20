@@ -120,6 +120,8 @@ jar {
     }
 }
 
+
+// Comment this out if you dont have a post build script
 task runPostBuildScript(type: Exec) {
     commandLine 'python', 'post_build.py'
 }
