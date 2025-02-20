@@ -37,5 +37,8 @@ build/
 # Deobf
 remapped deobf/
 
+# to not be retarded
+*.py
+
 # Minecraft folder
 run/
