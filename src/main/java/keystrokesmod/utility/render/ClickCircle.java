@@ -1,9 +1,7 @@
 package keystrokesmod.utility.render;
 
-import keystrokesmod.module.impl.client.Gui;
 import keystrokesmod.utility.Container;
 import keystrokesmod.utility.RenderUtils;
-import keystrokesmod.utility.Theme;
 import net.minecraft.util.MathHelper;
 import java.awt.*;
 
@@ -16,8 +14,8 @@ public class ClickCircle extends Container<ClickCircle.Circle> {
         this.getItems().forEach(Circle::render);
     }
 
-    public void addCircle(double x, double y, double startRadius, double maxRadius, double speed, Color color) {
-        this.getItems().add(new Circle(x, y, startRadius, maxRadius, speed, color));
+    public void addCircle(double x, double y, double startRadius, double maxRadius, Color color) {
+        this.getItems().add(new Circle(x, y, startRadius, maxRadius, color));
     }
 
     public static class Circle {
@@ -31,12 +29,13 @@ public class ClickCircle extends Container<ClickCircle.Circle> {
         private double radius;
         private int alpha = 255;
 
-        public Circle(double x, double y, double startRadius, double maxRadius, double speed, Color color) {
+        public Circle(double x, double y, double startRadius, double maxRadius, Color color) {
             this.x = x;
             this.y = y;
             this.startRadius = startRadius;
             this.maxRadius = maxRadius;
-            this.speed = speed;
+            double calculatedSpeed = (maxRadius - startRadius) / 34.0;
+            this.speed = calculatedSpeed * RenderUtils.fpsMultiplier();
             this.color = color;
         }
 
@@ -48,13 +47,6 @@ public class ClickCircle extends Container<ClickCircle.Circle> {
             return y;
         }
 
-        public double getStartRadius() {
-            return startRadius;
-        }
-
-        public double getMaxRadius() {
-            return maxRadius;
-        }
 
         public double getSpeed() {
             return speed;
@@ -77,14 +69,14 @@ public class ClickCircle extends Container<ClickCircle.Circle> {
             this.radius = MathHelper.clamp_double(this.radius, this.startRadius, this.maxRadius);
 
             if (this.radius >= (this.maxRadius / 2)) {
-                this.alpha -= (25 * RenderUtils.fpsMultiplier());
+                this.alpha -= (int) (25 * RenderUtils.fpsMultiplier());
                 this.alpha = MathHelper.clamp_int(this.alpha, 0, 255);
             }
 
-            RenderUtils.drawCircleOutline(
-                    this.x - (this.radius / 2f), this.y - (this.radius / 2f),
-                    this.radius, this.radius, 3,
-                    new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue(), this.alpha)
+            RenderUtils.drawRoundedOutline(
+                    (float) ((float) this.x - (this.radius / 2f)), (float) (this.y - (this.radius / 2f)),
+                    (float) this.radius, (float) this.radius, (float) (radius / 2), 3f,
+                    RenderUtils.toARGBInt(new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue(), this.alpha))
             );
         }
     }

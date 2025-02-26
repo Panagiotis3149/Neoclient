@@ -9,6 +9,7 @@ import keystrokesmod.module.Module;
 import keystrokesmod.module.impl.client.CommandLine;
 import keystrokesmod.module.impl.client.Gui;
 import keystrokesmod.utility.Commands;
+import keystrokesmod.utility.RenderUtils;
 import keystrokesmod.utility.Theme;
 import keystrokesmod.utility.Timer;
 import keystrokesmod.utility.render.ClickCircle;
@@ -145,8 +146,8 @@ public class ClickGui extends GuiScreen {
         Iterator var4 = categories.iterator();
 
         int gradientColorInt = Theme.getGradient(Gui.theme.getInput(), 0.0);
-        Color gradientColor = new Color(gradientColorInt, false);
-        this.clickCircle.addCircle(x, y, 0, 20, 1.5, gradientColor);
+        Color gradientColor = RenderUtils.toRgbColor(gradientColorInt);
+        this.clickCircle.addCircle(x, y, 0, 20, gradientColor);
 
 
         while (true) {

@@ -880,7 +880,6 @@ public class RenderUtils {
     }
 
     public static void drawRoundedOutline(float startX, float startY, float endX, float endY, final float cornerRadius, final float outlineThickness, int color) {
-        // Extract ARGB components from the color
         float alpha = ((color >> 24) & 0xFF) / 255.0f;
         float red = ((color >> 16) & 0xFF) / 255.0f;
         float green = ((color >> 8) & 0xFF) / 255.0f;
@@ -953,13 +952,25 @@ public class RenderUtils {
         drawArcOutline(x + width / 2f, y + height / 2f, width / 2f, 0, 360f, lineWidth, color);
     }
 
+    private static long lastFrameTime = System.nanoTime();
 
-    private static float renderDeltaTime = 1000;
+    public static double getRenderDeltaTime() {
+        long currentTime = System.nanoTime();
+        long deltaTime = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
+
+        return deltaTime / 1_000_000.0;
+    }
 
 
     public static double fpsMultiplier() {
-        return renderDeltaTime / 60.0 * 3;
+        return (getRenderDeltaTime() / 16.6667) * 1.5;
     }
+
+    public static int toARGBInt(Color color) {
+        return (color.getAlpha() << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+    }
+
 
     public static void add(double x, double y, Color color) {
         GL11.glColor4f(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);

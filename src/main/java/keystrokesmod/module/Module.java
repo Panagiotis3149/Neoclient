@@ -164,6 +164,12 @@ public class Module {
         this.settings.add(Setting);
     }
 
+    public void registerSetting(Setting... settings) {
+        for (Setting setting : settings) {
+            this.settings.add(setting);
+        }
+    }
+
     public Module.category moduleCategory() {
         return this.moduleCategory;
     }

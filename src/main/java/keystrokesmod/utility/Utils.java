@@ -34,6 +34,8 @@ import net.minecraft.item.*;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.client.C03PacketPlayer.C05PacketPlayerLook;
+import net.minecraft.network.play.server.S08PacketPlayerPosLook;
+import net.minecraft.network.play.server.S21PacketChunkData;
 import net.minecraft.network.status.client.C00PacketServerQuery;
 import net.minecraft.network.status.client.C01PacketPing;
 import net.minecraft.potion.Potion;
@@ -836,6 +838,11 @@ public class Utils {
     public static int getChroma(long speed, long... delay) {
         long time = System.currentTimeMillis() + (delay.length > 0 ? delay[0] : 0L);
         return Color.getHSBColor((float) (time % (15000L / speed)) / (15000.0F / (float) speed), 1.0F, 1.0F).getRGB();
+    }
+
+    public static String cFL(String input) {
+        if (input == null || input.isEmpty()) return input;
+        return Character.toUpperCase(input.charAt(0)) + input.substring(1);
     }
 
     public static double rnd(double n, int d) {

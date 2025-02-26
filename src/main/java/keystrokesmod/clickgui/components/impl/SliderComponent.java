@@ -44,7 +44,7 @@ public class SliderComponent extends Component {
                 this.moduleComponent.categoryComponent.getY() + this.o + 11,
                 this.moduleComponent.categoryComponent.getX() + 4 + this.moduleComponent.categoryComponent.getWidth() - 8,
                 this.moduleComponent.categoryComponent.getY() + this.o + 15,
-                0xE5141414
+                0xFF202024
         );
 
         int[] colors = getColors((int) Gui.theme.getInput());
@@ -91,7 +91,7 @@ public class SliderComponent extends Component {
                 (float) ((this.moduleComponent.categoryComponent.getX() + 4) * 2.0F),
                 (float) ((this.moduleComponent.categoryComponent.getY() + this.o + 3) * 2.0F),
                 -1,
-                false // No drop shadow
+                false
         );
         GL11.glPopMatrix();
     }

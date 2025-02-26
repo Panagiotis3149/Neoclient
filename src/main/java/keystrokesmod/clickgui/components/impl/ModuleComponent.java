@@ -8,28 +8,18 @@ import keystrokesmod.module.setting.Setting;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.DescriptionSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
-import keystrokesmod.utility.RenderUtils;
-import keystrokesmod.utility.Theme;
-import keystrokesmod.utility.Utils;
 import keystrokesmod.utility.font.FontManager;
 import keystrokesmod.utility.font.impl.FontRenderer;
 import keystrokesmod.utility.profile.Manager;
-import keystrokesmod.utility.profile.ProfileModule;
-import net.minecraft.client.Minecraft;
+import keystrokesmod.utility.profile.ProfileModule;;
 import org.lwjgl.opengl.GL11;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-
-import static keystrokesmod.utility.RenderUtils.drawRect;
 import static keystrokesmod.utility.RenderUtils.drawRoundedGradientRect;
 import static keystrokesmod.utility.Theme.getColors;
 
 public class ModuleComponent extends Component {
-    private final int c2 = (new Color(154, 2, 255)).getRGB();
-    private final int hoverColor = (new Color(191, 221, 219, 255)).getRGB();
     private final int unsavedColor = new Color(114, 188, 250).getRGB();
     private final int invalidColor = new Color(255, 80, 80).getRGB();
     private final double enabledColor = (new Color(255, 255, 255, 255)).getRGB();
@@ -148,7 +138,7 @@ public class ModuleComponent extends Component {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         boolean isLastModule = this.categoryComponent.getModules().indexOf(this.mod) == this.categoryComponent.getModules().size() - 1;
-        int roundedness = isLastModule ? 12 : 1;
+        int roundedness = isLastModule ? 12 : 2;
 
         drawRoundedGradientRect(
                 this.categoryComponent.getX(),
@@ -156,21 +146,20 @@ public class ModuleComponent extends Component {
                 this.categoryComponent.getX() + this.categoryComponent.getWidth(),
                 this.categoryComponent.getY() + 16 + this.o,
                 roundedness,
-                this.mod.isEnabled() ? firstColor : 0xE5141414, // Gradient color if enabled, else solid color
-                this.mod.isEnabled() ? firstColor : 0xE5141414,
-                this.mod.isEnabled() ? secondColor : 0xE5141414, // Additional gradient color if enabled
-                this.mod.isEnabled() ? secondColor : 0xE5141414
+                this.mod.isEnabled() ? firstColor : 0xFF202024,
+                this.mod.isEnabled() ? firstColor : 0xFF202024,
+                this.mod.isEnabled() ? secondColor : 0xFF202024,
+                this.mod.isEnabled() ? secondColor : 0xFF202024
         );
 
-        // Draw module name with 5px left padding
         GL11.glPushMatrix();
         double button_rgb;
 
-        // Determine button color based on module state
+
         if (this.mod.isEnabled()) {
-            button_rgb = enabledColor; // Set a specific color for enabled state
+            button_rgb = enabledColor;
         } else {
-            button_rgb = disabledColor; // Set a specific color for disabled state
+            button_rgb = disabledColor;
         }
 
         if (this.mod.script != null && this.mod.script.error) {
@@ -197,8 +186,6 @@ public class ModuleComponent extends Component {
 
         GL11.glPopMatrix();
     }
-
-
 
 
     public int getHeight() {

@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static keystrokesmod.utility.Utils.cFL;
+
 
 public class CategoryComponent {
     public List<ModuleComponent> modules = new CopyOnWriteArrayList<>();
@@ -41,10 +43,6 @@ public class CategoryComponent {
     public ScaledResolution scale;
     private float big;
     private float bigSettings;
-    private final int translucentBackground = new Color(23, 23, 23, 200).getRGB();
-    private final int background = new Color(23, 23, 23, 200).getRGB();
-    private final int regularOutline = new Color(141, 96, 209, 230).getRGB();
-    private final int regularOutline2 = new Color(141, 96, 209, 230).getRGB();
     private final int categoryNameColor = new Color(220, 220, 220).getRGB();
     private float lastHeight;
     public int moduleY;
@@ -168,7 +166,7 @@ public class CategoryComponent {
         if (!this.modules.isEmpty() && this.opened) {
             for (ModuleComponent c : this.modules) {
                 settingsHeight += c.getHeight();
-                if (modulesHeight > this.screenHeight - 80) { // max category height
+                if (modulesHeight > this.screenHeight - 80) {
                     continue;
                 }
                 if (this.y + this.titleHeight + c.getHeight() + modulesHeight > this.y + this.titleHeight + (16 * this.modules.size())) {
@@ -185,7 +183,6 @@ public class CategoryComponent {
         float xPos = opened ? middlePos : this.x + 12;
         float extra = this.y + this.titleHeight + modulesHeight + 4;
 
-        // Handle smooth scrolling/timers
         if (smoothTimer != null && System.currentTimeMillis() - smoothTimer.last >= 400) {
             smoothTimer = null;
         }
@@ -199,22 +196,17 @@ public class CategoryComponent {
         }
         float namePos = textTimer == null ? xPos : textTimer.getValueFloat(this.x + 12, middlePos, 1);
         if (!this.opened) {
-            namePos = textTimer == null ? xPos : middlePos - textTimer.getValueFloat(0, (float) this.width / 2 - (float) Minecraft.getMinecraft().fontRendererObj.getStringWidth(this.categoryName.name()) / 2 - 12, 1);
+            namePos = textTimer == null ? xPos : middlePos - textTimer.getValueFloat(0, (float) this.width / 2 - (float) font.getStringWidth(cFL(this.categoryName.name())) / 2 - 12, 1);
         }
         lastHeight = extra;
 
-        // Draw category background
         GL11.glPushMatrix();
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
         RenderUtils.scissor(0, this.y - 2, this.x + this.width + 4, extra - this.y + 4);
 
-        RenderUtils.drawRoundedRectangle(this.x, this.y, this.x + this.width, extra, 12, 0xE5141414); // Background color
+        RenderUtils.drawRoundedRectangle(this.x, this.y, this.x + this.width, extra, 12, 0xFF202024);
 
-        // DONT Draw border
-        //drawRoundedOutline(this.x, this.y, this.x + this.width, extra, 12, 2, 0xFF000000); // Border
-
-        // Draw the category name
-        font.drawString(this.n4m ? this.pvp : this.categoryName.name(), this.x + 2, (float) (this.y + 4), categoryNameColor, false);
+        font.drawString(this.n4m ? this.pvp : cFL(this.categoryName.name()), this.x + 3, (float) (this.y + 4), categoryNameColor, false);
         
         RenderUtils.scissor(0, this.y + this.titleHeight + 3, this.x + this.width + 4, extra - this.y - 4 - this.titleHeight);
 
@@ -234,24 +226,6 @@ public class CategoryComponent {
     }
 
 
-    /*/
-    private ResourceLocation getCategoryImage() {
-        switch (this.categoryName.name().toLowerCase()) {
-            case "render": return new ResourceLocation("keystrokesmod", "textures/gui/visuals.png");
-            case "player": return new ResourceLocation("keystrokesmod", "textures/gui/player.png");
-            case "movement": return new ResourceLocation("keystrokesmod", "textures/gui/movement.png");
-            case "profiles": return new ResourceLocation("keystrokesmod", "textures/gui/settings.png");
-            case "combat": return new ResourceLocation("keystrokesmod", "textures/gui/combat.png");
-            case "client": return new ResourceLocation("keystrokesmod", "textures/gui/settings.png");
-            case "fun": return new ResourceLocation("keystrokesmod", "textures/gui/fun.png");
-            case "minigames": return new ResourceLocation("keystrokesmod", "textures/gui/other.png");
-            case "other": return new ResourceLocation("keystrokesmod", "textures/gui/other.png");
-            case "world": return new ResourceLocation("keystrokesmod", "textures/gui/world.png");
-            case "scripts": return new ResourceLocation("keystrokesmod", "textures/gui/script.png");
-            default: return new ResourceLocation("keystrokesmod", "textures/gui/Logo.png"); // Fallback image
-        }
-
-     */
 
     public void render() {
         int o = this.titleHeight + 3;
