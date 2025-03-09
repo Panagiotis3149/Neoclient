@@ -15,6 +15,8 @@ import keystrokesmod.utility.profile.Profile;
 import keystrokesmod.utility.profile.ProfileManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.resources.IResource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.lwjgl.LWJGLException;
@@ -29,7 +31,10 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import org.lwjgl.opengl.Display;
 
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -58,10 +63,48 @@ public class Raven {
         moduleManager = new ModuleManager();
     }
 
+    private ByteBuffer readImageToBuffer(InputStream imageStream) throws IOException {
+        BufferedImage bufferedimage = ImageIO.read(imageStream);
+        if (bufferedimage == null) {
+            throw new IOException("Failed to load image from InputStream.");
+        }
+
+        int[] aint = bufferedimage.getRGB(0, 0, bufferedimage.getWidth(), bufferedimage.getHeight(), (int[])null, 0, bufferedimage.getWidth());
+        ByteBuffer bytebuffer = ByteBuffer.allocate(4 * aint.length);
+
+        for (int i : aint) {
+            bytebuffer.putInt(i << 8 | i >> 24 & 255);
+        }
+
+        bytebuffer.flip();
+        return bytebuffer;
+    }
+
+    public InputStream getInputStreamAssets(ResourceLocation location) throws IOException {
+        IResource resource = mc.getResourceManager().getResource(location);
+        return resource.getInputStream();
+    }
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         Display.setTitle(Variables.clientName + " " + Variables.clientVersion);
+
+        ByteBuffer[] icons = new ByteBuffer[2];
+        try (InputStream inputstream = getInputStreamAssets(new ResourceLocation("keystrokesmod", "textures/gui/ico.png"));
+             InputStream inputstream1 = getInputStreamAssets(new ResourceLocation("keystrokesmod", "textures/gui/ico2.png"))) {
+
+            // Read both images into ByteBuffers
+            icons[0] = readImageToBuffer(inputstream);
+            icons[1] = readImageToBuffer(inputstream1);
+
+            // Set the display icon
+            Display.setIcon(icons);
+        } catch (IOException exc) {
+            System.err.println("Error loading icons: " + exc.getMessage());
+            exc.printStackTrace(); // Print stack trace for debugging
+        }
     }
+
 
     @EventHandler
     public void init(FMLInitializationEvent e) throws IOException, LWJGLException {

@@ -64,12 +64,11 @@ public class MainMenu extends GuiScreen {
 
 
         mc.getTextureManager().bindTexture(CUSTOM_LOGO);
-        int logoWidth = 128;
-        int logoHeight = 128;
+        int logoWidth = 312;
+        int logoHeight = 312;
         int logoX = (this.width - logoWidth) / 2;
-        int logoY = (int) (this.height * SCALE_FACTOR) - 10;
+       int logoY = (int) (this.height * SCALE_FACTOR) - 115;
         drawModalRectWithCustomSizedTexture(logoX, logoY, 0, 0, logoWidth, logoHeight, logoWidth, logoHeight); // Draw logo
-
         for (GuiButton button : buttonList) {
             button.drawButton(mc, mouseX, mouseY);
         }
@@ -80,30 +79,24 @@ public class MainMenu extends GuiScreen {
             int displayWidth = Minecraft.getMinecraft().displayWidth;
             int displayHeight = Minecraft.getMinecraft().displayHeight;
 
-            // Bind shader and update uniforms using full display size
             GL20.glUseProgram(shaderProgram);
             GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "resolution"), displayWidth, displayHeight);
             GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "time"), time);
 
-            // Save current GL state
             GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
             GL11.glPushMatrix();
 
-            // Set up the projection for full-screen rendering using display dimensions
             GL11.glMatrixMode(GL11.GL_PROJECTION);
             GL11.glPushMatrix();
             GL11.glLoadIdentity();
             GL11.glOrtho(0, displayWidth, displayHeight, 0, -1, 1);
 
-            // Switch back to modelview matrix and reset it
             GL11.glMatrixMode(GL11.GL_MODELVIEW);
             GL11.glPushMatrix();
             GL11.glLoadIdentity();
 
-            // Set the viewport to cover the entire display
             GL11.glViewport(0, 0, displayWidth, displayHeight);
 
-            // Draw the full-screen quad
             GL11.glBegin(GL11.GL_QUADS);
             GL11.glTexCoord2f(0, 0);
             GL11.glVertex2f(0, 0);
@@ -115,7 +108,6 @@ public class MainMenu extends GuiScreen {
             GL11.glVertex2f(0, displayHeight);
             GL11.glEnd();
 
-            // Restore GL state so the main menu is unaffected
             GL11.glPopMatrix(); // Modelview
             GL11.glMatrixMode(GL11.GL_PROJECTION);
             GL11.glPopMatrix(); // Projection

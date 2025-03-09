@@ -845,6 +845,13 @@ public class Utils {
         return Character.toUpperCase(input.charAt(0)) + input.substring(1);
     }
 
+    public static double bypass(double number) {
+        double multiple = 0.015625;
+        double nm = number / multiple;
+        long rm = Math.round(nm);
+        return rm * multiple;
+    }
+
     public static double rnd(double n, int d) {
         if (d == 0) {
             return (double) Math.round(n);
