@@ -9,11 +9,13 @@ import keystrokesmod.utility.Move;
 import keystrokesmod.utility.MoveUtil;
 import keystrokesmod.utility.Utils;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import net.minecraft.util.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.potion.Potion;
 
+import static keystrokesmod.Raven.mc;
 import static keystrokesmod.utility.MoveUtil.direction;
 
 
@@ -24,7 +26,7 @@ public class BHop extends Module {
     private ButtonSetting liquidDisable;
     private ButtonSetting sneakDisable;
     private ButtonSetting stopMotion;
-    private String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "Miniblox", "Karhu", "VanillaX"};
+    private String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "Miniblox", "Karhu", "VanillaX", "Mospixel"};
     public boolean hopping;
     private int ticks = 0;
     private int ticksl = 0;
@@ -59,7 +61,7 @@ public class BHop extends Module {
         ticks++;
         if (ticks > 20) ticks = 0;
         ticksl++;
-                if (ticksl > 200) ticksl = 0;
+        if (ticksl > 200) ticksl = 0;
         tickone++;
         if (tickone > 1) tickone = 0;
         if (((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && liquidDisable.isToggled()) || (mc.thePlayer.isSneaking() && sneakDisable.isToggled())) {
@@ -123,8 +125,8 @@ public class BHop extends Module {
                     }
                     if (offGroundTicks == 4 || offGroundTicks == 7) {
                         mc.thePlayer.motionY *= 1.005F;
-                     }
                     }
+                }
                 hopping = true;
                 break;
             case 3:
@@ -219,6 +221,21 @@ public class BHop extends Module {
                 }
                 Utils.getTimer().timerSpeed = 1.06f;
                 break;
+            case 11:
+                Utils.resetTimer();
+                if (MoveUtil.isMoving()) {
+                    Utils.getTimer().timerSpeed = 1.021F;
+                    if (mc.thePlayer.onGround) {
+                        MoveUtil.strafe5(0.29);
+                        MoveUtil.jump(0.40F);
+                    }
+                    MoveUtil.strafe5(0.29);
+                    if (offGroundTicks > 5) {
+                        mc.thePlayer.motionY -= 0.03F;
+                    }
+                    hopping = true;
+                    break;
+                }
         }
     }
 

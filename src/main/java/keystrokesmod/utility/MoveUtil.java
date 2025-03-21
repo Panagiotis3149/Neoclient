@@ -177,6 +177,10 @@ public class MoveUtil {
         strafe4(null, movementSpeed);
     }
 
+    public static double getLastDistance() {
+        return Math.hypot(mc.thePlayer.posX - mc.thePlayer.prevPosX, mc.thePlayer.posZ - mc.thePlayer.prevPosZ);
+    }
+
 
     // Pandaware Strafe
     public static  void strafe4(MoveEvent moveEvent, double movementSpeed) {
@@ -448,6 +452,15 @@ public class MoveUtil {
             float f = mc.thePlayer.rotationYaw * 0.017453292f;
             mc.thePlayer.motionX -= MathHelper.sin(f) * 0.2;
             mc.thePlayer.motionZ += MathHelper.cos(f) * 0.2;
+        }
+    }
+
+    public static void jump(float height, float speed) {
+        mc.thePlayer.motionY = height;
+        if (mc.thePlayer.isSprinting()) {
+            float f = mc.thePlayer.rotationYaw * 0.017453292f;
+            mc.thePlayer.motionX -= MathHelper.sin(f) * speed;
+            mc.thePlayer.motionZ += MathHelper.cos(f) * speed;
         }
     }
 

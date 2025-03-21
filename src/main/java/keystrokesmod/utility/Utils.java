@@ -67,6 +67,13 @@ public class Utils {
     public static HashSet<String> enemies = new HashSet<>();
     public static final Logger log = LogManager.getLogger();
 
+    public static void repeat(int times, Runnable action) {
+        for (int i = 0; i < times; i++) {
+            action.run();
+        }
+    }
+
+
     public static String readInputStream(InputStream inputStream) {
         StringBuilder stringBuilder = new StringBuilder();
 

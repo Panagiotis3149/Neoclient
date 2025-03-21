@@ -154,7 +154,7 @@ public class CategoryComponent {
     }
 
     public void render(FontRenderer renderer) {
-        keystrokesmod.utility.font.impl.FontRenderer font = FontManager.helveticaNeue24;
+        keystrokesmod.utility.font.impl.FontRenderer font = FontManager.googleSansMedium;
         this.moduleY = Math.min(this.moduleY, this.y);
         if (this.moduleY + this.bigSettings < this.y + this.big + this.titleHeight) {
             this.moduleY = (int) (this.y + this.big - this.bigSettings);
@@ -204,9 +204,9 @@ public class CategoryComponent {
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
         RenderUtils.scissor(0, this.y - 2, this.x + this.width + 4, extra - this.y + 4);
 
-        RenderUtils.drawRoundedRectangle(this.x, this.y, this.x + this.width, extra, 12, 0xFF202024);
+        RenderUtils.drawRoundedRectangle(this.x, this.y, this.x + this.width, extra, 12, 0x33202024);
 
-        font.drawString(this.n4m ? this.pvp : cFL(this.categoryName.name()), this.x + 3, (float) (this.y + 4), categoryNameColor, false);
+        font.drawString(this.n4m ? this.pvp : cFL(this.categoryName.name()), this.x + this.width / 2 - (font.getStringWidth(categoryName.name()) / 2), (float) (this.y + 4), categoryNameColor, false);
         
         RenderUtils.scissor(0, this.y + this.titleHeight + 3, this.x + this.width + 4, extra - this.y - 4 - this.titleHeight);
 

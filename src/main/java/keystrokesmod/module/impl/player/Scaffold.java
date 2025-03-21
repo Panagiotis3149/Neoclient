@@ -58,7 +58,7 @@ public class Scaffold extends Module {
     private final ButtonSetting moveFix;
     private int lastSlot;
     private String[] rotationModes = new String[]{"None", "Simple", "Strict", "Precise"};
-    private String[] fastScaffoldModes = new String[]{"Disabled", "Sprint", "Edge", "Jump A", "Jump B", "Jump C", "KeepY", "Verus", "VerusFast"};
+    private String[] fastScaffoldModes = new String[]{"Disabled", "Sprint", "Edge", "Jump A", "Jump B", "Jump C", "KeepY", "Verus", "VerusFast", "Legit (T)"};
     private String[] precisionModes = new String[]{"Very low", "Low", "Moderate", "High", "Very high"};
     private String[] multiPlaceModes = new String[]{"Disabled", "1 extra", "2 extra"};
     public float placeYaw;
@@ -187,6 +187,7 @@ public class Scaffold extends Module {
         if (fastScaffold.getInput() == 7) {
             Utils.verusTestSelfDamage();
         }
+
         if (autoSwap.isToggled()) {
             ItemStack heldItem = mc.thePlayer.getHeldItem();
             if (heldItem != null && !(heldItem.getItem() instanceof ItemBlock)) {
@@ -196,10 +197,12 @@ public class Scaffold extends Module {
             int bestSlot = -1;
             int maxStackSize = -1;
 
+            // Iterate over the main inventory to find the best block slot
             for (int i = 0; i < 9; ++i) {
                 ItemStack itemStack = mc.thePlayer.inventory.mainInventory[i];
                 if (itemStack != null && itemStack.getItem() instanceof ItemBlock) {
                     int stackSize = itemStack.stackSize;
+                    // Only update if the stack size is greater than the current maxStackSize
                     if (stackSize > maxStackSize) {
                         bestSlot = i;
                         maxStackSize = stackSize;
@@ -211,7 +214,7 @@ public class Scaffold extends Module {
                 mc.thePlayer.inventory.currentItem = bestSlot;
                 blockSlot = bestSlot;
             } else {
-                blockSlot = -1;
+                blockSlot = -1; // No valid block found
             }
         }
 
@@ -242,7 +245,11 @@ public class Scaffold extends Module {
 
     @SubscribeEvent
     public void onRotation(RotationEvent event) {
-        event.setMoveFix(moveFix.isToggled() ? RotationHandler.MoveFix.Silent : RotationHandler.MoveFix.None);
+        if (fastScaffold.getInput() == 9) {
+            event.setMoveFix(RotationHandler.MoveFix.Strict);
+        } else {
+            event.setMoveFix(moveFix.isToggled() ? RotationHandler.MoveFix.Silent : RotationHandler.MoveFix.None);
+        }
     }
 
     @SubscribeEvent
@@ -256,7 +263,6 @@ public class Scaffold extends Module {
         if (mc.thePlayer.onGround) {
             offGroundTicks = 0;
         }
-
         if (delay && delayOnJump.isToggled()) {
             delay = false;
             return;
@@ -309,6 +315,22 @@ public class Scaffold extends Module {
             MoveUtil.strafe5(0.33);
         }
 
+        if (fastScaffold.getInput() == 8) {
+
+            if (Math.abs(MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw) - MathHelper.wrapAngleTo180_float(getYaw())) > 90) {
+                mc.thePlayer.setSprinting(false);
+            }
+            if (!MoveUtil.isMoving()) return;
+            if (mc.thePlayer.onGround) {
+                yaw = yaw +- 180;
+                mc.thePlayer.jump();
+            }
+            if (offGroundTicks == 6) {
+                yaw = yaw +- 180;
+            }
+
+        }
+
         if (keepYPosition() && (fastScaffold.getInput() == 3 || fastScaffold.getInput() == 4 || fastScaffold.getInput() == 5) && mc.thePlayer.onGround) {
             mc.thePlayer.jump();
             add = 0;
@@ -333,29 +355,32 @@ public class Scaffold extends Module {
             Utils.setSpeed(Utils.getHorizontalSpeed() * motion.getInput());
         }
 
+        if (!autoSwap.isToggled() || getSlot() == -1 || !(heldItem != null && heldItem.getItem() instanceof ItemBlock)) {
+            return;
+        }
+
         if (this.autoSwap.isToggled()) {
             int slot = -1;
             int highestStack = -1;
-
             for (int i = 0; i < 9; ++i) {
                 final ItemStack itemStack = mc.thePlayer.inventory.mainInventory[i];
                 if (itemStack != null && itemStack.getItem() instanceof ItemBlock && itemStack.stackSize > 0) {
-                    if (mc.thePlayer.inventory.mainInventory[i].stackSize > highestStack) { // swapToGreaterStack = true
-                        highestStack = mc.thePlayer.inventory.mainInventory[i].stackSize;
+                    // Update slot only if stackSize is higher than the current highest
+                    if (itemStack.stackSize > highestStack) {
+                        highestStack = itemStack.stackSize;
                         slot = i;
                     }
                 }
             }
 
-            if (slot == -1) return;
-            if (blockSlot == -1) blockSlot = slot;
-            if (lastSlot == -1) lastSlot = mc.thePlayer.inventory.currentItem;
-
-            mc.thePlayer.inventory.currentItem = slot;
-
-            if (heldItem == null || !(heldItem.getItem() instanceof ItemBlock) || !Utils.canBePlaced((ItemBlock) heldItem.getItem())) {
-                blockSlot = -1;
+            // Handle case where no block is found
+            if (slot == -1) {
+                // Either log an error, notify the player, or handle the empty state gracefully
+                return;
             }
+
+            // Proceed with selected slot
+            mc.thePlayer.inventory.currentItem = slot;
         }
 
 
@@ -644,7 +669,7 @@ public class Scaffold extends Module {
     }
 
     private boolean keepYPosition() {
-        return this.isEnabled() && Utils.keysDown() && (fastScaffold.getInput() == 4 || fastScaffold.getInput() == 3 || fastScaffold.getInput() == 5 || fastScaffold.getInput() == 6 || fastScaffold.getInput() == 7) && (!Utils.jumpDown() || fastScaffold.getInput() == 6) && (!fastOnRMB.isToggled() || Mouse.isButtonDown(1));
+        return this.isEnabled() && Utils.keysDown() && (fastScaffold.getInput() == 4 || fastScaffold.getInput() == 3 || fastScaffold.getInput() == 5 || fastScaffold.getInput() == 6 || fastScaffold.getInput() == 7 || fastScaffold.getInput() == 9) && (!Utils.jumpDown() || fastScaffold.getInput() == 6) && (!fastOnRMB.isToggled() || Mouse.isButtonDown(1));
     }
 
     public boolean safewalk() {
@@ -753,7 +778,6 @@ public class Scaffold extends Module {
         SlotHandler.setCurrentSlot(slot);
         return slot;
     }
-
 
     public int totalBlocks() {
         int totalBlocks = 0;

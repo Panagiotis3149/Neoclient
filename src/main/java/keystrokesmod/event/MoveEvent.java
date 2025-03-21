@@ -1,6 +1,8 @@
 package keystrokesmod.event;
 
-public class MoveEvent {
+import net.minecraftforge.fml.common.eventhandler.Event;
+
+public class MoveEvent extends Event {
     public double x;
     private double y;
     public double z;

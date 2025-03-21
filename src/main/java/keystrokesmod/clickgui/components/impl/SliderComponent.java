@@ -44,7 +44,7 @@ public class SliderComponent extends Component {
                 this.moduleComponent.categoryComponent.getY() + this.o + 11,
                 this.moduleComponent.categoryComponent.getX() + 4 + this.moduleComponent.categoryComponent.getWidth() - 8,
                 this.moduleComponent.categoryComponent.getY() + this.o + 15,
-                0xFF202024
+                0x11202024
         );
 
         int[] colors = getColors((int) Gui.theme.getInput());

@@ -146,10 +146,10 @@ public class ModuleComponent extends Component {
                 this.categoryComponent.getX() + this.categoryComponent.getWidth(),
                 this.categoryComponent.getY() + 16 + this.o,
                 roundedness,
-                this.mod.isEnabled() ? firstColor : 0xFF202024,
-                this.mod.isEnabled() ? firstColor : 0xFF202024,
-                this.mod.isEnabled() ? secondColor : 0xFF202024,
-                this.mod.isEnabled() ? secondColor : 0xFF202024
+                this.mod.isEnabled() ? firstColor : 0x33202024,
+                this.mod.isEnabled() ? firstColor : 0x33202024,
+                this.mod.isEnabled() ? secondColor : 0x33202024,
+                this.mod.isEnabled() ? secondColor : 0x33202024
         );
 
         GL11.glPushMatrix();

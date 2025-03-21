@@ -10,23 +10,7 @@ public class SoundUtil {
         RISE, SIGMA, QUICKMACRO
     }
 
-    /**
-     * Plays the enable sound for the specified toggle type.
-     *
-     * @param type The toggle type (RISE, SIGMA, or QUICKMACRO).
-     */
-    public void playEnableSound(ToggleType type) {
-        playSound(getSoundPath(type, true), 1.0f, 1.0f);
-    }
 
-    /**
-     * Plays the disable sound for the specified toggle type.
-     *
-     * @param type The toggle type (RISE, SIGMA, or QUICKMACRO).
-     */
-    public void playDisableSound(ToggleType type) {
-        playSound(getSoundPath(type, false), 1.0f, 1.0f);
-    }
 
     /**
      * Plays a sound by its registry name.

@@ -43,6 +43,7 @@ public class Fly extends Module {
         this.d = mc.thePlayer.capabilities.isFlying;
         if (mode.getInput() == 5) {
             Utils.verusTestSelfDamage();
+            Utils.blinkPackets(SendPacketEvent);
 
 
             // just for the funnsies
@@ -51,9 +52,6 @@ public class Fly extends Module {
             mc.thePlayer.sendQueue.addToSendQueue(chatPacket);
         }
 
-        if (mode.getInput() == 6) {
-            Utils.blinkPackets(SendPacketEvent);
-        }
         }
 
     public void onUpdate() {
