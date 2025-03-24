@@ -2,6 +2,7 @@ package keystrokesmod.utility;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -130,6 +131,13 @@ public final class MathUtil {
 
     public static Double interpolate(double oldValue, double newValue, double interpolationValue) {
         return (oldValue + (newValue - oldValue) * interpolationValue);
+    }
+
+    public static Vec3 interpolate(Vec3 end, Vec3 start, float multiple) {
+        return new Vec3(
+                interpolate(end.xCoord, start.xCoord, multiple),
+                interpolate(end.yCoord, start.yCoord, multiple),
+                interpolate(end.zCoord, start.zCoord, multiple));
     }
 
 

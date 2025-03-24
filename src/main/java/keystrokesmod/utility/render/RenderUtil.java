@@ -57,6 +57,13 @@ public class RenderUtil {
         return interpolateColorC(color1, color2, amount).getRGB();
     }
 
+    private static Color interpolateColorColor(Color start, Color end, float progress) {
+        int r = (int) (start.getRed() + (end.getRed() - start.getRed()) * progress);
+        int g = (int) (start.getGreen() + (end.getGreen() - start.getGreen()) * progress);
+        int b = (int) (start.getBlue() + (end.getBlue() - start.getBlue()) * progress);
+        return new Color(r, g, b);
+    }
+
     public static int interpolateColor(int color1, int color2, float amount) {
         amount = Math.min(1, Math.max(0, amount));
         Color cColor1 = new Color(color1);

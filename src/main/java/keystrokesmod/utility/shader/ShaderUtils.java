@@ -85,6 +85,35 @@ public class ShaderUtils {
             "\n" +
             "    gl_FragColor = vec4(innerColor.rgb / innerColor.a, mix(innerColor.a, 1.0 - exp(-innerColor.a * exposure), step(0.0, direction.y)));\n" +
             "}\n";
+
+    private final String glow =
+            "#version 120\n" +
+                    "\n" +
+                    "uniform sampler2D textureIn, textureToCheck;\n" +
+                    "uniform vec2 texelSize, direction;\n" +
+                    "uniform vec3 color;\n" +
+                    "uniform bool avoidTexture;\n" +
+                    "uniform float exposure, radius;\n" +
+                    "uniform float weights[256];\n" +
+                    "\n" +
+                    "#define offset direction * texelSize\n" +
+                    "\n" +
+                    "void main() {\n" +
+                    "    if (direction.y == 1 && avoidTexture) {\n" +
+                    "        if (texture2D(textureToCheck, gl_TexCoord[0].st).a != 0.0) discard;\n" +
+                    "    }\n" +
+                    "\n" +
+                    "    float innerAlpha = texture2D(textureIn, gl_TexCoord[0].st).a * weights[0];\n" +
+                    "\n" +
+                    "    for (float r = 1.0; r <= radius; r++) {\n" +
+                    "        innerAlpha += texture2D(textureIn, gl_TexCoord[0].st + offset * r).a * weights[int(r)];\n" +
+                    "        innerAlpha += texture2D(textureIn, gl_TexCoord[0].st - offset * r).a * weights[int(r)];\n" +
+                    "    }\n" +
+                    "\n" +
+                    "    gl_FragColor = vec4(color, mix(innerAlpha, 1.0 - exp(-innerAlpha * exposure), step(0.0, direction.y)));\n" +
+                    "}\n";
+
+
     private final String roundRectTexture = "#version 120\n" +
             "\n" +
             "uniform vec2 location, rectSize;\n" +
@@ -323,6 +352,51 @@ public class ShaderUtils {
             "    gl_FragColor = vec4(color.rgb, smoothedAlpha);// mix(quadColor, shadowColor, 0.0);\n" +
             "\n" +
             "}";
+    private final String roundedRectB = "#version 120\n" +
+            "\n" +
+            "uniform vec2 location, rectSize;\n" +
+            "uniform vec4 color;\n" +
+            "uniform float radius;\n" +
+            "uniform bool blur;\n" +
+            "uniform bool bloom;\n" +
+            "\n" +
+            "float roundSDF(vec2 p, vec2 b, float r) {\n" +
+            "    return length(max(abs(p) - b, 0.0)) - r;\n" +
+            "}\n" +
+            "\n" +
+            "\n" +
+            "void main() {\n" +
+            "    vec2 rectHalf = rectSize * .5;\n" +
+            "    // Smooth the result (free antialiasing).\n" +
+            "    float smoothedAlpha =  (1.0-smoothstep(0.0, 1.0, roundSDF(rectHalf - (gl_TexCoord[0].st * rectSize), rectHalf - radius - 1., radius))) * color.a;\n" +
+            "    gl_FragColor = vec4(color.rgb, smoothedAlpha);// mix(quadColor, shadowColor, 0.0);\n" +
+            "\n" +
+            "}";
+
+    private final String outline =
+            "#version 120\n" +
+                    "\n" +
+                    "uniform vec2 texelSize, direction;\n" +
+                    "uniform sampler2D texture;\n" +
+                    "uniform float radius;\n" +
+                    "uniform vec3 color;\n" +
+                    "\n" +
+                    "#define offset direction * texelSize\n" +
+                    "\n" +
+                    "void main() {\n" +
+                    "    float centerAlpha = texture2D(texture, gl_TexCoord[0].xy).a;\n" +
+                    "    float innerAlpha = centerAlpha;\n" +
+                    "    for (float r = 1.0; r <= radius; r++) {\n" +
+                    "        float alphaCurrent1 = texture2D(texture, gl_TexCoord[0].xy + offset * r).a;\n" +
+                    "        float alphaCurrent2 = texture2D(texture, gl_TexCoord[0].xy - offset * r).a;\n" +
+                    "\n" +
+                    "        innerAlpha += alphaCurrent1 + alphaCurrent2;\n" +
+                    "    }\n" +
+                    "\n" +
+                    "    gl_FragColor = vec4(color, innerAlpha) * step(0.0, -centerAlpha);\n" +
+                    "}\n";
+
+
     private final String roundedRectRise = "#version 120\n" +
             "\n" +
             "uniform vec2 u_size;\n" +
@@ -354,8 +428,11 @@ public class ShaderUtils {
                 case "kawaseUpGlow":
                     fragmentShaderID = createShader(new ByteArrayInputStream(kawaseUpGlow.getBytes()), GL_FRAGMENT_SHADER);
                     break;
-                case "glow":
+                case "glowOld":
                     fragmentShaderID = createShader(new ByteArrayInputStream(glowShader.getBytes()), GL_FRAGMENT_SHADER);
+                    break;
+                case "glow":
+                    fragmentShaderID = createShader(new ByteArrayInputStream(glow.getBytes()), GL_FRAGMENT_SHADER);
                     break;
                 case "roundRectTexture":
                     fragmentShaderID = createShader(new ByteArrayInputStream(roundRectTexture.getBytes()), GL_FRAGMENT_SHADER);
@@ -387,8 +464,14 @@ public class ShaderUtils {
                 case "roundedRect":
                     fragmentShaderID = createShader(new ByteArrayInputStream(roundedRect.getBytes()), GL_FRAGMENT_SHADER);
                     break;
+                case "roundedRectB":
+                    fragmentShaderID = createShader(new ByteArrayInputStream(roundedRectB.getBytes()), GL_FRAGMENT_SHADER);
+                    break;
                 case "roundedRectGradient":
                     fragmentShaderID = createShader(new ByteArrayInputStream(roundedRectGradient.getBytes()), GL_FRAGMENT_SHADER);
+                    break;
+                case "outline":
+                    fragmentShaderID = createShader(new ByteArrayInputStream(outline.getBytes()), GL_FRAGMENT_SHADER);
                     break;
                 case "roundedRectRise":
                     fragmentShaderID = createShader(new ByteArrayInputStream(roundedRectRise.getBytes()), GL_FRAGMENT_SHADER);
@@ -478,6 +561,10 @@ public class ShaderUtils {
         int loc = glGetUniformLocation(programID, name);
         if (args.length > 1) glUniform2i(loc, args[0], args[1]);
         else glUniform1i(loc, args[0]);
+    }
+
+    public int getUniform(String name) {
+        return glGetUniformLocation(programID, name);
     }
 
     private int createShader(InputStream inputStream, int shaderType) {

@@ -26,7 +26,7 @@ public class BHop extends Module {
     private ButtonSetting liquidDisable;
     private ButtonSetting sneakDisable;
     private ButtonSetting stopMotion;
-    private String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "Miniblox", "Karhu", "VanillaX", "Mospixel"};
+    private String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "Test"};
     public boolean hopping;
     private int ticks = 0;
     private int ticksl = 0;
@@ -235,6 +235,19 @@ public class BHop extends Module {
                     }
                     hopping = true;
                     break;
+                }
+                    case 12:
+                        Utils.resetTimer();
+                        if (MoveUtil.isMoving()) {
+                            if (mc.thePlayer.onGround) {
+                                MoveUtil.jump(0.37F);
+                            }
+                            MoveUtil.strafe5(MoveUtil.getAllowedHorizontalDistance());
+                            if (offGroundTicks > 5) {
+                                mc.thePlayer.motionY -= 0.04F;
+                            }
+                            hopping = true;
+                            break;
                 }
         }
     }

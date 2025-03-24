@@ -143,7 +143,7 @@ public class KillAura extends Module {
         if (target != null && rotationMode.getInput() == 2) {
             float[] rotations = RotationUtils.getRotations(target, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
                 assert rotations != null;
-            float[] speed = new float[]{(float) ((rotations[0] - mc.thePlayer.rotationYaw) / ((101 - 0.01  * 3.634542))), (float) ((rotations[1] - mc.thePlayer.rotationPitch) / ((101 - 0.01 ) * 5.1853))};
+            float[] speed = new float[]{(float) ((rotations[0] - mc.thePlayer.rotationYaw) / ((180))), (float) ((rotations[1] - mc.thePlayer.rotationPitch) / (90))};
                 mc.thePlayer.rotationYaw += speed[0];
                 mc.thePlayer.rotationPitch += speed[1];
         }
@@ -272,7 +272,7 @@ public class KillAura extends Module {
 
             float[] controlPoint2 = {(rotations[0] + prevRotations[0]) / 2, (rotations[1] + prevRotations[1]) / 2};
 
-            float t = (float) Math.min(1.0f, 0.01 / 100.0f);
+            float t = (float) 0.5;
             float bezierX = (1 - t) * (1 - t) * controlPoint1[0] + 2 * (1 - t) * t * controlPoint2[0] + t * t * rotations[0];
             float bezierY = (1 - t) * (1 - t) * controlPoint1[1] + 2 * (1 - t) * t * controlPoint2[1] + t * t * rotations[1];
 
@@ -283,8 +283,8 @@ public class KillAura extends Module {
                 float yawDiff = bezierX - prevRotations[0];
                 float pitchDiff = bezierY - prevRotations[1];
 
-                double yawStep = Utils.GCD((int) Math.abs(yawDiff), 0);
-                double pitchStep = Utils.GCD((int) Math.abs(pitchDiff),0);
+                double yawStep = Utils.GCD(Math.abs(yawDiff), 1);
+                double pitchStep = Utils.GCD(Math.abs(pitchDiff),1);
 
 
                 float[] speed = new float[]{

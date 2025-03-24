@@ -100,7 +100,18 @@ public class FontRenderer extends CharRenderer implements IFont {
         for (int index = 0; index < text.length(); index++) {
             char character = text.charAt(index);
 
-            if (character == '§') {
+            if (character == '§' && index + 7 < text.length() && text.charAt(index + 1) == '#') {
+                String hexColor = text.substring(index + 2, index + 8);
+                if (hexColor.length() == 6) {
+                    try {
+                        int hex = Integer.parseInt(hexColor, 16);
+                        ColorUtils.setColor(new Color(hex).getRGB(), alpha);
+                        index += 7;
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else if (character == '§') {
                 int colorIndex = 21;
 
                 try {

@@ -145,6 +145,7 @@ public class ModuleManager {
         this.addModule(new Fun.SlyPort());
         this.addModule(new Criticals());
         this.addModule(new TargetESP());
+        this.addModule(new MHelper());
         this.addModule(new RotationHandler());
         this.addModule(new Fun.Spin());
         this.addModule(new NoRotate());
@@ -222,6 +223,8 @@ public class ModuleManager {
             case 5:
                 fontRenderer = null;
                 break;
+            case 6:
+                fontRenderer = FontManager.productSansLight22;
             default:
                 fontRenderer = FontManager.helveticaNeue;
                 break;

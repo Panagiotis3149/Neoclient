@@ -4,6 +4,9 @@ import keystrokesmod.module.impl.client.Settings;
 
 import java.awt.*;
 
+import static keystrokesmod.utility.render.RenderUtil.interpolateColor;
+import static keystrokesmod.utility.render.RenderUtil.interpolateColorC;
+
 public enum Theme {
     Rainbow(null, null), // 0
     Cherry(new Color(255, 200, 200), new Color(243, 58, 106)), // 1
@@ -16,7 +19,11 @@ public enum Theme {
     Sky(new Color(160, 230, 225), new Color(15, 190, 220)), // 8
     Vine(new Color(17, 192, 45), new Color(201, 234, 198)), // 9
     Steelvoid(new Color(55, 73, 98), new Color(125, 170, 223)), // 10
-    Mist(new Color(94, 228, 154), new Color(40, 139, 207)); // 11
+    Mist(new Color(94, 228, 154), new Color(40, 139, 207)), // 11
+    America(new Color(0, 40, 123), new Color(188, 11, 43)), // 12
+    Neo(new Color(71, 120, 225), new Color(97, 93, 178)), // 13
+    Nord(new Color(112, 193, 158), new Color(186, 243, 202, 255)); // 14
+
 
     private final Color firstGradient;
     private final Color secondGradient;
@@ -82,9 +89,19 @@ public enum Theme {
         } else if (selectedTheme == 11) {
             firstGradient = new Color(94, 228, 154);
             secondGradient = new Color(40, 139, 207);
-        }
+        } else if (selectedTheme == 12) { // America
+        firstGradient = new Color(49, 102, 184);
+        secondGradient = new Color(251, 51, 75);
+    } else if (selectedTheme == 13) { // Neo
+        firstGradient = new Color(71, 120, 225);
+        secondGradient = new Color(97, 93, 178);
+    } else if (selectedTheme == 14) { // Nord
+        firstGradient = new Color(112, 193, 158);
+        secondGradient = new Color(186, 243, 202);
+    }
 
-        int firstColor = firstGradient != null ? 0xFF000000 | firstGradient.getRGB() : Utils.getChroma(2, 0);
+
+    int firstColor = firstGradient != null ? 0xFF000000 | firstGradient.getRGB() : Utils.getChroma(2, 0);
         int secondColor = secondGradient != null ? 0xFF000000 | secondGradient.getRGB() : Utils.getChroma(2, 0);
 
         return new int[]{firstColor, secondColor};
@@ -115,7 +132,59 @@ public enum Theme {
         return new int[]{0, 0};
     }
 
-    public static String[] themes = new String[]{"Rainbow", "Cherry", "Cotton candy", "Flare", "Flower", "Gold", "Grayscale", "Royal", "Sky", "Vine", "Steelvoid", "Mist"};
+    public static String mCCC(String text, Color firstColor, Color secondColor,float speed) {
+        StringBuilder gradientText = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+
+            float progress = (float) i / text.length();
+            Color color = interpolateColorC(firstColor, secondColor, progress);
+
+            if (speed > 0) {
+                int r = (int) (color.getRed() + (Math.sin((System.currentTimeMillis() + i * speed) / 1000) * 50));
+                int g = (int) (color.getGreen() + (Math.cos((System.currentTimeMillis() + i * speed) / 1000) * 50));
+                int b = color.getBlue();
+                color = new Color(Math.min(255, Math.max(0, r)), Math.min(255, Math.max(0, g)), b);
+            }
+
+
+            String colorCode = String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+            gradientText.append("§").append(colorCode).append(text.charAt(i));
+        }
+
+        return gradientText.toString();
+    }
+
+    public static String mCCC(String text, int firstColorInt, int secondColorInt, float speed) {
+
+    Color firstColor = new Color(firstColorInt);
+    Color secondColor = new Color(secondColorInt);
+
+    StringBuilder gradientText = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+        float progress = (float) i / text.length();
+        Color color = interpolateColorC(firstColor, secondColor, progress);
+
+        if (speed > 0) {
+            int r = (int) (color.getRed() + (Math.sin((System.currentTimeMillis() + i * speed) / 1000) * 50));
+            int g = (int) (color.getGreen() + (Math.cos((System.currentTimeMillis() + i * speed) / 1000) * 50));
+            int b = color.getBlue();
+            color = new Color(Math.min(255, Math.max(0, r)), Math.min(255, Math.max(0, g)), b);
+        }
+
+        String colorCode = String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+        gradientText.append("§").append(colorCode).append(text.charAt(i));
+    }
+
+        return gradientText.toString();
+  }
+
+
+
+
+
+    public static String[] themes = new String[]{"Rainbow", "Cherry", "Cotton candy", "Flare", "Flower", "Gold", "Grayscale", "Royal", "Sky", "Vine", "Steelvoid", "Mist", "America", "Neo", "Nord"};
 
         public static int getGradient(double index, double delay) {
             if (index > 0) {

@@ -8,20 +8,27 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 import java.awt.*;
+import java.lang.reflect.Field;
 
 import static keystrokesmod.utility.ColorUtils.interpolateInt;
 import static org.lwjgl.opengl.GL11.*;
@@ -30,6 +37,7 @@ import static org.lwjgl.opengl.GL11.glPopMatrix;
 public class RenderUtils {
     private static Minecraft mc = Minecraft.getMinecraft();
     public static boolean ring_c = false;
+    public static RenderManager renderManager = mc.getRenderManager();
     private static final Int2IntOpenHashMap shadowCache = new Int2IntOpenHashMap(5);
 
     public static void renderBlock(BlockPos blockPos, int color, boolean outline, boolean shade) {
@@ -38,6 +46,10 @@ public class RenderUtils {
 
     public static void renderBlock(BlockPos blockPos, int color, double y2, boolean outline, boolean shade) {
         renderBox(blockPos.getX(), blockPos.getY(), blockPos.getZ(), 1, y2, 1, color, outline, shade);
+    }
+
+    public static void setupOrientationMatrix(double x, double y, double z) {
+        GlStateManager.translate(x - mc.getRenderManager().viewerPosX, y - mc.getRenderManager().viewerPosY, z - mc.getRenderManager().viewerPosZ);
     }
 
     public static void scissor(double x, double y, double width, double height) {
@@ -105,35 +117,6 @@ public class RenderUtils {
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
     }
-
-
-    public static void drawRectBehind(double left, double top, double right, double bottom, int color) {
-        float f3 = (color >> 24 & 255) / 255.0F; // Alpha
-        float f = (color >> 16 & 255) / 255.0F;  // Red
-        float f1 = (color >> 8 & 255) / 255.0F;  // Green
-        float f2 = (color & 255) / 255.0F;        // Blue
-        Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        GlStateManager.color(f, f1, f2, f3);
-
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION);
-
-        // Lower z-index for drawing behind
-        worldrenderer.pos(left, bottom, -1.0D).endVertex();
-        worldrenderer.pos(right, bottom, -1.0D).endVertex();
-        worldrenderer.pos(right, top, -1.0D).endVertex();
-        worldrenderer.pos(left, top, -1.0D).endVertex();
-
-        tessellator.draw();
-
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
-    }
-
 
 
     public static void drawOutline(float x, float y, float x2, float y2, float lineWidth, int color) {
@@ -393,6 +376,7 @@ public class RenderUtils {
             GlStateManager.popMatrix();
         }
     }
+
 
     public static void drawRoundedGradientOutlinedRectangleU(float n, float n2, float n3, float n4, final float n5, final int n6, final int n7, final int n8) { // credit to the creator of raven b4
         n *= 2.0;
@@ -1307,6 +1291,48 @@ public class RenderUtils {
     }
 
 
+    public static void drawRoundedPlayerHead(int x, int y, int size, EntityLivingBase player, int colorOverlay, float roundness) {
+        NetworkPlayerInfo playerInfo = mc.getNetHandler().getPlayerInfo(player.getUniqueID());
+        if (playerInfo == null) return;
+        mc.getTextureManager().bindTexture(playerInfo.getLocationSkin());
+
+        GL11.glEnable(GL11.GL_STENCIL_TEST);
+        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+        GL11.glColorMask(false, false, false, false);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+
+        float cx = x + size / 2f;
+        float cy = y + size / 2f;
+        int segments = 50;
+        GL11.glBegin(GL11.GL_POLYGON);
+        for (int i = 0; i < segments; i++) {
+            float angle = (float) (2 * Math.PI * i / segments);
+            float circleX = (float) (Math.cos(angle) * (size / 2f));
+            float circleY = (float) (Math.sin(angle) * (size / 2f));
+            float squareX = (float) (Math.signum(Math.cos(angle)) * (size / 2f));
+            float squareY = (float) (Math.signum(Math.sin(angle)) * (size / 2f));
+            float vx = squareX * (1 - roundness) + circleX * roundness;
+            float vy = squareY * (1 - roundness) + circleY * roundness;
+            GL11.glVertex2f(cx + vx, cy + vy);
+        }
+        GL11.glEnd();
+
+        GL11.glColorMask(true, true, true, true);
+        GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+
+        float a = ((colorOverlay >> 24) & 0xFF) / 255.0f;
+        float r = ((colorOverlay >> 16) & 0xFF) / 255.0f;
+        float g = ((colorOverlay >> 8) & 0xFF) / 255.0f;
+        float b = (colorOverlay & 0xFF) / 255.0f;
+        GL11.glColor4f(r, g, b, a);
+
+        Gui.drawScaledCustomSizeModalRect(x, y, 8F, 8F, 8, 8, size, size, 64F, 64F);
+
+        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        GL11.glColor4f(1F, 1F, 1F, 1F);
+    }
 
 
 

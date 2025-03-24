@@ -316,19 +316,10 @@ public class Scaffold extends Module {
         }
 
         if (fastScaffold.getInput() == 8) {
-
             if (Math.abs(MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw) - MathHelper.wrapAngleTo180_float(getYaw())) > 90) {
                 mc.thePlayer.setSprinting(false);
             }
             if (!MoveUtil.isMoving()) return;
-            if (mc.thePlayer.onGround) {
-                yaw = yaw +- 180;
-                mc.thePlayer.jump();
-            }
-            if (offGroundTicks == 6) {
-                yaw = yaw +- 180;
-            }
-
         }
 
         if (keepYPosition() && (fastScaffold.getInput() == 3 || fastScaffold.getInput() == 4 || fastScaffold.getInput() == 5) && mc.thePlayer.onGround) {

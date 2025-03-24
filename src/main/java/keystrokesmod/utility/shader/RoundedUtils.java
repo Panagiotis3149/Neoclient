@@ -12,6 +12,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class RoundedUtils {
     public static ShaderUtils roundedShader = new ShaderUtils("roundedRect");
+    public static ShaderUtils roundedShaderB = new ShaderUtils("roundedRectB");
     public static ShaderUtils roundedOutlineShader = new ShaderUtils("roundRectOutline");
     private static final ShaderUtils roundedTexturedShader = new ShaderUtils("roundRectTexture");
     private static final ShaderUtils roundedGradientShader = new ShaderUtils("roundedRectGradient");
@@ -110,6 +111,24 @@ public class RoundedUtils {
 
         ShaderUtils.drawQuads(x - 1, y - 1, width + 2, height + 2);
         roundedShader.unload();
+        GlStateManager.disableBlend();
+    }
+
+    public static void drawRound(float x, float y, float width, float height, float radius, boolean blur, boolean glow, Color color) {
+        RenderUtils.resetColor();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        RenderUtils.setAlphaLimit(0);
+        roundedShaderB.init();
+
+        setupRoundedRectUniforms(x, y, width, height, radius, roundedShaderB);
+        roundedShaderB.setUniformi("blur", blur ? 1 : 0);
+        roundedShaderB.setUniformi("glow", glow ? 1 : 0);
+        roundedShaderB.setUniformf("color", color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);
+
+        ShaderUtils.drawQuads(x - 1, y - 1, width + 2, height + 2);
+        roundedShaderB.unload();
         GlStateManager.disableBlend();
     }
 

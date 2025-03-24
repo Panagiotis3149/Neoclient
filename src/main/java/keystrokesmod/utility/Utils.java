@@ -15,6 +15,7 @@ import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.network.handshake.client.C00Handshake;
 import net.minecraft.network.login.client.C00PacketLoginStart;
 import net.minecraft.network.login.client.C01PacketEncryptionResponse;
@@ -55,6 +56,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static keystrokesmod.Variables.clientName;
@@ -66,12 +68,15 @@ public class Utils {
     public static HashSet<String> friends = new HashSet<>();
     public static HashSet<String> enemies = new HashSet<>();
     public static final Logger log = LogManager.getLogger();
+    private static final Frustum FRUSTUM = new Frustum();
+
 
     public static void repeat(int times, Runnable action) {
         for (int i = 0; i < times; i++) {
             action.run();
         }
     }
+
 
 
     public static String readInputStream(InputStream inputStream) {
@@ -514,6 +519,28 @@ public class Utils {
         mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 3.0001, mc.thePlayer.posZ, false));
         mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false));
         mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, true));
+    }
+
+    public static List<EntityPlayer> getLivingPlayers(Predicate<EntityPlayer> validator) {
+        List<EntityPlayer> entities = new ArrayList<>();
+        if (mc.theWorld == null) return entities;
+        for (Entity entity : mc.theWorld.playerEntities) {
+            if (entity instanceof EntityPlayer) {
+                EntityPlayer player = (EntityPlayer) entity;
+                if (validator.test(player))
+                    entities.add(player);
+            }
+        }
+        return entities;
+    }
+
+    public static boolean isBBInFrustum(EntityLivingBase entity) {
+        return isBBInFrustum(entity.getEntityBoundingBox());
+    }
+
+    public static boolean isBBInFrustum(AxisAlignedBB aabb) {
+        FRUSTUM.setPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
+        return FRUSTUM.isBoundingBoxInFrustum(aabb);
     }
 
     public static void verusTestSelfDamage() {

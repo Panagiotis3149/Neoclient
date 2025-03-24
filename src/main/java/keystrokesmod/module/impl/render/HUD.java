@@ -36,7 +36,7 @@ public class HUD extends Module {
     public static int hudY = 70;
     private boolean isAlphabeticalSort;
     private boolean canShowInfo;
-    public String[] modes = new String[]{"1", "2", "3", "4", "5"};
+    public String[] modes = new String[]{"1", "2", "3", "4", "5", "6", "7"};
 
     public HUD() {
         super("HUD", Module.category.render);
@@ -183,7 +183,7 @@ public class HUD extends Module {
                                     RenderUtils.drawRect(n4 - 1, n - 1, n4 + width, n + Math.round(font.height() + 1), new Color(0, 0, 0, 124).getRGB());
                                     RenderUtils.drawRect(alignRight.isToggled() ? n4 + width : n4 - 2, n - 1, alignRight.isToggled() ? n4 + width + 1 : n4 - 1, n + Math.round(font.height() + 1), e);
                                     font.drawString(text, n4, n, e, dropShadow.isToggled());
-                                    n += (int) (font.height() + 1);
+                                    n += (int) (font.height() + 2);
                                 }
                             }
                         }
@@ -215,7 +215,69 @@ public class HUD extends Module {
                                     BlurUtils.blurEnd(2, 0.5F);
                                     RenderUtils.drawRect(alignRight.isToggled() ? n4 + width : n4 - 2, n - 1, alignRight.isToggled() ? n4 + width + 1 : n4 - 1, n + Math.round(font.height() + 1), ec);
                                     font.drawString(text, n4, n, ec, dropShadow.isToggled());
-                                    n += (int) (font.height() + 1);
+                                    n += (int) (font.height() + 2);
+                                }
+                            }
+                        }
+                        break;
+                    case 5:
+                        for (Module module : ModuleManager.organizedModules) {
+                            if (module.isEnabled() && module != this) {
+                                if (module.isHidden() || module == ModuleManager.commandLine) continue;
+                                String moduleName = module.getName();
+                                MinecraftFontRenderer font = MinecraftFontRenderer.INSTANCE;
+                                {
+                                    String text = moduleName;
+                                    if (lowercase.isToggled()) { text = moduleName.toLowerCase(); }
+                                    if (!lowercase.isToggled()) { text = moduleName; }
+                                    int ec = Theme.getGradient((int) theme.getInput(), n2);
+                                    if (theme.getInput() == 0) {
+                                        n2 -= 120;
+                                    } else {
+                                        n2 -= 12;
+                                    }
+                                    double n4 = hudX;
+                                    double width = font.width(text);
+                                    if (alignRight.isToggled()) {
+                                        n4 -= width - 46;
+                                    }
+                                    BlurUtils.prepareBlur();
+                                    RoundedUtils.drawRound((float) (n4 - 1), (float) (n - 1), (float) width, (float) Math.round(font.height() + 1), 0, true, Color.black);
+                                    BlurUtils.blurEnd(2, 0.5F);
+                                    RenderUtils.drawRect((float) (alignRight.isToggled() ? n4 + 4 + width : n4 - 2), n - 1, (float) (alignRight.isToggled() ? n4 + width + 1 : n4 - 1), n + Math.round(font.height() + 1), ec);
+                                    font.drawString(text, n4, n, ec, dropShadow.isToggled());
+                                    n += (int) (font.height() + 2);
+                                }
+                            }
+                        }
+                        break;
+                    case 6:
+                        for (Module module : ModuleManager.organizedModules) {
+                            if (module.isEnabled() && module != this) {
+                                if (module.isHidden() || module == ModuleManager.commandLine) continue;
+                                String moduleName = module.getName();
+                                keystrokesmod.utility.font.impl.FontRenderer font = FontManager.productSansLight22;
+                                {
+                                    String text = moduleName;
+                                    if (lowercase.isToggled()) { text = moduleName.toLowerCase(); }
+                                    if (!lowercase.isToggled()) { text = moduleName; }
+                                    int ec = Theme.getGradient((int) theme.getInput(), n2);
+                                    if (theme.getInput() == 0) {
+                                        n2 -= 120;
+                                    } else {
+                                        n2 -= 12;
+                                    }
+                                    double n4 = hudX;
+                                    double width = font.width(text);
+                                    if (alignRight.isToggled()) {
+                                        n4 -= width - 46;
+                                    }
+                                    BlurUtils.prepareBlur();
+                                    RoundedUtils.drawRound((float) (n4 - 1), (float) (n - 1), (float) width, (float) Math.round(font.height() + 1), 0, true, Color.black);
+                                    BlurUtils.blurEnd(2, 0.5F);
+                                    RenderUtils.drawRect((float) (alignRight.isToggled() ? n4 + 4 + width : n4 - 2), n - 1, (float) (alignRight.isToggled() ? n4 + width + 1 : n4 - 1), n + Math.round(font.height() + 1),  ec);
+                                    font.drawString(text, n4, n, ec, dropShadow.isToggled());
+                                    n += (int) (font.height() + 2);
                                 }
                             }
                         }

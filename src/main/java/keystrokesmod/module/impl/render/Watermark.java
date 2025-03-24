@@ -1,6 +1,7 @@
 package keystrokesmod.module.impl.render;
 
 import keystrokesmod.module.Module;
+import keystrokesmod.module.impl.client.Gui;
 import keystrokesmod.module.setting.impl.DescriptionSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.script.ScriptDefaults;
@@ -21,13 +22,14 @@ import java.awt.*;
 import static keystrokesmod.Variables.clientName;
 import static keystrokesmod.Variables.clientVersion;
 import static keystrokesmod.utility.RenderUtils.drawRoundedRectangle;
+import static keystrokesmod.utility.Theme.getColors;
 
 public class Watermark extends Module {
     public static SliderSetting theme;
     public static SliderSetting posx;
     public static SliderSetting posy;
     public static SliderSetting mode;
-    private String[] modes = new String[]{"Basic", "Neo", "NeoNew"};
+    private String[] modes = new String[]{"Basic", "Neo", "NeoNew", "NeoText", "NeoText2", "Rise"};
 
     public Watermark() {
         super("Watermark", Module.category.render);
@@ -77,6 +79,24 @@ public class Watermark extends Module {
             GL11.glPushMatrix();
             font.drawString(textmodern, rectX + 5, rectY + 7, Theme.getGradient((int) theme.getInput(), 0.0), false);
             GL11.glPopMatrix();
+        } else if (mode.getInput() == 3) {
+            int[] colors = getColors((int) Watermark.theme.getInput());
+            int firstColor = colors[0];
+            int secondColor = colors[1];
+            FontRenderer font = FontManager.logoa;
+            font.drawString(Theme.mCCC("Neo", firstColor, secondColor,0), x * 2, y * 2, 0xFFFFFFFF, false);
+        } else if (mode.getInput() == 4) {
+            int[] colors = getColors((int) Watermark.theme.getInput());
+            int firstColor = colors[0];
+            int secondColor = colors[1];
+            FontRenderer font = FontManager.googleSansBold;
+            font.drawString(Theme.mCCC("Neoclient", firstColor, secondColor,0), x * 2, y * 2, 0xFFFFFFFF, false);
+        } else if (mode.getInput() == 5) {
+            int[] colors = getColors((int) Watermark.theme.getInput());
+            int firstColor = colors[0];
+            int secondColor = colors[1];
+            FontRenderer font = FontManager.productSansMedium36;
+            font.drawString(Theme.mCCC("Neo", firstColor, secondColor,0), 6, 6, 0xFFFFFFFF, false);
         }
     }
 }

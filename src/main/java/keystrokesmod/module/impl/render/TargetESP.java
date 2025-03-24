@@ -3,11 +3,17 @@ package keystrokesmod.module.impl.render;
 import keystrokesmod.module.Module;
 import keystrokesmod.module.impl.combat.KillAura;
 import keystrokesmod.module.setting.impl.SliderSetting;
+import keystrokesmod.utility.MathUtil;
 import keystrokesmod.utility.RenderUtils;
 import keystrokesmod.utility.Theme;
 import keystrokesmod.utility.Utils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
@@ -18,10 +24,12 @@ import java.awt.*;
 public class TargetESP extends Module {
 
     private final SliderSetting alpha;
-    private String[] modes = new String[]{"Ring", "Vape", "Raven", "Both"};
+    private String[] modes = new String[]{"Ring", "Vape", "Raven", "Both", "Ghost"};
     private final SliderSetting mode;
     private final SliderSetting theme;
     public Color color;
+    private final ResourceLocation glowCircle = new ResourceLocation("keystrokesmod", "textures/glow_circle.png");
+    private final long lastTime = System.currentTimeMillis();
 
     public TargetESP() {
         super("TargetESP", category.render);
@@ -48,6 +56,9 @@ public class TargetESP extends Module {
             case 3:
                 renderVape(KillAura.target);
                 renderSigma(KillAura.target);
+                break;
+            case 4:
+                renderGhost(KillAura.target, e.partialTicks);
                 break;
             default:
                 Utils.sendDebugMessage("Invalid mode: " + mode.getInput());
@@ -178,5 +189,77 @@ public class TargetESP extends Module {
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glPopMatrix();
+    }
+
+    public void renderGhost(@NotNull EntityLivingBase target, float ep) {
+        GlStateManager.pushMatrix();
+        GlStateManager.disableLighting();
+        GlStateManager.depthMask(false);
+        GlStateManager.enableBlend();
+        GlStateManager.shadeModel(7425);
+        GlStateManager.disableCull();
+        GlStateManager.disableAlpha();
+        GlStateManager.tryBlendFuncSeparate(770, 1, 0, 1);
+        double radius = 0.67;
+        float speed = 45;
+        float size = 0.4f;
+        double distance = 19;
+        int lenght = 20;
+
+        Vec3 interpolated = MathUtil.interpolate(new Vec3(target.lastTickPosX, target.lastTickPosY, target.lastTickPosZ), target.getPositionVector(), ep);
+        double y = interpolated.yCoord + 0.75f;
+
+        RenderUtils.setupOrientationMatrix(interpolated.xCoord, y + 0.5f, interpolated.zCoord);
+
+        float[] idk = new float[]{mc.getRenderManager().playerViewY, mc.getRenderManager().playerViewX};
+
+        GL11.glRotated(-idk[0], 0.0, 1.0, 0.0);
+        GL11.glRotated(idk[1], 1.0, 0.0, 0.0);
+
+        for (int i = 0; i < lenght; i++) {
+            double angle = 0.15f * (System.currentTimeMillis() - lastTime - (i * distance)) / (speed);
+            double s = Math.sin(angle) * radius;
+            double c = Math.cos(angle) * radius;
+            GlStateManager.translate(s, (c), -c);
+            GlStateManager.translate(-size / 2f, -size / 2f, 0);
+            GlStateManager.translate(size / 2f, size / 2f, 0);
+            int color = Theme.getGradient((int) theme.getInput(), 0);
+            RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
+            GlStateManager.translate(-size / 2f, -size / 2f, 0);
+            GlStateManager.translate(size / 2f, size / 2f, 0);
+            GlStateManager.translate(-(s), -(c), (c));
+        }
+        for (int i = 0; i < lenght; i++) {
+            double angle = 0.15f * (System.currentTimeMillis() - lastTime - (i * distance)) / (speed);
+            double s = Math.sin(angle) * radius;
+            double c = Math.cos(angle) * radius;
+            GlStateManager.translate(-s, s, -c);
+            GlStateManager.translate(-size / 2f, -size / 2f, 0);
+            GlStateManager.translate(size / 2f, size / 2f, 0);
+            int color = Theme.getGradient((int) theme.getInput(), 0);
+            RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
+            GlStateManager.translate(-size / 2f, -size / 2f, 0);
+            GlStateManager.translate(size / 2f, size / 2f, 0);
+            GlStateManager.translate((s), -(s), (c));
+        }
+        for (int i = 0; i < lenght; i++) {
+            double angle = 0.15f * (System.currentTimeMillis() - lastTime - (i * distance)) / (speed);
+            double s = Math.sin(angle) * radius;
+            double c = Math.cos(angle) * radius;
+            GlStateManager.translate(-(s), -(s), (c));
+            GlStateManager.translate(-size / 2f, -size / 2f, 0);
+            GlStateManager.translate(size / 2f, size / 2f, 0);
+            int color = Theme.getGradient((int) theme.getInput(), 0);
+            RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
+            GlStateManager.translate(-size / 2f, -size / 2f, 0);
+            GlStateManager.translate(size / 2f, size / 2f, 0);
+            GlStateManager.translate((s), (s), -(c));
+        }
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.disableBlend();
+        GlStateManager.enableCull();
+        GlStateManager.enableAlpha();
+        GlStateManager.depthMask(true);
+        GlStateManager.popMatrix();
     }
 }
