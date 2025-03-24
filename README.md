@@ -13,17 +13,17 @@
 - Raven bS
 - Raven xD
 - Raven B+
+- Rise 6.2.4
+- Zazu Recode 5.2
 - FDP
 - Pulsive
 - Moonlight (lmfao)
 
 ❌ **Removed in Current Version:**
 - Haru
-- Rise 6.2.4
 - Nixon
 - Tenacity
 - Nexus
-- Zazu Recode 5.2
 
 ## **Code Contributors**
 - **ChatGPT (lmfao)**
