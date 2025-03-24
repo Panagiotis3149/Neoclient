@@ -1,29 +1,29 @@
-# *Neoclient*
-## Discord: https://discord.gg/r9W822npYq
+# **NeoClient**
 
-## State of the art shitcode, Disguised as a minecraft client.
+### *State-of-the-art shitcode, disguised as a Minecraft client.*
+**Based on [Raven bS](https://github.com/Strangerrrs/raven-bS)**  
+📌 *Minecraft Forge 1.8.9 Mod*
 
-## Based on Raven bS.
+🔗 **Discord:** [Join Here](https://discord.gg/r9W822npYq)
 
-### Minecraft Forge 1.8.9 Mod
+## **Skidded Clients**
+✅ **Active in Current Version:**
+- LiquidBounce Legacy
+- LiquidBounce NextGen
+- Raven bS
+- Raven xD
+- Raven B+
+- FDP
+- Pulsive
+- Moonlight (lmfao)
 
+❌ **Removed in Current Version:**
+- Haru
+- Rise 6.2.4
+- Nixon
+- Tenacity
+- Nexus
+- Zazu Recode 5.2
 
-
-Neoclient skidded clients:
-Liquidbounce Legacy
-Liquidbounce Nextgen
-Raven bS
-Raven xD
-Raven B+
-Haru (Deleted in current version)
-Rise 6.2.4
-Nixon (Deleted in current version)
-FDP
-Pulsive
-Tenacity (Deleted in current version)
-Nexus (Deleted in current version)
-Zazu Recode 5.2
-
-Neoclient code contributors:
-ChatGPT 
-
+## **Code Contributors**
+- **ChatGPT (lmfao)**
