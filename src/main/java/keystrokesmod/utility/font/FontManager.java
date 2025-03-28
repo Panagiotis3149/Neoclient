@@ -16,7 +16,8 @@ public class FontManager {
             logo, logoa,
             icon20, icon24,
             ptSans24,
-            sfRegular20,
+            sfRegular20, sfLight14,
+            greyCliffCF20,
             productSans16, productSans20, productSansLight16, productSansLight22, productSansMedium, productSansMedium36,
             tenacity16, tenacity20, tenacity80,
             google, googleMedium, googleRegular20, googleMedium20,
@@ -45,7 +46,9 @@ public class FontManager {
             regular22 = new FontRenderer(FontUtil.getResource(locationMap, "regular.ttf", 22));
             regular20 = new FontRenderer(FontUtil.getResource(locationMap, "regular.ttf", 20));
             regular40 = new FontRenderer(FontUtil.getResource(locationMap, "regular.ttf", 40));
-            sfRegular20 = new FontRenderer(FontUtil.getResource(locationMap, "sf_pro_rounded_regular.otf", 20));
+            sfRegular20 = new FontRenderer(FontUtil.getResource(locationMap, "sf_pro_rounded_black.otf", 20));
+            sfLight14 = new FontRenderer(FontUtil.getResource(locationMap, "sf_pro_rounded_light.otf", 14));
+            greyCliffCF20 = new FontRenderer(FontUtil.getResource(locationMap, "greycliffcf_regular.otf", 20));
             icon20 = new FontRenderer(FontUtil.getResource(locationMap, "icon.ttf", 20));
             icon24 = new FontRenderer(FontUtil.getResource(locationMap, "icon.ttf", 24));
             helveticaNeue = new FontRenderer(FontUtil.getResource(locationMap, "helveticaneue.ttf", 20));
@@ -54,7 +57,6 @@ public class FontManager {
             helveticaNeue24 = new FontRenderer(FontUtil.getResource(locationMap, "helveticaneue.ttf", 24));
             logo = new FontRenderer(FontUtil.getResource(locationMap, "is.otf", 42));
             logoa = new FontRenderer(FontUtil.getResource(locationMap, "is.otf", 68));
-
             ptSans24 = new FontRenderer(FontUtil.getResource(locationMap, "ptsans.ttf", 22));
             productSans16 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_regular.ttf", 16));
             productSans20 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_regular.ttf", 20));

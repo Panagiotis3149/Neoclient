@@ -28,20 +28,24 @@ public class HUD extends Module {
     public static SliderSetting theme;
     public static ButtonSetting dropShadow;
     public static ButtonSetting alphabeticalSort;
-    public static SliderSetting Mode;
+    public static SliderSetting fonts;
     public static ButtonSetting alignRight;
     private static ButtonSetting lowercase;
     public static ButtonSetting showInfo;
+    public static ButtonSetting background;
+    public static ButtonSetting blur;
+    public static ButtonSetting blurcolor;
+    public static ButtonSetting sidebar;
     public static int hudX = 5;
     public static int hudY = 70;
     private boolean isAlphabeticalSort;
     private boolean canShowInfo;
-    public String[] modes = new String[]{"1", "2", "3", "4", "5", "6", "7"};
+    public String[] fontss = new String[]{"Minecraft", "Helvetica Neue", "Product Sans", "Google", "Apple UI", "Greycliff CF", "Product Sans Light"};
 
     public HUD() {
         super("HUD", Module.category.render);
         this.registerSetting(new DescriptionSetting("Right click bind to hide modules."));
-        this.registerSetting(Mode = new SliderSetting("Mode", modes, 0));
+        this.registerSetting(fonts = new SliderSetting("Font", fontss, 0));
         this.registerSetting(theme = new SliderSetting("Theme", Theme.themes, 0));
         this.registerSetting(new ButtonSetting("Edit position", () -> mc.displayGuiScreen(new EditScreen())));
         this.registerSetting(alignRight = new ButtonSetting("Align right", true));
@@ -49,6 +53,10 @@ public class HUD extends Module {
         this.registerSetting(dropShadow = new ButtonSetting("Drop shadow", false));
         this.registerSetting(lowercase = new ButtonSetting("Lowercase", false));
         this.registerSetting(showInfo = new ButtonSetting("Show module info", false));
+        this.registerSetting(background = new ButtonSetting("Background", false));
+        this.registerSetting(blur = new ButtonSetting("Blur", false));
+        this.registerSetting(blurcolor = new ButtonSetting("Colored Blur", false));
+        this.registerSetting(sidebar = new ButtonSetting("Sidebar", false));
     }
 
 
@@ -68,229 +76,123 @@ public class HUD extends Module {
         int n = hudY;
         double n2 = 0.0;
 
-            try {
-                switch ((int) Mode.getInput()) {
-                    case 0:
-                        for (Module module : ModuleManager.organizedModules) {
-                            if (module.isEnabled() && module != this) {
-                                if (module.isHidden() || module == ModuleManager.commandLine) continue;
-                                String moduleName = module.getName();
 
-                                keystrokesmod.utility.font.impl.FontRenderer font = FontManager.helveticaNeue;
-                                {
-                                    String text = moduleName;
-                                    if (lowercase.isToggled()) { text = moduleName.toLowerCase(); }
-                                    if (!lowercase.isToggled()) { text = moduleName; }
-                                    int e = Theme.getGradient((int) theme.getInput(), n2);
-                                    if (theme.getInput() == 0) {
-                                        n2 -= 120;
-                                    } else {
-                                        n2 -= 12;
-                                    }
-                                    double n3 = hudX;
-                                    double width = font.width(text);
-                                    if (alignRight.isToggled()) {
-                                        n3 -= width - 46;
-                                    }
-                                        RenderUtils.drawRect(n3 - 3, n - 1, n3 + (width + 2), n + Math.round(font.height() + 1), RenderUtils.toArgb(e, 44));
-                                        BlurUtils.prepareBlur();
-                                        RoundedUtils.drawRound((float) (n3 - 3), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
-                                        BlurUtils.blurEnd(2, 0.75F);
-                                        RenderUtils.drawRect(alignRight.isToggled() ? n3 + width : n3 - 2, n - 1, alignRight.isToggled() ? n3 + width + 1 : n3 - 1, n + Math.round(font.height() + 1), e);
-                                    font.drawString(text, n3, n, e, dropShadow.isToggled());
-                                    n += (int) (font.height() + 2.5);
-                                }
+        for (Module module : ModuleManager.organizedModules) {
+            if (module.isEnabled() && module != this) {
+                if (module.isHidden() || module == ModuleManager.commandLine) continue;
+                String moduleName = module.getName();
+
+                if (fonts.getInput() == 0) {
+                    MinecraftFontRenderer font = MinecraftFontRenderer.INSTANCE;
+
+
+                    {
+                        String text = moduleName;
+                        if (lowercase.isToggled()) {
+                            text = moduleName.toLowerCase();
+                        }
+                        if (!lowercase.isToggled()) {
+                            text = moduleName;
+                        }
+                        int e = Theme.getGradient((int) theme.getInput(), n2);
+                        if (theme.getInput() == 0) {
+                            n2 -= 120;
+                        } else {
+                            n2 -= 12;
+                        }
+                        double n3 = hudX;
+                        double width = font.width(text);
+                        if (alignRight.isToggled()) {
+                            n3 -= width - 46;
+                        }
+                        if (blurcolor.isToggled()) {
+                            RenderUtils.drawRect(n3 - 3, n - 1, n3 + (width + 2), n + Math.round(font.height() + 1), RenderUtils.toArgb(e, 44));
+                            BlurUtils.prepareBlur();
+                            RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
+                            BlurUtils.blurEnd(2, 0.75F);
+                        } else if (blur.isToggled()) {
+                            BlurUtils.prepareBlur();
+                            RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
+                            BlurUtils.blurEnd(2, 0.75F);
+                        } else if (background.isToggled()) {
+                            RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, false, new Color(0, 0, 0, 124).getRGB());
+                        }
+                        if (sidebar.isToggled()) {
+                            RenderUtils.drawRect(alignRight.isToggled() ? n3 + width : n3 - 2, n - 1, alignRight.isToggled() ? n3 + width + 1 : n3 - 1, n + Math.round(font.height() + 1), e);
+                        }
+                        font.drawString(text, n3, n, e, dropShadow.isToggled());
+                        if (fonts.getInput() != 5) {
+                            n += (int) (font.height() + 2);
+                        } else {
+                            n += (int) (font.height() + 3);
+                        }
+                      }
+                    } else {
+                        keystrokesmod.utility.font.impl.FontRenderer font = FontManager.helveticaNeue;
+                        switch ((int) this.fonts.getInput()) {
+                            case 2:
+                                font = FontManager.productSans20;
+                                break;
+                            case 3:
+                                font = FontManager.googleMedium20;
+                                break;
+                            case 4:
+                                font = FontManager.sfLight14;
+                                break;
+                            case 5:
+                                font = FontManager.greyCliffCF20;
+                                break;
+                            case 6:
+                                font = FontManager.productSansLight22;
+                                break;
+                            default:
+                                break;
+                        }
+                        {
+                            String text = moduleName;
+                            if (lowercase.isToggled()) {
+                                text = moduleName.toLowerCase();
+                            }
+                            if (!lowercase.isToggled()) {
+                                text = moduleName;
+                            }
+                            int e = Theme.getGradient((int) theme.getInput(), n2);
+                            if (theme.getInput() == 0) {
+                                n2 -= 120;
+                            } else {
+                                n2 -= 12;
+                            }
+                            double n3 = hudX;
+                            double width = font.width(text);
+                            if (alignRight.isToggled()) {
+                                n3 -= width - 46;
+                            }
+                            if (blurcolor.isToggled()) {
+                                RenderUtils.drawRect(n3 - 3, n - 1, n3 + (width + 2), n + Math.round(font.height() + 1), RenderUtils.toArgb(e, 44));
+                                BlurUtils.prepareBlur();
+                                RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
+                                BlurUtils.blurEnd(2, 0.75F);
+                            } else if (blur.isToggled()) {
+                                BlurUtils.prepareBlur();
+                                RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
+                                BlurUtils.blurEnd(2, 0.75F);
+                            } else if (background.isToggled()) {
+                                RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, false, new Color(0, 0, 0, 124).getRGB());
+                            }
+                            if (sidebar.isToggled()) {
+                                RenderUtils.drawRect(alignRight.isToggled() ? n3 + width : n3 - 2, n - 1, alignRight.isToggled() ? n3 + width + 1 : n3 - 1, n + Math.round(font.height() + 1), e);
+                            }
+                            font.drawString(text, n3, n, e, dropShadow.isToggled());
+                            if (fonts.getInput() != 5) {
+                                n += (int) (font.height() + 2);
+                            } else {
+                                n += (int) (font.height() + 3);
                             }
                         }
-                        break;
-                    case 1:
-                        for (Module module : ModuleManager.organizedModules) {
-                            if (module.isEnabled() && module != this) {
-                                if (module.isHidden() || module == ModuleManager.commandLine) continue;
-                                String moduleName = module.getName();
-                                keystrokesmod.utility.font.impl.FontRenderer font1 = FontManager.helveticaNeue;
-                                {
-                                    String text = moduleName;
-                                    if (lowercase.isToggled()) { text = moduleName.toLowerCase(); }
-                                    if (!lowercase.isToggled()) { text = moduleName; }
-                                    int e = Theme.getGradient((int) theme.getInput(), n2);
-                                    if (theme.getInput() == 0) {
-                                        n2 -= 120;
-                                    } else {
-                                        n2 -= 12;
-                                    }
-                                    double n4 = hudX;
-                                    double width = font1.width(text);
-                                    if (alignRight.isToggled()) {
-                                        n4 -= width - 46;
-                                    }
-                                    RenderUtils.drawRect(alignRight.isToggled() ? n4 + width : n4 - 2, n - 1, alignRight.isToggled() ? n4 + width + 1 : n4 - 1, n + Math.round(font1.height() + 1), e);
-                                    font1.drawString(text, n4, n, e, dropShadow.isToggled());
-                                    n += (int) (font1.height() + 2);
-                                }
-                            }
-                        }
-                        break;
-                    case 2:
-                        for (Module module : ModuleManager.organizedModules) {
-                            if (module.isEnabled() && module != this) {
-                                if (module.isHidden() || module == ModuleManager.commandLine) continue;
-                                String moduleName = module.getName();
-                                MinecraftFontRenderer font = MinecraftFontRenderer.INSTANCE;
-                                {
-                                    String text = moduleName;
-                                    if (lowercase.isToggled()) { text = moduleName.toLowerCase(); }
-                                    if (!lowercase.isToggled()) { text = moduleName; }
-                                    int e = Theme.getGradient((int) theme.getInput(), n2);
-                                    if (theme.getInput() == 0) {
-                                        n2 -= 120;
-                                    } else {
-                                        n2 -= 12;
-                                    }
-                                    double n4 = hudX;
-                                    double width = font.width(text);
-                                    if (alignRight.isToggled()) {
-                                        n4 -= width - 46;
-                                    }
-                                    RenderUtils.drawRect(alignRight.isToggled() ? n4 + width : n4 - 2, n - 1, alignRight.isToggled() ? n4 + width + 1 : n4 - 1, n + Math.round(font.height() + 1), e);
-                                    font.drawString(text, n4, n, e, dropShadow.isToggled());
-                                    n += (int) (font.height() + 1);
-                                }
-                            }
-                        }
-                        break;
-                    case 3:
-                        for (Module module : ModuleManager.organizedModules) {
-                            if (module.isEnabled() && module != this) {
-                                if (module.isHidden() || module == ModuleManager.commandLine) continue;
-                                String moduleName = module.getName();
-                                MinecraftFontRenderer font = MinecraftFontRenderer.INSTANCE;
-                                {
-                                    String text = moduleName;
-                                    if (lowercase.isToggled()) { text = moduleName.toLowerCase(); }
-                                    if (!lowercase.isToggled()) { text = moduleName; }
-                                    int e = Theme.getGradient((int) theme.getInput(), n2);
-                                    if (theme.getInput() == 0) {
-                                        n2 -= 120;
-                                    } else {
-                                        n2 -= 12;
-                                    }
-                                    double n4 = hudX;
-                                    double width = font.width(text);
-                                    if (alignRight.isToggled()) {
-                                        n4 -= width - 46;
-                                    }
-                                    RenderUtils.drawRect(n4 - 1, n - 1, n4 + width, n + Math.round(font.height() + 1), new Color(0, 0, 0, 124).getRGB());
-                                    RenderUtils.drawRect(alignRight.isToggled() ? n4 + width : n4 - 2, n - 1, alignRight.isToggled() ? n4 + width + 1 : n4 - 1, n + Math.round(font.height() + 1), e);
-                                    font.drawString(text, n4, n, e, dropShadow.isToggled());
-                                    n += (int) (font.height() + 2);
-                                }
-                            }
-                        }
-                        break;
-                    case 4:
-                        for (Module module : ModuleManager.organizedModules) {
-                            if (module.isEnabled() && module != this) {
-                                if (module.isHidden() || module == ModuleManager.commandLine) continue;
-                                String moduleName = module.getName();
-                                MinecraftFontRenderer font = MinecraftFontRenderer.INSTANCE;
-                                {
-                                    String text = moduleName;
-                                    if (lowercase.isToggled()) { text = moduleName.toLowerCase(); }
-                                    if (!lowercase.isToggled()) { text = moduleName; }
-                                    int ec = Theme.getGradient((int) theme.getInput(), n2);
-                                    if (theme.getInput() == 0) {
-                                        n2 -= 120;
-                                    } else {
-                                        n2 -= 12;
-                                    }
-                                    double n4 = hudX;
-                                    double width = font.width(text);
-                                    if (alignRight.isToggled()) {
-                                        n4 -= width - 46;
-                                    }
-                                    RenderUtils.drawRect(n4 - 1, n - 1, n4 + width, n + Math.round(font.height() + 1), RenderUtils.toArgb(ec, 22));
-                                    BlurUtils.prepareBlur();
-                                    RoundedUtils.drawRound((float) (n4 - 1), (float) (n - 1), (float) width, (float) Math.round(font.height() + 1), 0, true, Color.black);
-                                    BlurUtils.blurEnd(2, 0.5F);
-                                    RenderUtils.drawRect(alignRight.isToggled() ? n4 + width : n4 - 2, n - 1, alignRight.isToggled() ? n4 + width + 1 : n4 - 1, n + Math.round(font.height() + 1), ec);
-                                    font.drawString(text, n4, n, ec, dropShadow.isToggled());
-                                    n += (int) (font.height() + 2);
-                                }
-                            }
-                        }
-                        break;
-                    case 5:
-                        for (Module module : ModuleManager.organizedModules) {
-                            if (module.isEnabled() && module != this) {
-                                if (module.isHidden() || module == ModuleManager.commandLine) continue;
-                                String moduleName = module.getName();
-                                MinecraftFontRenderer font = MinecraftFontRenderer.INSTANCE;
-                                {
-                                    String text = moduleName;
-                                    if (lowercase.isToggled()) { text = moduleName.toLowerCase(); }
-                                    if (!lowercase.isToggled()) { text = moduleName; }
-                                    int ec = Theme.getGradient((int) theme.getInput(), n2);
-                                    if (theme.getInput() == 0) {
-                                        n2 -= 120;
-                                    } else {
-                                        n2 -= 12;
-                                    }
-                                    double n4 = hudX;
-                                    double width = font.width(text);
-                                    if (alignRight.isToggled()) {
-                                        n4 -= width - 46;
-                                    }
-                                    BlurUtils.prepareBlur();
-                                    RoundedUtils.drawRound((float) (n4 - 1), (float) (n - 1), (float) width, (float) Math.round(font.height() + 1), 0, true, Color.black);
-                                    BlurUtils.blurEnd(2, 0.5F);
-                                    RenderUtils.drawRect((float) (alignRight.isToggled() ? n4 + 4 + width : n4 - 2), n - 1, (float) (alignRight.isToggled() ? n4 + width + 1 : n4 - 1), n + Math.round(font.height() + 1), ec);
-                                    font.drawString(text, n4, n, ec, dropShadow.isToggled());
-                                    n += (int) (font.height() + 2);
-                                }
-                            }
-                        }
-                        break;
-                    case 6:
-                        for (Module module : ModuleManager.organizedModules) {
-                            if (module.isEnabled() && module != this) {
-                                if (module.isHidden() || module == ModuleManager.commandLine) continue;
-                                String moduleName = module.getName();
-                                keystrokesmod.utility.font.impl.FontRenderer font = FontManager.productSansLight22;
-                                {
-                                    String text = moduleName;
-                                    if (lowercase.isToggled()) { text = moduleName.toLowerCase(); }
-                                    if (!lowercase.isToggled()) { text = moduleName; }
-                                    int ec = Theme.getGradient((int) theme.getInput(), n2);
-                                    if (theme.getInput() == 0) {
-                                        n2 -= 120;
-                                    } else {
-                                        n2 -= 12;
-                                    }
-                                    double n4 = hudX;
-                                    double width = font.width(text);
-                                    if (alignRight.isToggled()) {
-                                        n4 -= width - 46;
-                                    }
-                                    BlurUtils.prepareBlur();
-                                    RoundedUtils.drawRound((float) (n4 - 1), (float) (n - 1), (float) width, (float) Math.round(font.height() + 1), 0, true, Color.black);
-                                    BlurUtils.blurEnd(2, 0.5F);
-                                    RenderUtils.drawRect((float) (alignRight.isToggled() ? n4 + 4 + width : n4 - 2), n - 1, (float) (alignRight.isToggled() ? n4 + width + 1 : n4 - 1), n + Math.round(font.height() + 1),  ec);
-                                    font.drawString(text, n4, n, ec, dropShadow.isToggled());
-                                    n += (int) (font.height() + 2);
-                                }
-                            }
-                        }
-                        break;
-            default:
-                break;
+                    }
                 }
-            } catch (Exception e) {
-                Utils.sendMessage("&cAn error occurred rendering HUD. Check your logs");
-                e.printStackTrace();
             }
         }
-
 
     static class EditScreen extends GuiScreen {
         final String example = "ModuleExample";

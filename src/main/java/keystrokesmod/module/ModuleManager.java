@@ -41,7 +41,6 @@ public class ModuleManager {
     public static KillAura killAura;
     public static Module autoClicker;
     public static Module hitBox;
-    public static NewHUD newHUD;
     public static Module reach;
     public static BedESP bedESP;
     public static HUD hud;
@@ -93,7 +92,6 @@ public class ModuleManager {
         this.addModule(new InvMove());
         this.addModule(new AntiAim());
         this.addModule(new Enabler());
-        this.addModule(newHUD = new NewHUD());
         this.addModule(targetStrafe = new TargetStrafe());
         this.addModule(new Trajectories());
         this.addModule(potions = new Potions());
@@ -210,29 +208,20 @@ public class ModuleManager {
 
 
 
-        switch ((int) HUD.Mode.getInput()) {
-            case 2:
-                fontRenderer = null;
-                break;
-            case 3:
-                fontRenderer = null;
-                break;
-            case 4:
-                fontRenderer = null;
-                break;
-            case 5:
-                fontRenderer = null;
-                break;
-            case 6:
-                fontRenderer = FontManager.productSansLight22;
+        switch ((int) HUD.fonts.getInput()) {
+            case 0: fontRenderer = null; break;
+            case 1: fontRenderer = FontManager.helveticaNeue; break;
+            case 2: fontRenderer = FontManager.productSans20; break;
+            case 3: fontRenderer = FontManager.google; break;
+            case 4: fontRenderer = FontManager.sfRegular20; break;
+            case 5: fontRenderer = FontManager.greyCliffCF20; break;
+            case 6: fontRenderer = FontManager.productSansLight22; break;
             default:
                 fontRenderer = FontManager.helveticaNeue;
                 break;
         }
 
-        if (newHUD.isEnabled()) {
-          fontRenderer = FontManager.googleRegular20;
-        }
+
 
 
         if (HUD.alphabeticalSort.isToggled()) {

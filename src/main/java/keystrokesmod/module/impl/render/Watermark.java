@@ -29,7 +29,7 @@ public class Watermark extends Module {
     public static SliderSetting posx;
     public static SliderSetting posy;
     public static SliderSetting mode;
-    private String[] modes = new String[]{"Basic", "Neo", "NeoNew", "NeoText", "NeoText2", "Rise"};
+    private String[] modes = new String[]{"Basic", "Neo", "NeoNew", "NeoText", "NeoText2", "Rise", "Rise2", "NeoNewer"};
 
     public Watermark() {
         super("Watermark", Module.category.render);
@@ -97,6 +97,22 @@ public class Watermark extends Module {
             int secondColor = colors[1];
             FontRenderer font = FontManager.productSansMedium36;
             font.drawString(Theme.mCCC("Neo", firstColor, secondColor,0), 6, 6, 0xFFFFFFFF, false);
+        } else if (mode.getInput() == 6) {
+            int[] colors = getColors((int) Watermark.theme.getInput());
+            int firstColor = colors[0];
+            int secondColor = colors[1];
+            FontRenderer font = FontManager.productSansMedium36;
+            font.drawString(Theme.mCCC("Neoclient", firstColor, secondColor,0), 6, 6, 0xFFFFFFFF, false);
+        } else if (mode.getInput() == 7) {
+            String textmodern = clientName + " §7|§r " + mc.thePlayer.getName() + " §7|§r " + ScriptDefaults.client.getFPS();
+            FontRenderer font = FontManager.productSansLight22;
+            int rectX = 5, rectY = 5, rectWidth = (int) (font.getStringWidth(textmodern) + 9), rectHeight = 20;
+            BlurUtils.prepareBlur();
+            RoundedUtils.drawRound((float) rectX, (float) rectY, rectWidth, rectHeight, 4.0f, true, Color.black);
+            BlurUtils.blurEnd(2, 2F);
+            GL11.glPushMatrix();
+            font.drawString(textmodern, rectX + 5, rectY + 7, Theme.getGradient((int) theme.getInput(), 0.0), false);
+            GL11.glPopMatrix();
         }
     }
 }
