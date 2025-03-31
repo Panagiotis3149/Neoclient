@@ -2,6 +2,7 @@ package keystrokesmod.module.impl.combat;
 
 import keystrokesmod.Raven;
 import keystrokesmod.module.Module;
+import keystrokesmod.module.impl.movement.BHop;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.DescriptionSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
@@ -20,8 +21,14 @@ public class BurstClicker extends Module {
     private boolean l_c = false;
     private boolean l_r = false;
 
+
+
+    /**
+     * @deprecated This class is replaced by {@link AutoClicker}
+     */
+
     public BurstClicker() {
-        super("AutoClicker2", category.combat, 0);
+        super("DRAGCLICKER (DEPRECATED)", category.combat, 0);
         this.registerSetting(new DescriptionSetting("Autoclicker that dragclicks. Best with delay remover."));
         this.registerSetting(clicks = new SliderSetting("Clicks", 0.0D, 0.0D, 50.0D, 1.0D));
         this.registerSetting(delay = new SliderSetting("Delay (ms)", 5.0D, 1.0D, 40.0D, 1.0D));

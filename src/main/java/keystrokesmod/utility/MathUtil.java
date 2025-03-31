@@ -44,6 +44,29 @@ public final class MathUtil {
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
+
+    public static double getKurtosis(final Collection<? extends Number> data) {
+        double sum = 0.0;
+        int count = 0;
+        for (final Number number : data) {
+            sum += number.doubleValue();
+            ++count;
+        }
+        if (count < 3.0) {
+            return 0.0;
+        }
+        final double efficiencyFirst = count * (count + 1.0) / ((count - 1.0) * (count - 2.0) * (count - 3.0));
+        final double efficiencySecond = 3.0 * Math.pow(count - 1.0, 2.0) / ((count - 2.0) * (count - 3.0));
+        final double average = sum / count;
+        double variance = 0.0;
+        double varianceSquared = 0.0;
+        for (final Number number2 : data) {
+            variance += Math.pow(average - number2.doubleValue(), 2.0);
+            varianceSquared += Math.pow(average - number2.doubleValue(), 4.0);
+        }
+        return efficiencyFirst * (varianceSquared / Math.pow(variance / sum, 2.0)) - efficiencySecond;
+    }
+
     public static double getRandom(double min, double max) {
         if (min == max) {
             return min;

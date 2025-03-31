@@ -20,6 +20,7 @@
 - Moonlight (lmfao)
 
 ❌ **Removed in Current Version:**
+- Liquidbounce++ (Enorsu's fork)
 - Haru
 - Nixon
 - Tenacity

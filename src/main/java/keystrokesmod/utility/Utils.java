@@ -468,12 +468,25 @@ public class Utils {
         }
     }
 
+    public static void startBlink(Packet... packets) {
+        for (Packet packet : packets) {
+            if (!packet.getClass().getSimpleName().startsWith("S")) {
+                blinkedPackets.add(packet);
+            }
+        }
+    }
+
+
     public static void stopBlink() {
         synchronized (blinkedPackets) {
             for (Packet packet : blinkedPackets) {
                 PacketUtils.sendPacketNoEvent(packet);
             }
         }
+        blinkedPackets.clear();
+    }
+
+    public static void clearBlinked() {
         blinkedPackets.clear();
     }
 

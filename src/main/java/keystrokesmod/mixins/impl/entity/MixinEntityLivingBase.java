@@ -118,11 +118,4 @@ public abstract class MixinEntityLivingBase extends Entity {
         this.isAirBorne = true;
         ForgeHooks.onLivingJump(((EntityLivingBase) (Object) this));
     }
-
-    @Inject(method = "isPotionActive(Lnet/minecraft/potion/Potion;)Z", at = @At("HEAD"), cancellable = true)
-    private void isPotionActive(Potion p_isPotionActive_1_, final CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        if (ModuleManager.potions != null && ModuleManager.potions.isEnabled() && ((p_isPotionActive_1_ == Potion.confusion && ModuleManager.potions.removeNausea.isToggled()) || (p_isPotionActive_1_ == Potion.blindness && ModuleManager.potions.removeBlindness.isToggled()))) {
-            callbackInfoReturnable.setReturnValue(false);
-        }
-    }
 }

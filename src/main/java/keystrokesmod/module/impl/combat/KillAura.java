@@ -56,6 +56,7 @@ public class KillAura extends Module {
     private final ButtonSetting silentSwing;
     private final ButtonSetting weaponOnly;
     private final ButtonSetting badPacketsCheck;
+  ///  private final ButtonSetting mBX;
     private final String[] autoBlockModes = new String[]{"Manual", "Vanilla", "Post", "Swap", "Interact A", "Interact B", "Fake", "Partial", "Test"};
     private final String[] rotationModes = new String[]{"None", "Silent", "Lock view"};
     private final String[] sortModes = new String[]{"Health", "Hurttime", "Distance", "Yaw"};
@@ -93,7 +94,7 @@ public class KillAura extends Module {
         this.registerSetting(aps = new SliderSetting("CPS", 16.0, 1.0, 20.0, 0.5));
         this.registerSetting(autoBlockMode = new SliderSetting("Autoblock", autoBlockModes, 0));
         this.registerSetting(fov = new SliderSetting("Field of view", 360.0, 30.0, 360.0, 4.0));
-        this.registerSetting(attackRange = new SliderSetting("Range (attackk)", 3.0, 3.0, 6.0, 0.05));
+        this.registerSetting(attackRange = new SliderSetting("Range (attack)", 3.0, 3.0, 6.0, 0.05));
         this.registerSetting(swingRange = new SliderSetting("Range (swing)", 3.3, 3.0, 8.0, 0.05));
         this.registerSetting(blockRange = new SliderSetting("Range (block)", 6.0, 3.0, 12.0, 0.05));
         this.registerSetting(rotationMode = new SliderSetting("Rotations", rotationModes, 0));
@@ -113,6 +114,7 @@ public class KillAura extends Module {
         this.registerSetting(silentSwing = new ButtonSetting("Silent swing while blocking", false));
         this.registerSetting(weaponOnly = new ButtonSetting("Weapon only", false));
         this.registerSetting(badPacketsCheck = new ButtonSetting("BadPacketsCheck", true));
+   //     this.registerSetting(mBX = new ButtonSetting("Miniblox", false));
     }
 
     public void onEnable() {
@@ -243,6 +245,20 @@ public class KillAura extends Module {
             Utils.attackEntity(target, swingWhileBlocking, !swingWhileBlocking);
         }
     }
+
+
+    // tank sotanorsu/enorsu/norsu for da methode! (https://github.com/enorsu/LiquidBouncePlusPlus/)
+  //  @SubscribeEvent
+//    public void onStrafe(PrePlayerInputEvent e) {
+ //       if (mBX.isToggled()) {
+    //        Utils.startBlink(new C0CPacketInput(), new C03PacketPlayer(false));
+//
+//
+   //         //e.setCanceled(true);
+//
+   //         Utils.stopBlink();
+   //     }
+   // }
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onPreMotion(PreMotionEvent e) {
@@ -632,7 +648,7 @@ public class KillAura extends Module {
     private List<Double> lastCpsValues = new ArrayList<>();
     private static final int HISTORY_SIZE = 32;
 
-    public void cookie() { // Geometry Dash!
+    public void cookie() {
         double apsValue = aps.getInput();
         double minCps = Math.max(1, apsValue - 2);
         double maxCps = apsValue + 1;

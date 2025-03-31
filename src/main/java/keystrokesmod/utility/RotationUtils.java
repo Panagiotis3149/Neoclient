@@ -97,7 +97,7 @@ public class RotationUtils {
         return new float[]{mc.thePlayer.rotationYaw + MathHelper.wrapAngleTo180_float((float) (Math.atan2(n2, n) * 57.295780181884766) - 90.0f - mc.thePlayer.rotationYaw), clampTo90(mc.thePlayer.rotationPitch + MathHelper.wrapAngleTo180_float((float) (-(Math.atan2(n3, MathHelper.sqrt_double(n * n + n2 * n2)) * 57.295780181884766)) - mc.thePlayer.rotationPitch) + 3.0f)};
     }
 
-    public static float[] getRotationsPredicated(final Entity entity, final int ticks) {
+    public static float[] getRotationsPredicted(final Entity entity, final int ticks) {
         if (entity == null) {
             return null;
         }

@@ -15,7 +15,6 @@
     "render.MixinRendererLivingEntity",
     "render.ItemRendererAccessor",
     "render.MixinEntityRenderer",
-    "render.MixinScoreboard",
     "network.MixinModList",
     "client.PlayerControllerMPAccessor",
     "client.MixinMovementInputFromOptions"

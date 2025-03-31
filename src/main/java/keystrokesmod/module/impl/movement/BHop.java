@@ -5,18 +5,13 @@ import keystrokesmod.module.Module;
 import keystrokesmod.module.impl.movement.funcs.KarhuSpeed;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
-import keystrokesmod.utility.Move;
 import keystrokesmod.utility.MoveUtil;
 import keystrokesmod.utility.Utils;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
-import net.minecraft.util.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.potion.Potion;
-
-import static keystrokesmod.Raven.mc;
-import static keystrokesmod.utility.MoveUtil.direction;
 
 
 public class BHop extends Module {
@@ -239,12 +234,24 @@ public class BHop extends Module {
                     case 12:
                         Utils.resetTimer();
                         if (MoveUtil.isMoving()) {
-                            if (mc.thePlayer.onGround) {
-                                MoveUtil.jump(0.37F);
+                            mc.thePlayer.setSprinting(true);
+                            Utils.getTimer().timerSpeed = 0.97F;
+                            if (mc.thePlayer.onGround && !mc.thePlayer.movementInput.jump) {
+                                MoveUtil.jump(0.05F);
+                                float multiplier = 1.3F;
+                                mc.thePlayer.motionX *= multiplier;
+                                mc.thePlayer.motionZ *= multiplier;
+                                float currentSpeed = (float) Math.sqrt(Math.pow(mc.thePlayer.motionX, 2) + Math.pow(mc.thePlayer.motionZ, 2));
+                                float maxSpeed = 0.3F;
+                                if (currentSpeed > maxSpeed) {
+                                    mc.thePlayer.motionX = mc.thePlayer.motionX / currentSpeed * maxSpeed;
+                                    mc.thePlayer.motionZ = mc.thePlayer.motionZ / currentSpeed * maxSpeed;
+                                }
                             }
-                            MoveUtil.strafe5(MoveUtil.getAllowedHorizontalDistance());
-                            if (offGroundTicks > 5) {
-                                mc.thePlayer.motionY -= 0.04F;
+                            MoveUtil.strafe2();
+                            if (!mc.thePlayer.onGround) {
+                                mc.thePlayer.motionX *= 0.8742;
+                                mc.thePlayer.motionZ *= 0.8742;
                             }
                             hopping = true;
                             break;

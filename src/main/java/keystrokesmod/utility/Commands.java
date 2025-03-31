@@ -8,7 +8,6 @@ import keystrokesmod.module.impl.minigames.DuelsStats;
 import keystrokesmod.module.impl.movement.BHop;
 import keystrokesmod.module.impl.movement.Fly;
 import keystrokesmod.module.impl.movement.Speed;
-import keystrokesmod.module.impl.other.FakeChat;
 import keystrokesmod.module.impl.other.NameHider;
 import keystrokesmod.utility.profile.Profile;
 import net.minecraft.client.Minecraft;
@@ -29,6 +28,7 @@ public class Commands {
     public static List<String> rs = new ArrayList();
     private static final String invSyn = "&cInvalid syntax.";
     private static final String invCom = "&cInvalid command.";
+    public static String msg = "&eMessage.";
 
     public static void rCMD(String c) {
         if (!c.isEmpty()) {
@@ -93,19 +93,19 @@ public class Commands {
                 print("&a" + Utils.uf("name") + "Nick has been set to:".substring(4), 1);
                 print("\"" + NameHider.n + "\"", 0);
             }
-            else if (cm.startsWith(FakeChat.command)) {
+            else if (cm.startsWith("fakechat")) {
                 if (!hasArgs) {
                     print(invSyn, 1);
                     return;
                 }
 
-                n = c.replaceFirst(FakeChat.command, "").substring(1);
+                n = c.replaceFirst("fakechat", "").substring(1);
                 if (n.isEmpty() || n.equals("\\n")) {
-                    print(FakeChat.c4, 1);
+                    print("&cInvalid message.", 1);
                     return;
                 }
 
-                FakeChat.msg = n;
+                msg = n;
                 print("&aMessage set!", 1);
             }
             else if (cm.startsWith("Duels".toLowerCase())) {
@@ -415,7 +415,7 @@ public class Commands {
                 print("4 profiles remove [profile]", 0);
                 print("&eModule-specific:", 0);
                 print("1 cname [name]", 0);
-                print("2 " + FakeChat.command + " [msg]", 0);
+                print("2 " + "fakechat" + " [msg]", 0);
                 print("3 setspeed [fly/bhop/speed] [value]", 0);
                 print("4 setvelocity [h/v] [value]", 0);
             }

@@ -2,15 +2,12 @@ package keystrokesmod.module.impl.other;
 
 import io.netty.buffer.Unpooled;
 import keystrokesmod.event.SendPacketEvent;
-import keystrokesmod.mixins.impl.render.MixinScoreboard;
 import keystrokesmod.module.Module;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
-import java.lang.reflect.Method;
 
 public class Disabler extends Module {
     private final Minecraft mc = Minecraft.getMinecraft();
