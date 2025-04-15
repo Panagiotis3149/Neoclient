@@ -1,4 +1,4 @@
-# **NeoClient**
+# **Neo**
 
 ### *State-of-the-art shitcode, disguised as a Minecraft client.*
 **Based on [Raven bS](https://github.com/Strangerrrs/raven-bS)**  

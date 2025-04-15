@@ -1,7 +1,6 @@
 package keystrokesmod.module.impl.render;
 
 import keystrokesmod.module.Module;
-import keystrokesmod.module.impl.client.Gui;
 import keystrokesmod.module.setting.impl.DescriptionSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.script.ScriptDefaults;
@@ -12,6 +11,8 @@ import keystrokesmod.utility.font.FontManager;
 import keystrokesmod.utility.font.impl.FontRenderer;
 import keystrokesmod.utility.shader.BlurUtils;
 import keystrokesmod.utility.shader.RoundedUtils;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
@@ -19,8 +20,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
-import static keystrokesmod.Variables.clientName;
-import static keystrokesmod.Variables.clientVersion;
+import static keystrokesmod.Variables.*;
 import static keystrokesmod.utility.RenderUtils.drawRoundedRectangle;
 import static keystrokesmod.utility.Theme.getColors;
 
@@ -29,7 +29,7 @@ public class Watermark extends Module {
     public static SliderSetting posx;
     public static SliderSetting posy;
     public static SliderSetting mode;
-    private String[] modes = new String[]{"Basic", "Neo", "NeoNew", "NeoText", "NeoText2", "Rise", "Rise2", "NeoNewer"};
+    private String[] modes = new String[]{"Basic", "NeoOld", "Neo", "NeoText", "NeoText2", "Rise", "Rise2", "NeoNew", "NeoNewer"};
 
     public Watermark() {
         super("Watermark", Module.category.render);
@@ -52,15 +52,14 @@ public class Watermark extends Module {
     }
 
     public void render() {
-        int x = 4;
-        int y = 4;
+
 
         String text = clientName;
 
         if (mode.getInput() == 0) {
             FontRenderer font = FontManager.helveticaNeue;
             int textColor = Theme.getGradient((int) theme.getInput(), 0.0);
-            font.drawString(text, x, y, textColor, false);
+            font.drawString(text, 4, 4, textColor, false);
         } else if (mode.getInput() == 1) {
             String textmodern = clientName + " " + clientVersion + " " + ScriptDefaults.client.getFPS() + " FPS";
             FontRenderer font = FontManager.helveticaNeue;
@@ -84,13 +83,13 @@ public class Watermark extends Module {
             int firstColor = colors[0];
             int secondColor = colors[1];
             FontRenderer font = FontManager.logoa;
-            font.drawString(Theme.mCCC("Neo", firstColor, secondColor,0), x * 2, y * 2, 0xFFFFFFFF, false);
+            font.drawString(Theme.mCCC("Neo", firstColor, secondColor,0), 4 * 2, 4 * 2, 0xFFFFFFFF, false);
         } else if (mode.getInput() == 4) {
             int[] colors = getColors((int) Watermark.theme.getInput());
             int firstColor = colors[0];
             int secondColor = colors[1];
             FontRenderer font = FontManager.googleSansBold;
-            font.drawString(Theme.mCCC("Neoclient", firstColor, secondColor,0), x * 2, y * 2, 0xFFFFFFFF, false);
+            font.drawString(Theme.mCCC("Neoclient", firstColor, secondColor,0), 4 * 2, 4 * 2, 0xFFFFFFFF, false);
         } else if (mode.getInput() == 5) {
             int[] colors = getColors((int) Watermark.theme.getInput());
             int firstColor = colors[0];
@@ -113,6 +112,69 @@ public class Watermark extends Module {
             GL11.glPushMatrix();
             font.drawString(textmodern, rectX + 5, rectY + 7, Theme.getGradient((int) theme.getInput(), 0.0), false);
             GL11.glPopMatrix();
+        } else if (mode.getInput() == 8) {
+
+            if (mc.gameSettings.keyBindPlayerList.isKeyDown()) {
+                return;
+            }
+
+            String part1 = shortName;
+            String sep1 = " | ";
+            String part2 = buildType;
+            String sep2 = " | ";
+            String part3 = mc.getCurrentServerData().serverIP;
+            String det1 = shortClientVersion;
+            NetworkPlayerInfo info = mc.getNetHandler().getPlayerInfo(mc.thePlayer.getUniqueID());
+            String det2 = (info != null ? info.getResponseTime() : -1) + "ms";
+            FontRenderer fontname = FontManager.productSansMedium36;
+            FontRenderer fontbar = FontManager.productSansLight40;
+            FontRenderer fontdefault = FontManager.googleSansRegular20;
+            FontRenderer fontdetail = FontManager.productSansLight16;
+
+            int screenWidth = new ScaledResolution(mc).getScaledWidth();
+            int baseWidth = 0;
+            baseWidth += (int) FontManager.productSansMedium36.getStringWidth(shortName);
+            baseWidth += (int) FontManager.productSansLight40.getStringWidth(" | ");
+            baseWidth += (int) FontManager.googleSansRegular20.getStringWidth(buildType);
+            baseWidth += (int) FontManager.productSansLight40.getStringWidth(" | ");
+            baseWidth += (int) FontManager.googleSansRegular20.getStringWidth(mc.getCurrentServerData().serverIP);
+
+            int rectWidth = (int) baseWidth + 8;
+            int rectX = (screenWidth - rectWidth) / 2;
+            int rectY = 25, rectHeight = 32;
+
+
+            BlurUtils.prepareBlur();
+            BlurUtils.prepareBloom();
+            RoundedUtils.drawRound(rectX, rectY, rectWidth, rectHeight, 6.0f, true, Theme.getGradient((int) theme.getInput(), 0.0));
+            BlurUtils.bloomEnd(3, 6F);
+            BlurUtils.blurEnd(2, 2F);
+
+            BlurUtils.prepareBlur();
+            RoundedUtils.drawRound(rectX, rectY, rectWidth, rectHeight, 6.0f, true, Theme.getGradient((int) theme.getInput(), 0.0));
+            BlurUtils.blurEnd(2, 2F);
+
+            RenderUtils.drawRoundedRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, 6.0f, 0x44212121);
+
+            int x = rectX + 4;
+            int y = rectY + 7;
+
+            fontname.drawString(part1, x, y, Theme.getGradient((int) theme.getInput(), 0.0), false);
+            x += (int) fontname.getStringWidth(part1);
+
+            fontbar.drawString(sep1, x, y, RenderUtils.toARGBInt(Color.lightGray), false);
+            x += (int) fontbar.getStringWidth(sep1);
+
+            fontdefault.drawString(part2, x, y, 0xFFFFFFFF, false);
+            fontdetail.drawString(det1, x, y + 11, 0xFFFFFFFF, false);
+            x += (int) fontdefault.getStringWidth(part2);
+
+            fontbar.drawString(sep2, x, y, RenderUtils.toARGBInt(Color.lightGray), false);
+            x += (int) fontbar.getStringWidth(sep2);
+
+            fontdefault.drawString(part3, x, y, 0xFFFFFFFF, false);
+            fontdetail.drawString(det2, x, y + 11, 0xFFFFFFFF, false);
+
         }
     }
 }

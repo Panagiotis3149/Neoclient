@@ -18,10 +18,10 @@ public class FontManager {
             ptSans24,
             sfRegular20, sfLight14,
             greyCliffCF20,
-            productSans16, productSans20, productSansLight16, productSansLight22, productSansMedium, productSansMedium36,
+            productSans16, productSans20, productSansLight16, productSansLight22, productSansMedium, productSansMedium36, productSansLight40,
             tenacity16, tenacity20, tenacity80,
             google, googleMedium, googleRegular20, googleMedium20,
-            googleSansMedium, googleSansBold, googleSansRegular16, googleSansRegular20, googleSansMedium16;
+            googleSansMedium, googleSansBold, googleSansRegular16, googleSansRegular20, googleSansMedium40;
 
     private static int prevScale;
 
@@ -38,7 +38,9 @@ public class FontManager {
             googleSansRegular16 = new FontRenderer(FontUtil.getResource(locationMap, "googlesansregular.ttf", 16));
             googleSansBold = new FontRenderer(FontUtil.getResource(locationMap, "googlesansbold.ttf", 20));
             googleSansMedium = new FontRenderer(FontUtil.getResource(locationMap, "googlesansmedium.ttf", 20));
-            googleSansRegular16 = new FontRenderer(FontUtil.getResource(locationMap, "googlesansmedium.ttf", 16));
+            googleSansRegular16 = new FontRenderer(FontUtil.getResource(locationMap, "googlesansregular.ttf", 16));
+            googleSansRegular20 = new FontRenderer(FontUtil.getResource(locationMap, "googlesansregular.ttf", 20));
+            googleSansMedium40 = new FontRenderer(FontUtil.getResource(locationMap, "googlesansmedium.ttf", 40));
             googleRegular20 = new FontRenderer(FontUtil.getResource(locationMap, "GoogleRegular.ttf", 20));
             googleMedium = new FontRenderer(FontUtil.getResource(locationMap, "GoogleMedium.ttf", 18));
             googleMedium20 = new FontRenderer(FontUtil.getResource(locationMap, "GoogleMedium.ttf", 20));
@@ -61,6 +63,7 @@ public class FontManager {
             productSans16 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_regular.ttf", 16));
             productSans20 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_regular.ttf", 20));
             productSansLight22 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_light.ttf", 22));
+            productSansLight40 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_light.ttf", 40));
             productSansLight16 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_light.ttf", 16));
             productSansMedium = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_medium.ttf", 22));
             productSansMedium36 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_medium.ttf", 36));

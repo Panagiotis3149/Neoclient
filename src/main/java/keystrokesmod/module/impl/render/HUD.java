@@ -29,17 +29,19 @@ public class HUD extends Module {
     public static ButtonSetting dropShadow;
     public static ButtonSetting alphabeticalSort;
     public static SliderSetting fonts;
+    public static SliderSetting bloomType;
     public static ButtonSetting alignRight;
     private static ButtonSetting lowercase;
     public static ButtonSetting showInfo;
     public static ButtonSetting background;
     public static ButtonSetting blur;
-    public static ButtonSetting blurcolor;
+    public static ButtonSetting color;
     public static ButtonSetting sidebar;
     public static int hudX = 5;
     public static int hudY = 70;
     private boolean isAlphabeticalSort;
     private boolean canShowInfo;
+    public String[] blooms = new String[]{"None", "Shadow", "Glow"};
     public String[] fontss = new String[]{"Minecraft", "Helvetica Neue", "Product Sans", "Google", "Apple UI", "Greycliff CF", "Product Sans Light"};
 
     public HUD() {
@@ -53,9 +55,10 @@ public class HUD extends Module {
         this.registerSetting(dropShadow = new ButtonSetting("Drop shadow", false));
         this.registerSetting(lowercase = new ButtonSetting("Lowercase", false));
         this.registerSetting(showInfo = new ButtonSetting("Show module info", false));
+        this.registerSetting(bloomType = new SliderSetting("Bloom Type", blooms, 0));
         this.registerSetting(background = new ButtonSetting("Background", false));
         this.registerSetting(blur = new ButtonSetting("Blur", false));
-        this.registerSetting(blurcolor = new ButtonSetting("Colored Blur", false));
+        this.registerSetting(color = new ButtonSetting("Colored Background", false));
         this.registerSetting(sidebar = new ButtonSetting("Sidebar", false));
     }
 
@@ -105,19 +108,29 @@ public class HUD extends Module {
                         if (alignRight.isToggled()) {
                             n3 -= width - 46;
                         }
-                        if (blurcolor.isToggled()) {
-                            RenderUtils.drawRect(n3 - 3, n - 1, n3 + (width + 2), n + Math.round(font.height() + 1), RenderUtils.toArgb(e, 44));
+                        if (bloomType.getInput() == 1) {
                             BlurUtils.prepareBlur();
+                            BlurUtils.prepareBloom();
                             RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
+                            BlurUtils.bloomEnd(4, 3F);
                             BlurUtils.blurEnd(2, 0.75F);
-                        } else if (blur.isToggled()) {
-                            BlurUtils.prepareBlur();
-                            RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
-                            BlurUtils.blurEnd(2, 0.75F);
-                        } else if (background.isToggled()) {
-                            RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, false, new Color(0, 0, 0, 124).getRGB());
                         }
-                        if (sidebar.isToggled()) {
+                        if (bloomType.getInput() == 2) {
+                            BlurUtils.prepareBlur();
+                            BlurUtils.prepareBloom();
+                            RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Theme.getGradient((int) theme.getInput(), 0.0));
+                            BlurUtils.bloomEnd(4, 6F);
+                            BlurUtils.blurEnd(2, 0.75F);
+                        }
+                        if (color.isToggled()) {
+                            RenderUtils.drawRect(n3 - 3, n - 1, n3 + (width + 2), n + Math.round(font.height() + 1), RenderUtils.toArgb(e, 44));
+                        } if (blur.isToggled()) {
+                            BlurUtils.prepareBlur();
+                            RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
+                            BlurUtils.blurEnd(2, 0.75F);
+                        } if (background.isToggled()) {
+                            RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, false, new Color(0, 0, 0, 124).getRGB());
+                        } if (sidebar.isToggled()) {
                             RenderUtils.drawRect(alignRight.isToggled() ? n3 + width : n3 - 2, n - 1, alignRight.isToggled() ? n3 + width + 1 : n3 - 1, n + Math.round(font.height() + 1), e);
                         }
                         font.drawString(text, n3, n, e, dropShadow.isToggled());
@@ -167,19 +180,29 @@ public class HUD extends Module {
                             if (alignRight.isToggled()) {
                                 n3 -= width - 46;
                             }
-                            if (blurcolor.isToggled()) {
-                                RenderUtils.drawRect(n3 - 3, n - 1, n3 + (width + 2), n + Math.round(font.height() + 1), RenderUtils.toArgb(e, 44));
+                            if (bloomType.getInput() == 1) {
                                 BlurUtils.prepareBlur();
+                                BlurUtils.prepareBloom();
                                 RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
+                                BlurUtils.bloomEnd(4, 3F);
                                 BlurUtils.blurEnd(2, 0.75F);
-                            } else if (blur.isToggled()) {
-                                BlurUtils.prepareBlur();
-                                RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
-                                BlurUtils.blurEnd(2, 0.75F);
-                            } else if (background.isToggled()) {
-                                RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, false, new Color(0, 0, 0, 124).getRGB());
                             }
-                            if (sidebar.isToggled()) {
+                            if (bloomType.getInput() == 2) {
+                                BlurUtils.prepareBlur();
+                                BlurUtils.prepareBloom();
+                                RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Theme.getGradient((int) theme.getInput(), 0.0));
+                                BlurUtils.bloomEnd(4, 6F);
+                                BlurUtils.blurEnd(2, 0.75F);
+                            }
+                            if (color.isToggled()) {
+                                RenderUtils.drawRect(n3 - 3, n - 1, n3 + (width + 2), n + Math.round(font.height() + 1), RenderUtils.toArgb(e, 44));
+                            } if (blur.isToggled()) {
+                                BlurUtils.prepareBlur();
+                                RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, true, Color.black);
+                                BlurUtils.blurEnd(2, 0.75F);
+                            } if (background.isToggled()) {
+                                RoundedUtils.drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), Math.round(font.height() + 1.5), 0, false, new Color(0, 0, 0, 124).getRGB());
+                            } if (sidebar.isToggled()) {
                                 RenderUtils.drawRect(alignRight.isToggled() ? n3 + width : n3 - 2, n - 1, alignRight.isToggled() ? n3 + width + 1 : n3 - 1, n + Math.round(font.height() + 1), e);
                             }
                             font.drawString(text, n3, n, e, dropShadow.isToggled());

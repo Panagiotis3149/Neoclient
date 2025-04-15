@@ -17,7 +17,6 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +37,7 @@ public class TargetHUD extends Module {
     private double lastHealth;
     private float lastHealthBar;
     public EntityLivingBase renderEntity;
-    private String[] modes = new String[]{"Fate", "Raven", "Exhibition", "Myau", "Pulsive", "Neo"};
+    private String[] modes = new String[]{"Fate", "Raven", "Exhibition", "Myau", "Pulsive", "Neo", "NeoUnique"};
     private SliderSetting mode;
     FontRenderer font = FontManager.productSansMedium;
     public static int current$minX;
@@ -48,10 +47,10 @@ public class TargetHUD extends Module {
     private final Animation healthBarAnimation = new Animation(Easing.LINEAR, 250);
     private EntityLivingBase lastTarget;
 
-    
+
     public TargetHUD() {
         super("TargetHUD", category.render);
-        this.registerSetting(new DescriptionSetting("Only works with Aura."));
+        this.registerSetting(new DescriptionSetting("Who am i targeting? (Killaura Only)"));
         this.registerSetting(theme = new SliderSetting("Theme", Theme.themes, 0));
         this.registerSetting(mode = new SliderSetting("Mode", modes, 0));
         this.registerSetting(showStatus = new ButtonSetting("Show win or loss", true));
@@ -361,6 +360,43 @@ public class TargetHUD extends Module {
             int hposy = (int) (y5 + 16);
             fontm.drawString(TargetName2, nposx, nposy, -1, false);
             fontr.drawString(TargetHealth2, nposx, hposy, 0xFFCCCCCC, false);
+        } else if ((int) mode.getInput() == 6) {
+            final ScaledResolution sCRES = new ScaledResolution(mc);
+            FontRenderer fontr = FontManager.productSansLight22;
+            FontRenderer fontm = FontManager.googleSansMedium;
+            double x5 = -2;
+            double y5 = (double) sCRES.getScaledHeight() / 2 - 40;
+            String TargetName2 = target.getDisplayName().getFormattedText();
+            String TargetHealth2 = "H: " + (int) target.getHealth();
+            int width = Math.max(60, (int) fontm.getStringWidth(TargetName2) + 20);
+            int height = 80;
+            BlurUtils.prepareBlur();
+            RoundedUtils.drawRound((float) x5, (float) y5, width, height, 4.0f, true, Color.black);
+            BlurUtils.blurEnd(2, 1.75F);
+            RenderUtils.drawRoundedRectangle((float) x5, (float) y5, (float) x5 + width, (float) y5 + height, 4, 0x66161616);
+            int playerHeadSize2 = 32;
+            int playerHeadX2 = (int) (x5 + 4);
+            int playerHeadY2 = (int) (y5 + height - 36);
+            RenderUtils.drawPlayerHead(playerHeadX2, playerHeadY2, playerHeadSize2, target);
+            float healthBarW = (width - 2) * (target.getHealth() / target.getMaxHealth());
+            float healthBarH = 6;
+            int hbx = (int) (x5 + 4);
+            int hby = (int) (y5 + 5);
+            health = RenderUtils.animate((float) health, hbx + healthBarW, 0.05f);
+            int[] colors = getColors((int) theme.getInput());
+            int hColor1 = colors[0];
+            int hColor2 = colors[1];
+            RenderUtils.drawRoundedGradientRect(hbx, hby, (float) health, hby + healthBarH, 4, hColor1, hColor2, hColor2, hColor1);
+            int nposx = (int) (x5 + 5);
+            int nposy = (int) (y5 + 18);
+            int hposy = (int) (y5 + 32);
+            fontm.drawString(TargetName2, nposx, nposy,0xFFCCCCCC , false);
+            fontr.drawString(TargetHealth2, nposx, hposy, Utils.getColorForHealth(target.getHealth()), false);
+            String distText = "D: " + (int) target.getDistanceToEntity(mc.thePlayer);
+            int estDTSTUX = (int) (fontr.getStringWidth(distText) + 5);
+            if (width >= estDTSTUX) {
+                fontr.drawString(distText, nposx + fontr.getStringWidth(TargetHealth2) + 5, hposy, 0xFFCCCCCC, false);
+            }
         }
     }
 
