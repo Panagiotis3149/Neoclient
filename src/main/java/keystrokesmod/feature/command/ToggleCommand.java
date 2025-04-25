@@ -16,6 +16,7 @@ public class ToggleCommand {
         this.moduleManager = moduleManager;
         MinecraftForge.EVENT_BUS.register(this);
     }
+
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
         if (event.getPacket() instanceof C01PacketChatMessage) {

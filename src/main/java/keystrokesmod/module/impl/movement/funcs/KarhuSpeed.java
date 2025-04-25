@@ -27,7 +27,7 @@ public class KarhuSpeed {
 
         if (Utils.isMoving() && mc.thePlayer.onGround) {
             MoveUtil.strafe(0.453, mc.thePlayer);
-            if (Utils.getHorizontalSpeed() < (MoveUtil.baseSprintMaxSpeed - 0.03)) {
+            if (Utils.getHorizontalSpeed() < (MoveUtil.getBaseMoveSpeed() - 0.03)) {
                 final double yaw = direction();
                 mc.thePlayer.motionX -= MathHelper.sin((float) yaw) + 0.012;
                 mc.thePlayer.motionZ += MathHelper.cos((float) yaw) + 0.012;

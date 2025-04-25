@@ -27,8 +27,9 @@ public class Fly extends Module {
     private int dC = 0;
     private int ticksl;
     public int offGroundTicks = 0;
-    private String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld"};
+    private String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus1"};
     private keystrokesmod.event.SendPacketEvent SendPacketEvent;
+    private double jumpGround = 0.0;
 
     public Fly() {
         super("Fly", category.movement);
@@ -124,6 +125,18 @@ public class Fly extends Module {
                 mc.thePlayer.setJumping(false);
                 mc.thePlayer.onGround = true;
                 break;
+            case 6:
+                final double constantMotionValue = 0.41999998688697815;
+                final float constantMotionJumpGroundValue = 0.76f;
+                if (mc.thePlayer.onGround) {
+                    this.jumpGround = mc.thePlayer.posY;
+                    mc.thePlayer.jump();
+                }
+                if (mc.thePlayer.posY > this.jumpGround + constantMotionJumpGroundValue) {
+                    MoveUtil.strafe4(0.31);
+                    mc.thePlayer.motionY = constantMotionValue;
+                    this.jumpGround = mc.thePlayer.posY;
+                }
         }
     }
 

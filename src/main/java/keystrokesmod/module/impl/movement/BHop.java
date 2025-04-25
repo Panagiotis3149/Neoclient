@@ -15,13 +15,13 @@ import net.minecraft.potion.Potion;
 
 
 public class BHop extends Module {
-    private SliderSetting mode;
+    public static SliderSetting mode;
     public static SliderSetting speed;
     public static ButtonSetting autoJump;
     private ButtonSetting liquidDisable;
     private ButtonSetting sneakDisable;
     private ButtonSetting stopMotion;
-    private String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "Test", "Test2"};
+    public static String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "Test", "Test2"};
     public boolean hopping;
     private int ticks = 0;
     private int ticksl = 0;
@@ -139,7 +139,7 @@ public class BHop extends Module {
                 if (!Utils.jumpDown() && Utils.isMoving() && mc.currentScreen == null) {
                     mc.thePlayer.setSprinting(true);
                     if (mc.thePlayer.onGround) {
-                        MoveUtil.strafe(MoveUtil.getAllowedHorizontalDistance() - Math.random() / 100f, mc.thePlayer);
+                        MoveUtil.strafe(MoveUtil.getAllowedHorizontalDistance() - Math.random() / 100f,  mc.thePlayer);
                         mc.thePlayer.jump();
 
                         double angle = Math.atan(mc.thePlayer.motionX / mc.thePlayer.motionZ) * (180 / Math.PI);
@@ -237,7 +237,7 @@ public class BHop extends Module {
                             mc.thePlayer.setSprinting(true);
                             Utils.getTimer().timerSpeed = 0.97F;
                             if (mc.thePlayer.onGround && !mc.thePlayer.movementInput.jump) {
-                                MoveUtil.jump(0.05F);
+                                MoveUtil.jump(0.03F);
                                 float multiplier = 1.3F;
                                 mc.thePlayer.motionX *= multiplier;
                                 mc.thePlayer.motionZ *= multiplier;
@@ -250,8 +250,8 @@ public class BHop extends Module {
                             }
                             MoveUtil.strafe2();
                             if (!mc.thePlayer.onGround) {
-                                mc.thePlayer.motionX *= 0.8742;
-                                mc.thePlayer.motionZ *= 0.8742;
+                                mc.thePlayer.motionX *= Utils.bypass(0.8718017213 * 1.000023D);
+                                mc.thePlayer.motionZ *= Utils.bypass(0.8718017213 * 1.000023D);
                             }
                             hopping = true;
                             break;

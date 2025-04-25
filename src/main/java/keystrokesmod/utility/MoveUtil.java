@@ -177,10 +177,6 @@ public class MoveUtil {
         strafe4(null, movementSpeed);
     }
 
-    public static double getLastDistance() {
-        return Math.hypot(mc.thePlayer.posX - mc.thePlayer.prevPosX, mc.thePlayer.posZ - mc.thePlayer.prevPosZ);
-    }
-
 
     // Pandaware Strafe
     public static  void strafe4(MoveEvent moveEvent, double movementSpeed) {

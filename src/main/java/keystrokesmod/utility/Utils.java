@@ -899,6 +899,8 @@ public class Utils {
         return rm * multiple;
     }
 
+    public static double bypassvalue = 0.015625;
+
     public static double rnd(double n, int d) {
         if (d == 0) {
             return (double) Math.round(n);

@@ -99,7 +99,7 @@ public class KillAura extends Module {
         this.registerSetting(blockRange = new SliderSetting("Range (block)", 6.0, 3.0, 12.0, 0.05));
         this.registerSetting(rotationMode = new SliderSetting("Rotations", rotationModes, 0));
         this.registerSetting(moveFixMode = new SliderSetting("Move fix", RotationHandler.MoveFix.MODES, 0));
-        this.registerSetting(sortMode = new SliderSetting("Target sorting modes", sortModes, 0.0));
+        this.registerSetting(sortMode = new SliderSetting("Target sorting modes", sortModes, 3.0));
         this.registerSetting(switchDelay = new SliderSetting("Delay (switch)", 200.0, 50.0, 1000.0, 25.0, "ms"));
         this.registerSetting(targets = new SliderSetting("Targets", 3.0, 1.0, 10.0, 1.0));
         this.registerSetting(targetInvis = new ButtonSetting("Target invis", true));
@@ -288,7 +288,7 @@ public class KillAura extends Module {
 
             float[] controlPoint2 = {(rotations[0] + prevRotations[0]) / 2, (rotations[1] + prevRotations[1]) / 2};
 
-            float t = (float) 0.5;
+            float t = (float) 0.7;
             float bezierX = (1 - t) * (1 - t) * controlPoint1[0] + 2 * (1 - t) * t * controlPoint2[0] + t * t * rotations[0];
             float bezierY = (1 - t) * (1 - t) * controlPoint1[1] + 2 * (1 - t) * t * controlPoint2[1] + t * t * rotations[1];
 
@@ -358,29 +358,6 @@ public class KillAura extends Module {
         }
         blinkedPackets.add(e.getPacket());
         e.setCanceled(true);
-
-
-        // Basically a badpackets check
-        if (badPacketsCheck.isToggled()) {
-            AtomicBoolean isAttacking = new AtomicBoolean(false);
-            if (e.getPacket() instanceof C0BPacketEntityAction) {
-                C0BPacketEntityAction blockPacket = (C0BPacketEntityAction) e.getPacket();
-                if (blockPacket.getAction() == C0BPacketEntityAction.Action.START_SNEAKING && isAttacking.get()) {
-                    e.cancelEvent();
-                }
-            }
-            if (e.getPacket() instanceof C02PacketUseEntity) {
-                isAttacking.set(true);
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ewwor) {
-                        ewwor.printStackTrace();
-                    }
-                    isAttacking.set(false);
-                }).start();
-            }
-        }
     }
 
 

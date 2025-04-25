@@ -14,10 +14,11 @@
 - Raven xD
 - Raven B+
 - Rise 6.2.4
-- Zazu Recode 5.2
+- Zazu Recode 5.2 (i think)
 - FDP
 - Pulsive
 - Moonlight (lmfao)
+- Augustus 2.6 (lmfao)
 
 ❌ **Removed in Current Version:**
 - Liquidbounce++ (Enorsu's fork)
