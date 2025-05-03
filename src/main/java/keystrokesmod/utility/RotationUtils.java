@@ -73,9 +73,7 @@ public class RotationUtils {
             if (boundingBox != null) {
                 Vec3 targetVec = getPositionEyes.addVector(vec3.xCoord * n, vec3.yCoord * n, vec3.zCoord * n);
                 MovingObjectPosition intercept = boundingBox.calculateIntercept(getPositionEyes, targetVec);
-                if (intercept != null) {
-                    return true;
-                }
+                return intercept != null;
             }
         }
         return false;

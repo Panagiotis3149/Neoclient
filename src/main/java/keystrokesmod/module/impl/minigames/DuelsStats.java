@@ -23,7 +23,7 @@ public class DuelsStats extends Module {
     private String ign = "";
     private String en = "";
     private static final String[] thr_lvl = new String[]{"§4VERY HIGH", "§cHIGH", "§6MODERATE", "§aLOW", "§2VERY LOW"};
-    private List<String> q = new ArrayList();
+    private final List<String> q = new ArrayList();
 
     public DuelsStats() {
         super("DuelsStats", Module.category.minigames, 0);

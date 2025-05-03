@@ -8,6 +8,9 @@ public class MoveInputEvent extends Event {
     private boolean jump;
     private boolean sneak;
     private double sneakSlowDown;
+    public double x;
+    private double y;
+    public double z;
 
     public MoveInputEvent(float forward, float strafe, boolean jump, boolean sneak, double sneakSlowDown) {
         this.forward = forward;
@@ -15,6 +18,9 @@ public class MoveInputEvent extends Event {
         this.jump = jump;
         this.sneak = sneak;
         this.sneakSlowDown = sneakSlowDown;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     public float getForward() {
@@ -55,6 +61,29 @@ public class MoveInputEvent extends Event {
 
     public void setSneakSlowDown(double sneakSlowDown) {
         this.sneakSlowDown = sneakSlowDown;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public void setZ(double z) {
+        this.z = z;
+    }
+
+    public void zero() {
+        x = 0.0;
+        y = 0.0;
+        z = 0.0;
+    }
+
+    public void zeroXZ() {
+        x = 0.0;
+        z = 0.0;
     }
 
     @Override

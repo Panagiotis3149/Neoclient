@@ -15,7 +15,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 public class ShaderUtils {
 
-    private Minecraft mc = Minecraft.getMinecraft();
+    private final Minecraft mc = Minecraft.getMinecraft();
     public final int programID;
     private final String kawaseUpGlow = "#version 120\n" +
             "\n" +

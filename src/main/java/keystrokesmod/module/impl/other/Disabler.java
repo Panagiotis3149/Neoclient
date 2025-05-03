@@ -11,9 +11,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class Disabler extends Module {
     private final Minecraft mc = Minecraft.getMinecraft();
-    private SliderSetting mode;
+    private final SliderSetting mode;
     private boolean isSpoofing = false;
-    private String[] modes = new String[]{"Geyser"};
+    private final String[] modes = new String[]{"Geyser"};
 
     public Disabler() {
         super("Disabler", Module.category.other);

@@ -2,26 +2,30 @@ package keystrokesmod.module.impl.movement;
 
 import keystrokesmod.event.*;
 import keystrokesmod.module.Module;
+import keystrokesmod.module.impl.movement.funcs.BMCSpeed;
 import keystrokesmod.module.impl.movement.funcs.KarhuSpeed;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.MoveUtil;
 import keystrokesmod.utility.Utils;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.potion.Potion;
+
+import static keystrokesmod.utility.Utils.mc;
 
 
 public class BHop extends Module {
     public static SliderSetting mode;
     public static SliderSetting speed;
     public static ButtonSetting autoJump;
-    private ButtonSetting liquidDisable;
-    private ButtonSetting sneakDisable;
-    private ButtonSetting stopMotion;
-    public static String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "Test", "Test2"};
+    private final ButtonSetting liquidDisable;
+    private final ButtonSetting sneakDisable;
+    private final ButtonSetting stopMotion;
+    public static String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "BMC"};
     public boolean hopping;
     private int ticks = 0;
     private int ticksl = 0;
@@ -30,15 +34,14 @@ public class BHop extends Module {
     private double lastAngle = 999;
     private int ticksSinceVelocity = 0;
 
-
     public BHop() {
         super("Speed", Module.category.movement, 44);
-        this.registerSetting(mode = new SliderSetting("Mode", modes, 0));
-        this.registerSetting(speed = new SliderSetting("Speed", 2.0, 0.5, 8, 0.1));
-        this.registerSetting(autoJump = new ButtonSetting("Auto jump", true));
-        this.registerSetting(liquidDisable = new ButtonSetting("Disable in liquid", true));
-        this.registerSetting(sneakDisable = new ButtonSetting("Disable while sneaking", true));
-        this.registerSetting(stopMotion = new ButtonSetting("Stop motion", false));
+        registerSetting(mode = new SliderSetting("Mode", modes, 0));
+        registerSetting(speed = new SliderSetting("Speed", 2.0, 0.5, 8, 0.1));
+        registerSetting(autoJump = new ButtonSetting("Auto jump", true));
+        registerSetting(liquidDisable = new ButtonSetting("Disable in liquid", true));
+        registerSetting(sneakDisable = new ButtonSetting("Disable while sneaking", true));
+        registerSetting(stopMotion = new ButtonSetting("Stop motion", false));
     }
 
     @Override
@@ -48,17 +51,10 @@ public class BHop extends Module {
 
     @Override
     public void onUpdate() {
-        if (mc.thePlayer.onGround) {
-            offGroundTicks = 0;
-        } else {
-            offGroundTicks++;
-        }
-        ticks++;
-        if (ticks > 20) ticks = 0;
-        ticksl++;
-        if (ticksl > 200) ticksl = 0;
-        tickone++;
-        if (tickone > 1) tickone = 0;
+        if (mc.thePlayer.onGround) offGroundTicks = 0; else offGroundTicks++;
+        ticks++; if (ticks > 20) ticks = 0;
+        ticksl++; if (ticksl > 200) ticksl = 0;
+        tickone++; if (tickone > 1) tickone = 0;
         if (((mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) && liquidDisable.isToggled()) || (mc.thePlayer.isSneaking() && sneakDisable.isToggled())) {
             return;
         }
@@ -139,7 +135,7 @@ public class BHop extends Module {
                 if (!Utils.jumpDown() && Utils.isMoving() && mc.currentScreen == null) {
                     mc.thePlayer.setSprinting(true);
                     if (mc.thePlayer.onGround) {
-                        MoveUtil.strafe(MoveUtil.getAllowedHorizontalDistance() - Math.random() / 100f,  mc.thePlayer);
+                        MoveUtil.strafe(MoveUtil.getAllowedHorizontalDistance() - Math.random() / 100f, mc.thePlayer);
                         mc.thePlayer.jump();
 
                         double angle = Math.atan(mc.thePlayer.motionX / mc.thePlayer.motionZ) * (180 / Math.PI);
@@ -201,12 +197,10 @@ public class BHop extends Module {
                 Utils.setSpeed(0.36);
                 MoveUtil.strafea();
                 break;
-            case 9:
-                KarhuSpeed.KarhuSpeed();
-                break;
+            case 9: KarhuSpeed.KarhuSpeed(); break;
             case 10:
                 Utils.resetTimer();
-                float xd = 2.47f;
+                float xd = 2.5f;
                 if (!MoveUtil.isMoving()) return;
                 if (Utils.isMoving() && mc.thePlayer.onGround && autoJump.isToggled()) {
                     MoveUtil.jump(0.46f);
@@ -214,67 +208,31 @@ public class BHop extends Module {
                 if (Utils.getHorizontalSpeed() <= xd) {
                     Utils.setSpeed(Utils.getHorizontalSpeed() + 0.083);
                 }
-                Utils.getTimer().timerSpeed = 1.06f;
+                Utils.getTimer().timerSpeed = 1.05f;
                 break;
             case 11:
                 Utils.resetTimer();
-                if (MoveUtil.isMoving()) {
-                    Utils.getTimer().timerSpeed = 1.021F;
-                    if (mc.thePlayer.onGround) {
-                        MoveUtil.strafe5(0.29);
-                        MoveUtil.jump(0.40F);
-                    }
-                    MoveUtil.strafe5(0.29);
-                    if (offGroundTicks > 5) {
-                        mc.thePlayer.motionY -= 0.03F;
-                    }
-                    hopping = true;
+                boolean spot = mc.thePlayer.isPotionActive(Potion.moveSpeed);
+                if (!MoveUtil.isMoving()) return;
+                if (mc.thePlayer.onGround) {
+                    mc.thePlayer.motionY = 0.42f;
+                    MoveUtil.strafec(MoveUtil.getAllowedHorizontalDistance() * (spot ? 1.15 : 1.5));
+                } if (mc.thePlayer.hurtTime > 0) {
+                    MoveUtil.strafec((MoveUtil.getSpeed() + (float) .11));
+                    mc.thePlayer.posY = mc.thePlayer.posY + 0.2;
+                } else {
+                    MoveUtil.strafec(MoveUtil.getAllowedHDistNCP());
+                } if (mc.thePlayer.hurtTime == 0 && (offGroundTicks == 6)) {
+                mc.thePlayer.motionY = -0.09800000190734863;
                 }
                 break;
-                    case 12:
-                        Utils.resetTimer();
-                        if (MoveUtil.isMoving()) {
-                            mc.thePlayer.setSprinting(true);
-                            Utils.getTimer().timerSpeed = 0.97F;
-                            if (mc.thePlayer.onGround && !mc.thePlayer.movementInput.jump) {
-                                MoveUtil.jump(0.03F);
-                                float multiplier = 1.3F;
-                                mc.thePlayer.motionX *= multiplier;
-                                mc.thePlayer.motionZ *= multiplier;
-                                float currentSpeed = (float) Math.sqrt(Math.pow(mc.thePlayer.motionX, 2) + Math.pow(mc.thePlayer.motionZ, 2));
-                                float maxSpeed = 0.3F;
-                                if (currentSpeed > maxSpeed) {
-                                    mc.thePlayer.motionX = mc.thePlayer.motionX / currentSpeed * maxSpeed;
-                                    mc.thePlayer.motionZ = mc.thePlayer.motionZ / currentSpeed * maxSpeed;
-                                }
-                            }
-                            MoveUtil.strafe2();
-                            if (!mc.thePlayer.onGround) {
-                                mc.thePlayer.motionX *= Utils.bypass(0.8718017213 * 1.000023D);
-                                mc.thePlayer.motionZ *= Utils.bypass(0.8718017213 * 1.000023D);
-                            }
-                            hopping = true;
-                            break;
-                }
-            case 13:
-                Utils.resetTimer();
-                if (MoveUtil.isMoving()) {
-                    mc.thePlayer.setSprinting(true);
-                    if (mc.thePlayer.onGround) {
-                        MoveUtil.jump(0.00923F);
-                        mc.thePlayer.motionX *= 0.9;
-                        mc.thePlayer.motionZ *= 0.9;
-                    } if (mc.thePlayer.moveForward < 0) {
-                        MoveUtil.strafe5(0.3);
-                    }
-                    hopping = true;
-                }
-                break;
+            case 12: BMCSpeed.BMCSpeed(); break;
         }
     }
 
     @Override
     public void onDisable() {
+        BMCSpeed.speed = 0;
         Utils.resetTimer();
         if (stopMotion.isToggled()) {
             mc.thePlayer.motionZ = 0;
@@ -297,7 +255,7 @@ public class BHop extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(@NotNull ReceivePacketEvent event) {
-        if (event.getPacket() instanceof S12PacketEntityVelocity) {
+        if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity) {
             ticksSinceVelocity = 0;
         }
     }

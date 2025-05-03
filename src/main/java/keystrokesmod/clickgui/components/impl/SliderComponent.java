@@ -21,8 +21,8 @@ import static keystrokesmod.utility.RenderUtils.drawRoundedGradientRect;
 import static keystrokesmod.utility.Theme.getColors;
 
 public class SliderComponent extends Component {
-    private SliderSetting sliderSetting;
-    private ModuleComponent moduleComponent;
+    private final SliderSetting sliderSetting;
+    private final ModuleComponent moduleComponent;
     private int o;
     private int x;
     private int y;
@@ -88,8 +88,8 @@ public class SliderComponent extends Component {
 
         font.drawString(
                 this.sliderSetting.getName() + ": " + (this.sliderSetting.isString ? "§e" : "§b") + value + info,
-                (float) ((this.moduleComponent.categoryComponent.getX() + 4) * 2.0F),
-                (float) ((this.moduleComponent.categoryComponent.getY() + this.o + 3) * 2.0F),
+                (this.moduleComponent.categoryComponent.getX() + 4) * 2.0F,
+                (this.moduleComponent.categoryComponent.getY() + this.o + 3) * 2.0F,
                 -1,
                 false
         );

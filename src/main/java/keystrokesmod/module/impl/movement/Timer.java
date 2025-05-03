@@ -7,8 +7,8 @@ import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.Utils;
 
 public class Timer extends Module {
-    private SliderSetting speed;
-    private ButtonSetting strafeOnly;
+    private final SliderSetting speed;
+    private final ButtonSetting strafeOnly;
 
     public Timer() {
         super("Timer", Module.category.movement, 0);

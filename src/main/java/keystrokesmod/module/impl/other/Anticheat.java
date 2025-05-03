@@ -1,7 +1,7 @@
 package keystrokesmod.module.impl.other;
 
 import keystrokesmod.module.Module;
-import keystrokesmod.module.impl.world.AntiBot;
+import keystrokesmod.module.impl.combat.AntiBot;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.DescriptionSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
@@ -25,19 +25,19 @@ import java.util.UUID;
 import static keystrokesmod.Variables.clientName;
 
 public class Anticheat extends Module {
-    private SliderSetting interval;
-    private ButtonSetting enemyAdd;
-    private ButtonSetting autoReport;
-    private ButtonSetting ignoreTeammates;
-    private ButtonSetting atlasSuspect;
-    private ButtonSetting shouldPing;
-    private ButtonSetting autoBlock;
-    private ButtonSetting noFall;
-    private ButtonSetting noSlow;
-    private ButtonSetting scaffold;
-    private ButtonSetting legitScaffold;
-    private HashMap<UUID, HashMap<ButtonSetting, Long>> flags = new HashMap<>();
-    private HashMap<UUID, PlayerData> players = new HashMap<>();
+    private final SliderSetting interval;
+    private final ButtonSetting enemyAdd;
+    private final ButtonSetting autoReport;
+    private final ButtonSetting ignoreTeammates;
+    private final ButtonSetting atlasSuspect;
+    private final ButtonSetting shouldPing;
+    private final ButtonSetting autoBlock;
+    private final ButtonSetting noFall;
+    private final ButtonSetting noSlow;
+    private final ButtonSetting scaffold;
+    private final ButtonSetting legitScaffold;
+    private final HashMap<UUID, HashMap<ButtonSetting, Long>> flags = new HashMap<>();
+    private final HashMap<UUID, PlayerData> players = new HashMap<>();
     private long lastAlert;
     public Anticheat() {
         super("Anticheat", category.other);

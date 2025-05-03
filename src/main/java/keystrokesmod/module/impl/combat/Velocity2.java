@@ -14,10 +14,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class Velocity2 extends Module {
     public static SliderSetting mode;
-    private String[] modes = new String[]{"CancelPacket"};
+    private final String[] modes = new String[]{"CancelPacket"};
 
     public Velocity2() {
-        super("Velocity2", Module.category.combat, 0);
+        super("ModeVelo", Module.category.combat, 0);
         this.registerSetting(mode = new SliderSetting("Mode", modes, 0));
     }
 
@@ -41,7 +41,7 @@ public class Velocity2 extends Module {
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent event) {
         if (this.isEnabled()) {
-            Packet<?> packet = event.getPacket();
+            Packet<?> packet = ReceivePacketEvent.getPacket();
             if (packet instanceof S12PacketEntityVelocity) {
                 handleVelocityPacket((S12PacketEntityVelocity) packet, event);
             }

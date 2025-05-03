@@ -1,4 +1,4 @@
-package keystrokesmod.module.impl.world;
+package keystrokesmod.module.impl.combat;
 
 import keystrokesmod.module.Module;
 import keystrokesmod.module.ModuleManager;
@@ -19,12 +19,12 @@ import java.util.List;
 public class AntiBot extends Module {
     private static final HashMap<EntityPlayer, Long> entities = new HashMap();
     private static ButtonSetting entitySpawnDelay;
-    private SliderSetting delay;
+    private final SliderSetting delay;
     private static ButtonSetting pitSpawn;
     private static ButtonSetting tablist;
 
     public AntiBot() {
-        super("AntiBot", Module.category.world, 0);
+        super("AntiBot", category.combat, 0);
         this.registerSetting(entitySpawnDelay = new ButtonSetting("Entity spawn delay", false));
         this.registerSetting(delay = new SliderSetting("Delay", 7.0, 0.5, 15.0, 0.5, " second"));
         this.registerSetting(pitSpawn = new ButtonSetting("Pit spawn", false));
@@ -94,14 +94,10 @@ public class AntiBot extends Module {
                 if (unformattedText.length() >= 7 && unformattedText.charAt(2) == '[' && unformattedText.charAt(3) == 'N' && unformattedText.charAt(6) == ']') {
                     return true;
                 }
-                if (entityPlayer.getName().contains(" ")) {
-                    return true;
-                }
+                return entityPlayer.getName().contains(" ");
             } else if (entityPlayer.isInvisible()) {
                 String unformattedText = entityPlayer.getDisplayName().getUnformattedText();
-                if (unformattedText.length() >= 3 && unformattedText.charAt(0) == '§' && unformattedText.charAt(1) == 'c') {
-                    return true;
-                }
+                return unformattedText.length() >= 3 && unformattedText.charAt(0) == '§' && unformattedText.charAt(1) == 'c';
             }
         }
         return false;

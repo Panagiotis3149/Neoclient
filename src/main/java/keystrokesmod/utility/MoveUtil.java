@@ -2,10 +2,13 @@ package keystrokesmod.utility;
 
 
 import keystrokesmod.event.MoveEvent;
+import keystrokesmod.event.MoveInputEvent;
+import keystrokesmod.event.PreMotionEvent;
 import keystrokesmod.mixins.impl.entity.EntityAccessor;
 import keystrokesmod.module.impl.movement.TargetStrafe;
 import keystrokesmod.script.classes.Vec3;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
@@ -14,6 +17,8 @@ import net.minecraft.util.MathHelper;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+
+import java.util.Arrays;
 
 import static keystrokesmod.Raven.mc;
 import static keystrokesmod.module.impl.movement.BHop.autoJump;
@@ -51,6 +56,51 @@ public class MoveUtil {
         strafe(speed(), mc.thePlayer);
     }
 
+    public static double defaultSpeed() {
+        double baseSpeed = 0.2873;
+        if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+            int amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
+            baseSpeed *= 1.0 + 0.2 * (double)(amplifier + 1);
+        }
+        return baseSpeed;
+    }
+
+    public static double getAllowedHDistNCP() {
+        double hDist = mc.thePlayer.capabilities.getWalkSpeed();
+        if (mc.thePlayer.isPotionActive(Potion.moveSlowdown))
+            hDist /= 1.0 + 0.05 * (mc.thePlayer.getActivePotionEffect(Potion.moveSlowdown).getAmplifier() + 1);
+        if (mc.thePlayer.isPotionActive(Potion.moveSpeed))
+            hDist *= 1.0 + 0.05 * (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1);
+        return hDist * 4.8;
+    }
+
+
+    public static void setMotion(double speed) {
+        double forward = mc.thePlayer.movementInput.moveForward;
+        double strafe = mc.thePlayer.movementInput.moveStrafe;
+        float yaw = mc.thePlayer.rotationYaw;
+        if (forward == 0.0 && strafe == 0.0) {
+            mc.thePlayer.motionX = 0.0;
+            mc.thePlayer.motionZ = 0.0;
+        } else {
+            if (forward != 0.0) {
+                if (strafe > 0.0) {
+                    yaw += (float)(forward > 0.0 ? -45 : 45);
+                } else if (strafe < 0.0) {
+                    yaw += (float)(forward > 0.0 ? 45 : -45);
+                }
+                strafe = 0.0;
+                if (forward > 0.0) {
+                    forward = 1.0;
+                } else if (forward < 0.0) {
+                    forward = -1.0;
+                }
+            }
+            mc.thePlayer.motionX = (forward * speed * Math.cos(Math.toRadians(yaw + 90.0f)) + strafe * speed * Math.sin(Math.toRadians(yaw + 90.0f)));
+            mc.thePlayer.motionZ =(forward * speed * Math.sin(Math.toRadians(yaw + 90.0f)) - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0f)));
+        }
+    }
+
 
     public static void strafe2() {
         if (Utils.isMoving()) {
@@ -61,6 +111,36 @@ public class MoveUtil {
             Utils.setSpeed(Utils.getHorizontalSpeed() + 0.005 * speed.getInput());
         }
 
+    }
+
+    public static void stop() {
+        mc.thePlayer.motionX = 0;
+        mc.thePlayer.motionZ = 0;
+    }
+
+    public static void strafec(double speed) {
+        float yaw = mc.thePlayer.rotationYaw;
+        float strafe = 45.0f;
+        if (mc.thePlayer.moveForward < 0.0f) {
+            strafe = -45.0f;
+            yaw += 180.0f;
+        }
+        if (mc.thePlayer.moveStrafing > 0.0f) {
+            yaw -= strafe;
+            if (mc.thePlayer.moveForward == 0.0f) {
+                yaw -= 45.0f;
+            }
+        } else if (mc.thePlayer.moveStrafing < 0.0f) {
+            yaw += strafe;
+            if (mc.thePlayer.moveForward == 0.0f) {
+                yaw += 45.0f;
+            }
+        }
+        float movementYaw = (float) Math.toRadians(yaw);
+        if (isMoving()) {
+            mc.thePlayer.motionZ = Math.cos(movementYaw) * speed;
+            mc.thePlayer.motionX = -Math.sin(movementYaw) * speed;
+        }
     }
 
 
@@ -129,6 +209,91 @@ public class MoveUtil {
 
         return f;
     }
+
+    public static void setSpeedMoveIEvent(final MoveInputEvent moveEvent, final double moveSpeed) {
+        setSpeedMoveIEvent(moveEvent, moveSpeed, mc.thePlayer.rotationYaw, mc.thePlayer.movementInput.moveStrafe, mc.thePlayer.movementInput.moveForward);
+    }
+
+    public static void setSpeedMoveIEvent(final MoveInputEvent moveEvent, final double moveSpeed, final float pseudoYaw, final double pseudoStrafe, final double pseudoForward) {
+        double forward = pseudoForward;
+        double strafe = pseudoStrafe;
+        float yaw = pseudoYaw;
+
+        if (forward != 0.0D) {
+            if (strafe > 0.0D) {
+                yaw += ((forward > 0.0D) ? -45.0F : 45.0F);
+            } else if (strafe < 0.0D) {
+                yaw += ((forward > 0.0D) ? 45.0F : -45.0F);
+            }
+
+            strafe = 0.0D;
+
+            if (forward > 0.0D) {
+                forward = 1.0D;
+            } else if (forward < 0.0D) {
+                forward = -1.0D;
+            }
+        }
+
+        final double mx = Math.cos(Math.toRadians((yaw + 180F)));
+        final double mz = Math.sin(Math.toRadians((yaw + 180F)));
+        moveEvent.setX(forward * moveSpeed * mx + strafe * moveSpeed * mz);
+        moveEvent.setZ(forward * moveSpeed * mz - strafe * moveSpeed * mx);
+    }
+
+
+    public static void setSpeedMTest(final double moveSpeed) {
+        setSpeedMTest(moveSpeed, mc.thePlayer.rotationYaw, mc.thePlayer.movementInput.moveStrafe, mc.thePlayer.movementInput.moveForward);
+    }
+
+    public static void setSpeedMTest(final double moveSpeed, final float pseudoYaw, final double pseudoStrafe, final double pseudoForward) {
+        double forward = pseudoForward;
+        double strafe = pseudoStrafe;
+        float yaw = pseudoYaw;
+
+        if (forward != 0.0D) {
+            if (strafe > 0.0D) {
+                yaw += ((forward > 0.0D) ? -45.0F : 45.0F);
+            } else if (strafe < 0.0D) {
+                yaw += ((forward > 0.0D) ? 45.0F : -45.0F);
+            }
+
+            strafe = 0.0D;
+
+            if (forward > 0.0D) {
+                forward = 1.0D;
+            } else if (forward < 0.0D) {
+                forward = -1.0D;
+            }
+        }
+
+        final double mx = Math.cos(Math.toRadians((yaw + 180F)));
+        final double mz = Math.sin(Math.toRadians((yaw + 180F)));
+        mc.thePlayer.motionX = (forward * moveSpeed * mx + strafe * moveSpeed * mz);
+        mc.thePlayer.motionZ = (forward * moveSpeed * mz - strafe * moveSpeed * mx);
+    }
+
+
+    public static void useDiagonalSpeed() {
+        KeyBinding[] gameSettings = new KeyBinding[]{mc.gameSettings.keyBindForward, mc.gameSettings.keyBindRight, mc.gameSettings.keyBindBack, mc.gameSettings.keyBindLeft};
+
+        final int[] down = {0};
+
+        Arrays.stream(gameSettings).forEach(keyBinding -> {
+            down[0] = down[0] + (keyBinding.isKeyDown() ? 1 : 0);
+        });
+
+        boolean active = down[0] == 1;
+
+        if (!active) return;
+
+        final double groundIncrease = (0.1299999676734952 - 0.12739998266255503) + 1E-7 - 1E-8;
+        final double airIncrease = (0.025999999334873708 - 0.025479999685988748) - 1E-8;
+        final double increase = mc.thePlayer.onGround ? groundIncrease : airIncrease;
+
+        moveFlying(increase);
+    }
+
 
     public static double getBaseMoveSpeed() {
         double baseSpeed = 0.2873D;

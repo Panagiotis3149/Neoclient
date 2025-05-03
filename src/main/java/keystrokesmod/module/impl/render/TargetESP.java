@@ -24,9 +24,9 @@ import java.awt.*;
 public class TargetESP extends Module {
 
     private final SliderSetting alpha;
-    private String[] modes = new String[]{"Ring", "Vape", "Raven", "Both", "Ghost"};
+    private final String[] modes = new String[]{"Ring", "Vape", "Raven", "Both", "Ghost"};
     private final SliderSetting mode;
-    private final SliderSetting theme;
+    public static SliderSetting theme;
     public Color color;
     private final ResourceLocation glowCircle = new ResourceLocation("keystrokesmod", "textures/glow_circle.png");
     private final long lastTime = System.currentTimeMillis();
@@ -168,10 +168,10 @@ public class TargetESP extends Module {
             double z2 = z + Math.cos((segments - 5) * Math.PI / 180F) * radius;
 
             GL11.glBegin(GL11.GL_QUADS);
-            GL11.glColor4f((float) (color.getRed() / 255f), (float) (color.getGreen() / 255f), (float) (color.getBlue() / 255f), (float) (alpha.getInput() / 255f));
+            GL11.glColor4f(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, (float) (alpha.getInput() / 255f));
             GL11.glVertex3d(x1, y, z1);
             GL11.glVertex3d(x2, y, z2);
-            GL11.glColor4f((float) (color.getRed() / 255f), (float) (color.getGreen() / 255f), (float) (color.getBlue() / 255f), 0);
+            GL11.glColor4f(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 0);
             GL11.glVertex3d(x2, y + eased, z2);
             GL11.glVertex3d(x1, y + eased, z1);
             GL11.glEnd();

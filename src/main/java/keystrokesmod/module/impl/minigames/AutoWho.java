@@ -10,9 +10,9 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AutoWho extends Module {
-    private ButtonSetting artifical;
-    private ButtonSetting hideMessage;
-    private ButtonSetting removeBots;
+    private final ButtonSetting artifical;
+    private final ButtonSetting hideMessage;
+    private final ButtonSetting removeBots;
 
     public AutoWho() {
         super("AutoWho", category.minigames);

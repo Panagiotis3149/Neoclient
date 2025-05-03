@@ -1,5 +1,7 @@
 package keystrokesmod.module.impl.render;
 
+import net.minecraft.client.Minecraft;
+
 import static keystrokesmod.Raven.mc;
 
 public class MinecraftFontRenderer {
@@ -15,6 +17,38 @@ public class MinecraftFontRenderer {
     public double width(String text) {
         return mc.fontRendererObj.getStringWidth(text);
     }
+
+    public int getAccurateWidthTest(String text) {
+        if (text == null) return 0;
+
+        int width = 0;
+        boolean italic = false;
+
+        for (int i = 0; i < text.length(); ++i) {
+            char c = text.charAt(i);
+
+            if (c == '§' && i + 1 < text.length()) {
+                i++;
+                char code = text.charAt(i);
+
+                if (code == 'l' || code == 'L') {
+                    italic = true;
+                } else if (code == 'r' || code == 'R') {
+                    italic = false;
+                }
+                continue;
+            }
+
+            int charWidth = Minecraft.getMinecraft().fontRendererObj.getCharWidth(c);
+            width += charWidth;
+            if (italic && charWidth > 0) {
+                width++;
+            }
+        }
+
+        return width;
+    }
+
 
 
     public double height() {

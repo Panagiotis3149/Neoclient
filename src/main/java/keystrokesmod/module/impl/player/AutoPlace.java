@@ -22,12 +22,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
 public class AutoPlace extends Module {
-    private SliderSetting frameDelay;
-    private SliderSetting minPlaceDelay;
-    private ButtonSetting disableLeft;
-    private ButtonSetting holdRight;
-    private ButtonSetting fastPlaceJump;
-    private ButtonSetting pitchCheck;
+    private final SliderSetting frameDelay;
+    private final SliderSetting minPlaceDelay;
+    private final ButtonSetting disableLeft;
+    private final ButtonSetting holdRight;
+    private final ButtonSetting fastPlaceJump;
+    private final ButtonSetting pitchCheck;
     private double fDelay = 0.0D;
     private long l = 0L;
     private int f = 0;

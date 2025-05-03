@@ -2,7 +2,7 @@ package keystrokesmod.module.impl.combat;
 
 import keystrokesmod.Raven;
 import keystrokesmod.module.Module;
-import keystrokesmod.module.impl.world.AntiBot;
+import keystrokesmod.module.impl.combat.AntiBot;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.RotationUtils;
@@ -12,19 +12,19 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MathHelper;
 
 public class AimAssist extends Module {
-    private SliderSetting speed;
-    private SliderSetting fov;
-    private SliderSetting distance;
-    private ButtonSetting clickAim;
-    private ButtonSetting weaponOnly;
-    private ButtonSetting aimInvis;
-    private ButtonSetting blatantMode;
-    private ButtonSetting ignoreTeammates;
+    private final SliderSetting speed;
+    private final SliderSetting fov;
+    private final SliderSetting distance;
+    private final ButtonSetting clickAim;
+    private final ButtonSetting weaponOnly;
+    private final ButtonSetting aimInvis;
+    private final ButtonSetting blatantMode;
+    private final ButtonSetting ignoreTeammates;
 
-    private float[] prevRotations = new float[2];
-    private boolean startSmoothing = false;
-    private float accelerationFactor = 0.02f;
-    private float currentSpeed = 0.5f;
+    private final float[] prevRotations = new float[2];
+    private final boolean startSmoothing = false;
+    private final float accelerationFactor = 0.02f;
+    private final float currentSpeed = 0.5f;
 
     public AimAssist() {
         super("AimAssist", category.combat, 0);
@@ -57,8 +57,8 @@ public class AimAssist extends Module {
 
                             float accFactor = (float) (speed.getInput() / 400.0);
 
-                            float yawStep = (float) (Math.abs(yawDiff) * accFactor);
-                            float pitchStep = (float) (Math.abs(pitchDiff) * accFactor);
+                            float yawStep = Math.abs(yawDiff) * accFactor;
+                            float pitchStep = Math.abs(pitchDiff) * accFactor;
 
                             float newYaw = currentYaw + (yawDiff > 0 ? yawStep : -yawStep);
                             float newPitch = currentPitch + (pitchDiff > 0 ? pitchStep : -pitchStep);

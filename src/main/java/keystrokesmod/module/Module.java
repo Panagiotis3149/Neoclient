@@ -14,12 +14,13 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 public class Module {
     protected ArrayList<Setting> settings;
-    private String moduleName;
-    private Module.category moduleCategory;
+    private final String moduleName;
+    private final Module.category moduleCategory;
     private boolean enabled;
     private int keycode;
     protected static Minecraft mc;
@@ -165,9 +166,7 @@ public class Module {
     }
 
     public void registerSetting(Setting... settings) {
-        for (Setting setting : settings) {
-            this.settings.add(setting);
-        }
+        Collections.addAll(this.settings, settings);
     }
 
     public Module.category moduleCategory() {
@@ -219,16 +218,15 @@ public class Module {
 
 
 
-    public static enum category {
+    public enum category {
         combat,
         movement,
         player,
-        world,
         render,
         minigames,
         other,
         client,
         profiles,
-        scripts;
+        scripts
     }
 }

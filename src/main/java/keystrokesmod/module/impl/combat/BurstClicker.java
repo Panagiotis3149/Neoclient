@@ -14,10 +14,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 
 public class BurstClicker extends Module {
-    private SliderSetting clicks;
-    private SliderSetting delay;
-    private ButtonSetting delayRandomizer;
-    private ButtonSetting placeWhenBlock;
+    private final SliderSetting clicks;
+    private final SliderSetting delay;
+    private final ButtonSetting delayRandomizer;
+    private final ButtonSetting placeWhenBlock;
     private boolean l_c = false;
     private boolean l_r = false;
 

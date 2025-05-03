@@ -1,6 +1,5 @@
 package keystrokesmod.utility;
 
-import keystrokesmod.utility.RotationUtils;
 import org.jetbrains.annotations.Contract;
 
 public enum Move {
@@ -71,11 +70,6 @@ public enum Move {
             return FORWARD;
     }
 
-    /**
-     * 从实际转头与视觉视角的差值寻找最接近的移动
-     * @param yaw >=0, <360.
-     * @return 最接近的在实际视角的移动
-     */
     @Contract(pure = true)
     public static Move fromDeltaYaw(float yaw) {
         yaw = RotationUtils.normalize(yaw, 0, 360);

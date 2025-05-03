@@ -230,7 +230,6 @@ public class MainMenu extends GuiScreen {
     }
 
     public static class CustomButton extends GuiButton {
-        private static final int BUTTON_COLOR = 0x33161616;
         private float hoverAnimation = 0.0F; // For hover effect
 
         public CustomButton(int buttonId, int x, int y, String buttonText) {

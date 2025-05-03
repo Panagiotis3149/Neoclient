@@ -1,7 +1,7 @@
 package keystrokesmod.module.impl.render;
 
 import keystrokesmod.module.Module;
-import keystrokesmod.module.impl.world.AntiBot;
+import keystrokesmod.module.impl.combat.AntiBot;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.utility.RenderUtils;
 import keystrokesmod.utility.Utils;
@@ -17,10 +17,10 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 
 public class Trajectories extends Module {
-    private ButtonSetting autoScale;
-    private ButtonSetting disableUncharged;
-    private ButtonSetting highlightOnEntity;
-    private int highlightColor = new Color(57, 170, 94).getRGB();
+    private final ButtonSetting autoScale;
+    private final ButtonSetting disableUncharged;
+    private final ButtonSetting highlightOnEntity;
+    private final int highlightColor = new Color(57, 170, 94).getRGB();
     public Trajectories() {
         super("Trajectories", category.render);
         this.registerSetting(autoScale = new ButtonSetting("Auto-scale", true));
@@ -40,10 +40,7 @@ public class Trajectories extends Module {
         if (heldItem.getItem() instanceof ItemBow && !mc.thePlayer.isUsingItem() && disableUncharged.isToggled()) {
             return;
         }
-        boolean bow = false;
-        if (heldItem.getItem() instanceof ItemBow) {
-            bow = true;
-        }
+        boolean bow = heldItem.getItem() instanceof ItemBow;
 
         float playerYaw = mc.thePlayer.rotationYaw;
         float playerPitch = mc.thePlayer.rotationPitch;
@@ -141,7 +138,7 @@ public class Trajectories extends Module {
         GL11.glDisable(3042);
         GL11.glTranslated(posX - mc.getRenderManager().viewerPosX, posY - mc.getRenderManager().viewerPosY, posZ - mc.getRenderManager().viewerPosZ);
         if (target != null && target.sideHit != null) {
-            switch (target.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK ? target.sideHit.getIndex() : target.sideHit.getIndex()) {
+            switch (target.sideHit.getIndex()) {
                 case 2:
                 case 3: {
                     GL11.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);

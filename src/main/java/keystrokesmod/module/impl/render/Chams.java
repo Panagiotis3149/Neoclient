@@ -1,7 +1,7 @@
 package keystrokesmod.module.impl.render;
 
 import keystrokesmod.module.Module;
-import keystrokesmod.module.impl.world.AntiBot;
+import keystrokesmod.module.impl.combat.AntiBot;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.client.event.RenderPlayerEvent.Post;
@@ -12,8 +12,8 @@ import org.lwjgl.opengl.GL11;
 import java.util.HashSet;
 
 public class Chams extends Module {
-    private ButtonSetting ignoreBots;
-    private HashSet<Entity> bots = new HashSet<>();
+    private final ButtonSetting ignoreBots;
+    private final HashSet<Entity> bots = new HashSet<>();
 
     public Chams() {
         super("Chams", Module.category.render, 0);

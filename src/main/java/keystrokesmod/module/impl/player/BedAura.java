@@ -8,6 +8,7 @@ import keystrokesmod.event.ReceivePacketEvent;
 import keystrokesmod.module.Module;
 import keystrokesmod.module.ModuleManager;
 import keystrokesmod.module.impl.minigames.BedWars;
+import keystrokesmod.module.impl.render.HUD;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.*;
@@ -36,21 +37,21 @@ import java.util.Map;
 
 public class BedAura extends Module {
     public SliderSetting mode;
-    private SliderSetting breakSpeed;
-    private SliderSetting fov;
-    private SliderSetting range;
-    private SliderSetting rate;
+    private final SliderSetting breakSpeed;
+    private final SliderSetting fov;
+    private final SliderSetting range;
+    private final SliderSetting rate;
     public ButtonSetting allowAura;
-    private ButtonSetting breakNearBlock;
-    private ButtonSetting cancelKnockback;
-    private ButtonSetting disableBreakEffects;
+    private final ButtonSetting breakNearBlock;
+    private final ButtonSetting cancelKnockback;
+    private final ButtonSetting disableBreakEffects;
     public ButtonSetting groundSpoof;
     public ButtonSetting ignoreSlow;
-    private ButtonSetting onlyWhileVisible;
-    private ButtonSetting renderOutline;
-    private ButtonSetting sendAnimations;
-    private ButtonSetting silentSwing;
-    private String[] modes = new String[]{"Legit", "Instant", "Swap"};
+    private final ButtonSetting onlyWhileVisible;
+    private final ButtonSetting renderOutline;
+    private final ButtonSetting sendAnimations;
+    private final ButtonSetting silentSwing;
+    private final String[] modes = new String[]{"Legit", "Instant", "Swap"};
     private BlockPos[] bedPos;
     public float breakProgress;
     private int currentSlot = -1;
@@ -60,14 +61,14 @@ public class BedAura extends Module {
     private long lastCheck = 0;
     public boolean stopAutoblock;
     private int outlineColor = new Color(226, 65, 65).getRGB();
-    private int breakTickDelay = 5;
+    private final int breakTickDelay = 5;
     private int ticksAfterBreak = 0;
     private boolean delayStart;
     private BlockPos nearestBlock;
-    private Map<BlockPos, Float> breakProgressMap = new HashMap<>();
+    private final Map<BlockPos, Float> breakProgressMap = new HashMap<>();
     public double lastProgress;
     public float vanillaProgress;
-    private int defaultOutlineColor = new Color(226, 65, 65).getRGB();
+    private final int defaultOutlineColor = new Color(226, 65, 65).getRGB();
 
     public BedAura() {
         super("BedAura", category.player, 0);
@@ -166,12 +167,12 @@ public class BedAura extends Module {
         if (!Utils.nullCheck() || !cancelKnockback.isToggled() || currentBlock == null) {
             return;
         }
-        if (e.getPacket() instanceof S12PacketEntityVelocity) {
-            if (((S12PacketEntityVelocity) e.getPacket()).getEntityID() == mc.thePlayer.getEntityId()) {
+        if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity) {
+            if (((S12PacketEntityVelocity) ReceivePacketEvent.getPacket()).getEntityID() == mc.thePlayer.getEntityId()) {
                 e.setCanceled(true);
             }
         }
-        else if (e.getPacket() instanceof S27PacketExplosion) {
+        else if (ReceivePacketEvent.getPacket() instanceof S27PacketExplosion) {
             e.setCanceled(true);
         }
     }
@@ -206,7 +207,7 @@ public class BedAura extends Module {
             outlineColor = Theme.getGradient((int) ModuleManager.bedESP.theme.getInput(), 0);
         }
         else if (ModuleManager.hud != null && ModuleManager.hud.isEnabled()) {
-            outlineColor = Theme.getGradient((int) ModuleManager.hud.theme.getInput(), 0);
+            outlineColor = Theme.getGradient((int) HUD.theme.getInput(), 0);
         }
         else {
             outlineColor = defaultOutlineColor;

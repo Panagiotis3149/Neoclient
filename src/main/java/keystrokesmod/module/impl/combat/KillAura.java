@@ -7,7 +7,7 @@ import keystrokesmod.module.ModuleManager;
 import keystrokesmod.module.impl.other.RotationHandler;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.entity.Entity;
-import keystrokesmod.module.impl.world.AntiBot;
+import keystrokesmod.module.impl.combat.AntiBot;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.*;
@@ -19,6 +19,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.util.*;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -74,9 +75,9 @@ public class KillAura extends Module {
     private double m;
     private boolean n;
     private Random rand;
-    private double lastCps = 0;
+    private final double lastCps = 0;
     private long recalculateTime = 0;
-    private long DCPSRecalculateTickDelay = 200;
+    private final long DCPSRecalculateTickDelay = 200;
     // autoclicker vars end
     private boolean attack;
     private boolean blocking;
@@ -91,7 +92,7 @@ public class KillAura extends Module {
 
     public KillAura() {
         super("Aura", category.combat, 19);
-        this.registerSetting(aps = new SliderSetting("CPS", 16.0, 1.0, 20.0, 0.5));
+        this.registerSetting(aps = new SliderSetting("CPS", 12.0, 1.0, 20.0, 0.5));
         this.registerSetting(autoBlockMode = new SliderSetting("Autoblock", autoBlockModes, 0));
         this.registerSetting(fov = new SliderSetting("Field of view", 360.0, 30.0, 360.0, 4.0));
         this.registerSetting(attackRange = new SliderSetting("Range (attack)", 3.0, 3.0, 6.0, 0.05));
@@ -144,10 +145,24 @@ public class KillAura extends Module {
         }
         if (target != null && rotationMode.getInput() == 2) {
             float[] rotations = RotationUtils.getRotations(target, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
-                assert rotations != null;
-            float[] speed = new float[]{(float) ((rotations[0] - mc.thePlayer.rotationYaw) / ((180))), (float) ((rotations[1] - mc.thePlayer.rotationPitch) / (90))};
-                mc.thePlayer.rotationYaw += speed[0];
-                mc.thePlayer.rotationPitch += speed[1];
+            if (rotations == null) return;
+
+            float currentYaw = mc.thePlayer.rotationYaw;
+            float currentPitch = mc.thePlayer.rotationPitch;
+            float yawDiff = MathHelper.wrapAngleTo180_float(rotations[0] - currentYaw);
+            float pitchDiff = rotations[1] - currentPitch;
+
+            float accFactor = (float) (100 / 200.0);
+
+            float yawStep = Math.abs(yawDiff) * accFactor;
+            float pitchStep = Math.abs(pitchDiff) * accFactor;
+
+            float newYaw = currentYaw + (yawDiff > 0 ? yawStep : -yawStep);
+            float newPitch = currentPitch + (pitchDiff > 0 ? pitchStep : -pitchStep);
+            newPitch = MathHelper.clamp_float(newPitch, -90, 90);
+
+            mc.thePlayer.rotationYaw = newYaw;
+            mc.thePlayer.rotationPitch = newPitch;
         }
     }
 
@@ -327,7 +342,6 @@ public class KillAura extends Module {
                 e.setPitch(rotations[1]);
             }
         }
-
  else {
             startSmoothing = false;
         }
@@ -335,6 +349,18 @@ public class KillAura extends Module {
             mc.thePlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1));
             mc.thePlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
         }
+
+        if (rotationMode.getInput() == 1 && prevRotations != null && prevRotations.length > 0 && target != null) {
+            mc.thePlayer.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(
+                    mc.thePlayer.posX,
+                    mc.thePlayer.posY,
+                    mc.thePlayer.posZ,
+                    prevRotations[0],
+                    prevRotations[1],
+                    mc.thePlayer.onGround
+            ));
+        }
+
     }
 
     @SubscribeEvent
@@ -622,7 +648,7 @@ public class KillAura extends Module {
     private boolean isOutlierActive;
     private long outlierDuration;
     private double previousCps;
-    private List<Double> lastCpsValues = new ArrayList<>();
+    private final List<Double> lastCpsValues = new ArrayList<>();
     private static final int HISTORY_SIZE = 32;
 
     public void cookie() {
@@ -684,7 +710,7 @@ public class KillAura extends Module {
             isOutlierActive = false;
         }
 
-        long currentDelay = (long) (this.j - System.currentTimeMillis());
+        long currentDelay = this.j - System.currentTimeMillis();
         long d = Math.max(targetDelay, currentDelay);
 
         this.j = System.currentTimeMillis() + d;

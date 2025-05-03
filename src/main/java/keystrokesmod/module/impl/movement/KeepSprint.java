@@ -10,7 +10,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Vec3;
 
 public class KeepSprint extends Module {
-    private DescriptionSetting description;
     public static SliderSetting slow;
     public static ButtonSetting disableWhileJump;
     public static ButtonSetting reduceReachHits;

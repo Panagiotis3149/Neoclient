@@ -1,5 +1,6 @@
 package keystrokesmod.module.impl.render;
 
+import keystrokesmod.Variables;
 import keystrokesmod.module.Module;
 import keystrokesmod.module.setting.impl.DescriptionSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
@@ -29,7 +30,7 @@ public class Watermark extends Module {
     public static SliderSetting posx;
     public static SliderSetting posy;
     public static SliderSetting mode;
-    private String[] modes = new String[]{"Basic", "NeoOld", "Neo", "NeoText", "NeoText2", "Rise", "Rise2", "NeoNew", "NeoNewer"};
+    private final String[] modes = new String[]{"Basic", "NeoOld", "Neo", "NeoText", "NeoText2", "Rise", "Rise2", "NeoNew", "NeoNewer", "RiseCopy"};
 
     public Watermark() {
         super("Watermark", Module.category.render);
@@ -139,7 +140,7 @@ public class Watermark extends Module {
             baseWidth += (int) FontManager.productSansLight40.getStringWidth(" | ");
             baseWidth += (int) FontManager.googleSansRegular20.getStringWidth(mc.getCurrentServerData().serverIP);
 
-            int rectWidth = (int) baseWidth + 8;
+            int rectWidth = baseWidth + 8;
             int rectX = (screenWidth - rectWidth) / 2;
             int rectY = 25, rectHeight = 32;
 
@@ -174,7 +175,16 @@ public class Watermark extends Module {
 
             fontdefault.drawString(part3, x, y, 0xFFFFFFFF, false);
             fontdetail.drawString(det2, x, y + 11, 0xFFFFFFFF, false);
-
+        } if (mode.getInput() == 9) {
+            FontRenderer fontneo = FontManager.productSansMedium36;
+            FontRenderer fontver = FontManager.productSansMedium18;
+            BlurUtils.prepareBlur();
+            BlurUtils.prepareBloom();
+            fontneo.drawString("Neo", 6, 6, Theme.getGradient((int) theme.getInput(), 0.0));
+            BlurUtils.bloomEnd(4, 4F);
+            BlurUtils.blurEnd(2, 2F);
+            fontneo.drawString("Neo", 6, 6, Theme.getGradient((int) theme.getInput(), 0.0));
+            fontver.drawString(shortClientVersionNV, 6 + fontneo.getStringWidth("Neo") + 2, 6, 0xFFFFFFFF);
         }
     }
 }

@@ -212,7 +212,7 @@ public class CategoryComponent {
 
         if (!this.n4m) {
             int prevY = this.y;
-            this.y = (int) this.moduleY;
+            this.y = this.moduleY;
             if ((this.opened || smoothTimer != null) && !this.modules.isEmpty()) {
                 for (Component c2 : this.modules) {
                     c2.render();

@@ -56,7 +56,7 @@ public class Reflection {
     public static Field thirdPersonDistance;
 
     public static HashMap<Class, Field> containerInventoryPlayer = new HashMap<>();
-    private static List<Class> containerClasses = Arrays.asList(GuiFurnace.class, GuiBrewingStand.class, GuiEnchantment.class, ContainerHopper.class, GuiDispenser.class, ContainerWorkbench.class, ContainerMerchant.class, ContainerHorseInventory.class);
+    private static final List<Class> containerClasses = Arrays.asList(GuiFurnace.class, GuiBrewingStand.class, GuiEnchantment.class, ContainerHopper.class, GuiDispenser.class, ContainerWorkbench.class, ContainerMerchant.class, ContainerHorseInventory.class);
     public static boolean sendMessage = false;
     public static Map<KeyBinding, String> keyBindings = new HashMap<>();
 

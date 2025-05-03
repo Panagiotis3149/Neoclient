@@ -216,12 +216,7 @@ public class ModuleComponent extends Component {
                 c.drawScreen(x, y);
             }
         }
-        if (overModuleName(x, y) && this.categoryComponent.opened) {
-            hovering = true;
-        }
-        else {
-            hovering = false;
-        }
+        hovering = overModuleName(x, y) && this.categoryComponent.opened;
     }
 
     public String getName() {

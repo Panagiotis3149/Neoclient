@@ -2,6 +2,9 @@ package keystrokesmod.event;
 
 import keystrokesmod.script.classes.PlayerState;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import keystrokesmod.utility.MoveUtil;
+
+import static keystrokesmod.utility.Utils.mc;
 
 public class PreMotionEvent extends Event {
     private double posX;
@@ -13,6 +16,7 @@ public class PreMotionEvent extends Event {
     private static boolean setRenderYaw;
     private boolean isSprinting;
     private boolean isSneaking;
+    private float friction;
 
     public PreMotionEvent(double posX, double posY, double posZ, float yaw, float pitch, boolean onGround, boolean isSprinting, boolean isSneaking) {
         this.posX = posX;
@@ -24,6 +28,8 @@ public class PreMotionEvent extends Event {
         this.isSprinting = isSprinting;
         this.isSneaking = isSneaking;
     }
+
+
 
     public double getPosX() {
         return posX;
@@ -61,9 +67,28 @@ public class PreMotionEvent extends Event {
         this.posZ = posZ;
     }
 
+    public float getFriction() {
+        return friction;
+    }
+
+    public void setFriction(float friction) {
+        this.friction = friction;
+    }
+
     public void setYaw(float yaw) {
         this.yaw = yaw;
-        this.setRenderYaw = true;
+        setRenderYaw = true;
+    }
+
+    public void setSpeed(final double speed, final double motionMultiplier) {
+        setFriction((float) (mc.thePlayer.moveForward != 0 && mc.thePlayer.moveStrafing != 0 ? speed * 0.98F : speed));
+        mc.thePlayer.motionX *= motionMultiplier;
+        mc.thePlayer.motionZ *= motionMultiplier;
+    }
+
+    public void setSpeed(final double speed) {
+        setFriction((float) (mc.thePlayer.moveForward != 0 && mc.thePlayer.moveStrafing != 0 ? speed * 0.98F : speed));
+        MoveUtil.stop();
     }
 
     public void setPitch(float pitch) {
@@ -79,7 +104,7 @@ public class PreMotionEvent extends Event {
     }
 
     public void setRenderYaw(boolean setRenderYaw) {
-        this.setRenderYaw = setRenderYaw;
+        PreMotionEvent.setRenderYaw = setRenderYaw;
     }
     public boolean isSprinting() {
         return isSprinting;

@@ -40,41 +40,41 @@ import java.util.*;
 
 public class Scaffold extends Module {
     private int ticks = 0;
-    private SliderSetting motion;
-    private SliderSetting rotation;
-    private SliderSetting fastScaffold;
-    private SliderSetting precision;
-    private SliderSetting multiPlace;
-    private ButtonSetting autoSwap;
-    private ButtonSetting fastOnRMB;
-    private ButtonSetting highlightBlocks;
+    private final SliderSetting motion;
+    private final SliderSetting rotation;
+    private final SliderSetting fastScaffold;
+    private final SliderSetting precision;
+    private final SliderSetting multiPlace;
+    private final ButtonSetting autoSwap;
+    private final ButtonSetting fastOnRMB;
+    private final ButtonSetting highlightBlocks;
     public ButtonSetting safeWalk;
-    private ButtonSetting showBlockCount;
-    private ButtonSetting delayOnJump;
-    private ButtonSetting silentSwing;
-    private ButtonSetting bypass;
+    private final ButtonSetting showBlockCount;
+    private final ButtonSetting delayOnJump;
+    private final ButtonSetting silentSwing;
+    private final ButtonSetting bypass;
     public ButtonSetting tower;
     private MovingObjectPosition placeBlock;
     private final ButtonSetting moveFix;
     private int lastSlot;
-    private String[] rotationModes = new String[]{"None", "Simple", "Strict", "Precise"};
-    private String[] fastScaffoldModes = new String[]{"Disabled", "Sprint", "Edge", "Jump A", "Jump B", "Jump C", "KeepY", "Verus", "VerusFast", "Legit (T)"};
-    private String[] precisionModes = new String[]{"Very low", "Low", "Moderate", "High", "Very high"};
-    private String[] multiPlaceModes = new String[]{"Disabled", "1 extra", "2 extra"};
+    private final String[] rotationModes = new String[]{"None", "Simple", "Strict", "Precise"};
+    private final String[] fastScaffoldModes = new String[]{"Disabled", "Sprint", "Edge", "Jump A", "Jump B", "Jump C", "KeepY", "Verus", "VerusFast", "Legit (T)"};
+    private final String[] precisionModes = new String[]{"Very low", "Low", "Moderate", "High", "Very high"};
+    private final String[] multiPlaceModes = new String[]{"Disabled", "1 extra", "2 extra"};
     public float placeYaw;
     public float placePitch;
     public int at;
     public int index;
     public boolean rmbDown;
     private double startPos = -1;
-    private Map<BlockPos, Timer> highlight = new HashMap<>();
+    private final Map<BlockPos, Timer> highlight = new HashMap<>();
     private boolean forceStrict;
     private boolean down;
     private boolean delay;
     private boolean place;
     private int add;
     private boolean placedUp;
-    private float previousRotation[];
+    private float[] previousRotation;
     private int blockSlot = -1;
     public int blocksPlaced;
     boolean rotated = false;
@@ -85,10 +85,10 @@ public class Scaffold extends Module {
     BlockPos BlockPosBelow;
     BlockPos LastGroundBlockPosBelow;
     public BlockPos previousBlock;
-    private EnumFacing[] facings = {EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP};
-    private BlockPos[] offsets = {new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 0, 1), new BlockPos(0, 0, -1), new BlockPos(0, -1, 0)};
+    private final EnumFacing[] facings = {EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP};
+    private final BlockPos[] offsets = {new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 0, 1), new BlockPos(0, 0, -1), new BlockPos(0, -1, 0)};
     private keystrokesmod.event.ReceivePacketEvent ReceivePacketEvent;
-    private SliderSetting theme;
+    public static SliderSetting theme;
 
     public Scaffold() {
         super("Scaffold", category.player);
@@ -187,7 +187,6 @@ public class Scaffold extends Module {
         if (fastScaffold.getInput() == 7) {
             Utils.verusTestSelfDamage();
         }
-
         if (autoSwap.isToggled()) {
             ItemStack heldItem = mc.thePlayer.getHeldItem();
             if (heldItem != null && !(heldItem.getItem() instanceof ItemBlock)) {
@@ -197,12 +196,10 @@ public class Scaffold extends Module {
             int bestSlot = -1;
             int maxStackSize = -1;
 
-            // Iterate over the main inventory to find the best block slot
             for (int i = 0; i < 9; ++i) {
                 ItemStack itemStack = mc.thePlayer.inventory.mainInventory[i];
                 if (itemStack != null && itemStack.getItem() instanceof ItemBlock) {
                     int stackSize = itemStack.stackSize;
-                    // Only update if the stack size is greater than the current maxStackSize
                     if (stackSize > maxStackSize) {
                         bestSlot = i;
                         maxStackSize = stackSize;
@@ -214,9 +211,19 @@ public class Scaffold extends Module {
                 mc.thePlayer.inventory.currentItem = bestSlot;
                 blockSlot = bestSlot;
             } else {
-                blockSlot = -1; // No valid block found
+                blockSlot = -1;
+                // 💀 No blocks left
+                if (lastSlot != -1) {
+                    mc.thePlayer.inventory.currentItem = lastSlot;
+                    lastSlot = -1;
+                }
+                // 🛑 STOP MOVING BEFORE YOU YEET OFF THE MAP
+                if (mc.thePlayer.motionX != 0 || mc.thePlayer.motionZ != 0) {
+                    MoveUtil.stop();
+                }
             }
         }
+
 
 
     }
@@ -267,6 +274,7 @@ public class Scaffold extends Module {
             delay = false;
             return;
         }
+
         final ItemStack heldItem = mc.thePlayer.getHeldItem();
         if (!autoSwap.isToggled() || getSlot() == -1 || !(heldItem != null && heldItem.getItem() instanceof ItemBlock)) {
             return;
@@ -356,7 +364,6 @@ public class Scaffold extends Module {
             for (int i = 0; i < 9; ++i) {
                 final ItemStack itemStack = mc.thePlayer.inventory.mainInventory[i];
                 if (itemStack != null && itemStack.getItem() instanceof ItemBlock && itemStack.stackSize > 0) {
-                    // Update slot only if stackSize is higher than the current highest
                     if (itemStack.stackSize > highestStack) {
                         highestStack = itemStack.stackSize;
                         slot = i;
@@ -364,15 +371,18 @@ public class Scaffold extends Module {
                 }
             }
 
-            // Handle case where no block is found
             if (slot == -1) {
-                // Either log an error, notify the player, or handle the empty state gracefully
+                if (lastSlot != -1) {
+                    mc.thePlayer.inventory.currentItem = lastSlot;
+                    lastSlot = -1;
+                }
+                MoveUtil.stop();
                 return;
             }
 
-            // Proceed with selected slot
             mc.thePlayer.inventory.currentItem = slot;
         }
+
 
 
 
@@ -402,7 +412,7 @@ public class Scaffold extends Module {
         }
 
         float[] targetRotation = RotationUtils.getRotations(placeData.blockPos);
-        float searchPitch[] = new float[]{78, 12};
+        float[] searchPitch = new float[]{78, 12};
         double closestCombinedDistance = Double.MAX_VALUE;
         double offsetWeight = 0.2D;
         for (int i = 0; i < 2; i++) {
@@ -441,11 +451,7 @@ public class Scaffold extends Module {
                                         placeYaw = fixedYaw;
                                         placePitch = fixedPitch;
 
-                                        if ((forceStrict(checkYaw)) && i == 1) {
-                                            forceStrict = true;
-                                        } else {
-                                            forceStrict = false;
-                                        }
+                                        forceStrict = (forceStrict(checkYaw)) && i == 1;
                                     }
                                 }
                             }
@@ -740,35 +746,32 @@ public class Scaffold extends Module {
     }
 
     public int getSlot() {
-        assert lastSlot >= -1 : "lastSlot should be -1 or greater";
-
         if (lastSlot == -1) {
             lastSlot = SlotHandler.getCurrentSlot();
         }
 
         int slot = SlotHandler.getCurrentSlot();
 
-        assert autoSwap != null : "autoSwap should not be null";
-
-        if (autoSwap.isToggled()) {
+        if (autoSwap != null && autoSwap.isToggled()) {
             ItemStack heldItem = SlotHandler.getHeldItem();
 
-            assert heldItem != null : "heldItem should not be null when autoSwap is toggled";
-
-            if (!(heldItem.getItem() instanceof ItemBlock)) {
+            if (heldItem == null || !(heldItem.getItem() instanceof ItemBlock) || !Utils.canBePlaced((ItemBlock) heldItem.getItem())) {
                 slot = SlotHandler.getCurrentSlot();
-            } else {
-                ItemBlock itemBlock = (ItemBlock) heldItem.getItem();
-                assert Utils.canBePlaced(itemBlock) : "ItemBlock cannot be placed";
-                if (!Utils.canBePlaced(itemBlock)) {
-                    slot = SlotHandler.getCurrentSlot();
-                }
             }
+        }
+
+        if (slot == -1) {
+            if (lastSlot != -1) {
+                SlotHandler.setCurrentSlot(lastSlot);
+                MoveUtil.stop();
+            }
+            return -1;
         }
 
         SlotHandler.setCurrentSlot(slot);
         return slot;
     }
+
 
     public int totalBlocks() {
         int totalBlocks = 0;

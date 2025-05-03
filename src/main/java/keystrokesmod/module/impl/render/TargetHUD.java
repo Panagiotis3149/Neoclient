@@ -27,9 +27,9 @@ import java.awt.*;
 import static keystrokesmod.utility.Theme.getColors;
 
 public class TargetHUD extends Module {
-    private SliderSetting theme;
-    private ButtonSetting showStatus;
-    private ButtonSetting healthColor;
+    public static SliderSetting theme;
+    private final ButtonSetting showStatus;
+    private final ButtonSetting healthColor;
     private Timer fadeTimer;
     private Timer healthBarTimer = null;
     private EntityLivingBase target;
@@ -37,8 +37,8 @@ public class TargetHUD extends Module {
     private double lastHealth;
     private float lastHealthBar;
     public EntityLivingBase renderEntity;
-    private String[] modes = new String[]{"Fate", "Raven", "Exhibition", "Myau", "Pulsive", "Neo", "NeoUnique"};
-    private SliderSetting mode;
+    private final String[] modes = new String[]{"Fate", "Raven", "Exhibition", "Myau", "Pulsive", "Neo", "NeoUnique"};
+    private final SliderSetting mode;
     FontRenderer font = FontManager.productSansMedium;
     public static int current$minX;
     public static int current$maxX;
@@ -148,14 +148,14 @@ public class TargetHUD extends Module {
                 string = string + " " + ((health <= Utils.getCompleteHealth(mc.thePlayer) / mc.thePlayer.getMaxHealth()) ? "§aW" : "§cL");
             }
             final int n2 = 8;
-            final int n3 = (int) (mc.fontRendererObj.getStringWidth(string) + n2);
+            final int n3 = mc.fontRendererObj.getStringWidth(string) + n2;
             final ScaledResolution sR = new ScaledResolution(mc);
             final int n4 = sR.getScaledWidth() / 2 - n3 / 2 + 70;
             final int n5 = sR.getScaledHeight() / 2 + 15 + 30;
             final int n6 = n4 - n2;
             final int n7 = n5 - n2;
             final int n8 = n4 + n3;
-            final int n9 = (int) (n5 + (mc.fontRendererObj.FONT_HEIGHT + 5) - 6 + n2);
+            final int n9 = n5 + (mc.fontRendererObj.FONT_HEIGHT + 5) - 6 + n2;
             final int n10 = (cd == null) ? 255 : (255 - cd.getValueInt(0, 255, 1));
             if (n10 > 0) {
                 final int n11 = (n10 > 110) ? 110 : n10;
@@ -340,11 +340,7 @@ public class TargetHUD extends Module {
             int playerHeadSize2 = 23;
             int playerHeadX2 = (int) (x5 + 4);
             int playerHeadY2 = (int) (y5 + 4);
-            int co = 0x00FF5555;
-            if (target.hurtTime <= 1) {
-                co = 0x45FF5555;
-            } else co = 0x00FF5555;
-            RenderUtils.drawRoundedPlayerHead(playerHeadX2, playerHeadY2, playerHeadSize2, target, co, 6);
+            RenderUtils.drawPlayerHead(playerHeadX2, playerHeadY2, playerHeadSize2, target);
             float healthBarW = (width + 21) * (target.getHealth() / target.getMaxHealth());
             float healthBarH = 6;
             int hbx = (int) (x5 + 4);
@@ -354,12 +350,12 @@ public class TargetHUD extends Module {
             int hColor1 = colors[0];
             int hColor2 = colors[1];
             RenderUtils.drawRoundedGradientRect(hbx, hby, (float) health, hby + healthBarH, 4, hColor1, hColor2, hColor2, hColor1);
-            RenderUtils.drawRoundedRectangle(hbx, hby, (float) healthBarW , hby + healthBarH, 4, 0x22202024);
+            RenderUtils.drawRoundedRectangle(hbx, hby, healthBarW, hby + healthBarH, 4, 0x22202024);
             int nposx = (int) (x5 + 31);
             int nposy = (int) (y5 + 6);
             int hposy = (int) (y5 + 16);
-            fontm.drawString(TargetName2, nposx, nposy, -1, false);
-            fontr.drawString(TargetHealth2, nposx, hposy, 0xFFCCCCCC, false);
+            fontm.drawString(TargetName2, nposx, nposy, 0xFFCCCCCC, false);
+            fontr.drawString(TargetHealth2, nposx, hposy, -1, false);
         } else if ((int) mode.getInput() == 6) {
             final ScaledResolution sCRES = new ScaledResolution(mc);
             FontRenderer fontr = FontManager.productSansLight22;

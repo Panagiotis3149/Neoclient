@@ -123,9 +123,21 @@ public class Utils {
         return true;
     }
 
+    public static boolean overVoid() {
+        double playerPosY = mc.thePlayer.posY;
+        for (int y = (int) playerPosY; y >= 0; y--) {
+            BlockPos currentPos = new BlockPos(mc.thePlayer.posX, y, mc.thePlayer.posZ);
+            Block blockAtPos = mc.theWorld.getBlockState(currentPos).getBlock();
+            if (!(blockAtPos instanceof BlockAir)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static List<NetworkPlayerInfo> getTablist() {
         final ArrayList<NetworkPlayerInfo> list = new ArrayList<>(mc.getNetHandler().getPlayerInfoMap());
-        removeDuplicates((ArrayList) list);
+        removeDuplicates(list);
         list.remove(mc.getNetHandler().getPlayerInfo(mc.thePlayer.getUniqueID()));
         return list;
     }
@@ -162,9 +174,7 @@ public class Utils {
     public static boolean addFriend(String name) {
         if (friends.add(name.toLowerCase())) {
             Utils.sendMessage("&7Added &afriend&7: &b" + name);
-            if (enemies.contains(name.toLowerCase())) {
-                enemies.remove(name.toLowerCase());
-            }
+            enemies.remove(name.toLowerCase());
             return true;
         }
         return false;
@@ -206,13 +216,8 @@ public class Utils {
         fov *= 0.5;
         final double wrapAngleTo180_double = MathHelper.wrapAngleTo180_double((mc.thePlayer.rotationYaw - RotationUtils.angle(n2, n3)) % 360.0f);
         if (wrapAngleTo180_double > 0.0) {
-            if (wrapAngleTo180_double < fov) {
-                return true;
-            }
-        } else if (wrapAngleTo180_double > -fov) {
-            return true;
-        }
-        return false;
+            return wrapAngleTo180_double < fov;
+        } else return wrapAngleTo180_double > -fov;
     }
 
     public static void sendMessage(String txt) {
@@ -227,6 +232,24 @@ public class Utils {
             mc.thePlayer.addChatMessage(new ChatComponentText("§7[§b" + clientName + "§7]§r " + message));
         }
     }
+
+    public static void attackEntityButNotSoRotationDumbTest(Entity e, float yaw, float pitch, boolean clientSwing, boolean silentSwing) {
+        mc.thePlayer.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(
+                mc.thePlayer.posX,
+                mc.thePlayer.posY,
+                mc.thePlayer.posZ,
+                yaw,
+                pitch,
+                mc.thePlayer.onGround
+        ));
+        if (clientSwing) {
+            mc.thePlayer.swingItem();
+        } else {
+            mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());
+        }
+        mc.playerController.attackEntity(mc.thePlayer, e);
+    }
+
 
     public static void attackEntity(Entity e, boolean clientSwing, boolean silentSwing) {
         if (clientSwing) {
@@ -322,6 +345,40 @@ public class Utils {
 
     public static boolean onEdge(Entity entity) {
         return mc.theWorld.getCollidingBoundingBoxes(entity, entity.getEntityBoundingBox().offset(entity.motionX / 3.0D, -1.0D, entity.motionZ / 3.0D)).isEmpty();
+    }
+
+    public static Block block(final double x, final double y, final double z) {
+        return mc.theWorld.getBlockState(new BlockPos(x, y, z)).getBlock();
+    }
+
+    public static Block blockRelativeToPlayer(final double offsetX, final double offsetY, final double offsetZ) {
+        return block(mc.thePlayer.posX + offsetX, mc.thePlayer.posY + offsetY, mc.thePlayer.posZ + offsetZ);
+    }
+
+    public static boolean isBlockUnder(final double height) {
+        return isBlockUnder(height, true);
+    }
+
+    public static boolean isBlockUnder(final double height, final boolean boundingBox) {
+        if (boundingBox) {
+            final AxisAlignedBB bb = mc.thePlayer.getEntityBoundingBox().offset(0, -height, 0);
+
+            if (!mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isEmpty()) {
+                return true;
+            }
+        } else {
+            for (int offset = 0; offset < height; offset++) {
+                if (blockRelativeToPlayer(0, -offset, 0).isFullBlock()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    public static boolean isBlockUnder() {
+        return isBlockUnder(10);
     }
 
     public static boolean isDiagonal() {
@@ -449,7 +506,7 @@ public class Utils {
         }
     }
 
-    private static List<Packet> blinkedPackets = new ArrayList<>();
+    private static final List<Packet> blinkedPackets = new ArrayList<>();
 
     public static void blinkPackets(SendPacketEvent e) {
         Packet packet = e.getPacket();
@@ -503,7 +560,7 @@ public class Utils {
 
 
     public static void verusSSDisablerTest(ReceivePacketEvent event, boolean sprinting) {
-        if (event.getPacket() instanceof C0BPacketEntityAction) {
+        if (ReceivePacketEvent.getPacket() instanceof C0BPacketEntityAction) {
             C0BPacketEntityAction packet = (C0BPacketEntityAction) ReceivePacketEvent.getPacket();
             if (packet.getAction() == C0BPacketEntityAction.Action.START_SPRINTING ||
                     packet.getAction() == C0BPacketEntityAction.Action.STOP_SPRINTING) {
@@ -676,10 +733,7 @@ public class Utils {
         if ( block == null ) {
             return false;
         }
-        if ( BlockUtils.isInteractable(block) || block instanceof BlockDaylightDetector || block instanceof BlockBeacon || block instanceof BlockBanner || block instanceof BlockEndPortalFrame || block instanceof BlockEndPortal || block instanceof BlockLever || block instanceof BlockButton || block instanceof BlockSkull || block instanceof BlockLiquid || block instanceof BlockCactus || block instanceof BlockDoublePlant || block instanceof BlockLilyPad || block instanceof BlockCarpet || block instanceof BlockTripWire || block instanceof BlockTripWireHook || block instanceof BlockTallGrass || block instanceof BlockFlower || block instanceof BlockFlowerPot || block instanceof BlockSign || block instanceof BlockLadder || block instanceof BlockTorch || block instanceof BlockRedstoneTorch || block instanceof BlockFence || block instanceof BlockPane || block instanceof BlockStainedGlassPane || block instanceof BlockGravel || block instanceof BlockClay || block instanceof BlockSand || block instanceof BlockSoulSand || block instanceof BlockRail ) {
-            return false;
-        }
-        return true;
+        return !BlockUtils.isInteractable(block) && !(block instanceof BlockDaylightDetector) && !(block instanceof BlockBeacon) && !(block instanceof BlockBanner) && !(block instanceof BlockEndPortalFrame) && !(block instanceof BlockEndPortal) && !(block instanceof BlockLever) && !(block instanceof BlockButton) && !(block instanceof BlockSkull) && !(block instanceof BlockLiquid) && !(block instanceof BlockCactus) && !(block instanceof BlockDoublePlant) && !(block instanceof BlockLilyPad) && !(block instanceof BlockCarpet) && !(block instanceof BlockTripWire) && !(block instanceof BlockTripWireHook) && !(block instanceof BlockTallGrass) && !(block instanceof BlockFlower) && !(block instanceof BlockFlowerPot) && !(block instanceof BlockSign) && !(block instanceof BlockLadder) && !(block instanceof BlockTorch) && !(block instanceof BlockRedstoneTorch) && !(block instanceof BlockFence) && !(block instanceof BlockPane) && !(block instanceof BlockStainedGlassPane) && !(block instanceof BlockGravel) && !(block instanceof BlockClay) && !(block instanceof BlockSand) && !(block instanceof BlockSoulSand) && !(block instanceof BlockRail);
     }
 
 
@@ -830,23 +884,23 @@ public class Utils {
 
     public static EntityLivingBase raytrace(final int n) {
         Entity entity = null;
-        MovingObjectPosition rayTrace = mc.thePlayer.rayTrace((double)n, 1.0f);
+        MovingObjectPosition rayTrace = mc.thePlayer.rayTrace(n, 1.0f);
         final Vec3 getPositionEyes = mc.thePlayer.getPositionEyes(1.0f);
         final float rotationYaw = mc.thePlayer.rotationYaw;
         final float rotationPitch = mc.thePlayer.rotationPitch;
         final float cos = MathHelper.cos(-rotationYaw * 0.017453292f - 3.1415927f);
         final float sin = MathHelper.sin(-rotationYaw * 0.017453292f - 3.1415927f);
         final float n2 = -MathHelper.cos(-rotationPitch * 0.017453292f);
-        final Vec3 vec3 = new Vec3((double)(sin * n2), (double)MathHelper.sin(-rotationPitch * 0.017453292f), (double)(cos * n2));
+        final Vec3 vec3 = new Vec3(sin * n2, MathHelper.sin(-rotationPitch * 0.017453292f), cos * n2);
         final Vec3 addVector = getPositionEyes.addVector(vec3.xCoord * (double)n, vec3.yCoord * (double)n, vec3.zCoord * (double)n);
         Vec3 vec4 = null;
         final List getEntitiesWithinAABBExcludingEntity = mc.theWorld.getEntitiesWithinAABBExcludingEntity(mc.getRenderViewEntity(), mc.getRenderViewEntity().getEntityBoundingBox().addCoord(vec3.xCoord * (double)n, vec3.yCoord * (double)n, vec3.zCoord * (double)n).expand(1.0, 1.0, 1.0));
-        double n3 = (double)n;
+        double n3 = n;
         for (int i = 0; i < getEntitiesWithinAABBExcludingEntity.size(); ++i) {
             final Entity entity2 = (Entity)getEntitiesWithinAABBExcludingEntity.get(i);
             if (entity2.canBeCollidedWith()) {
                 final float getCollisionBorderSize = entity2.getCollisionBorderSize();
-                final AxisAlignedBB expand = entity2.getEntityBoundingBox().expand((double)getCollisionBorderSize, (double)getCollisionBorderSize, (double)getCollisionBorderSize);
+                final AxisAlignedBB expand = entity2.getEntityBoundingBox().expand(getCollisionBorderSize, getCollisionBorderSize, getCollisionBorderSize);
                 final MovingObjectPosition calculateIntercept = expand.calculateIntercept(getPositionEyes, addVector);
                 if (expand.isVecInside(getPositionEyes)) {
                     if (0.0 < n3 || n3 == 0.0) {
@@ -905,7 +959,7 @@ public class Utils {
         if (d == 0) {
             return (double) Math.round(n);
         } else {
-            double p = Math.pow(10.0D, (double) d);
+            double p = Math.pow(10.0D, d);
             return (double) Math.round(n * p) / p;
         }
     }

@@ -30,6 +30,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import org.lwjgl.opengl.Display;
+import scala.tools.nsc.transform.patmat.ScalaLogic;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -41,7 +42,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @Mod(
         modid = "keystrokesmod",
         name = "Neoclient",
-        version = "V0.9.8",
+        version = "1.1",
         acceptedMinecraftVersions = "1.8.9"
 )
 
@@ -69,7 +70,7 @@ public class Raven {
             throw new IOException("Failed to load image from InputStream.");
         }
 
-        int[] aint = bufferedimage.getRGB(0, 0, bufferedimage.getWidth(), bufferedimage.getHeight(), (int[])null, 0, bufferedimage.getWidth());
+        int[] aint = bufferedimage.getRGB(0, 0, bufferedimage.getWidth(), bufferedimage.getHeight(), null, 0, bufferedimage.getWidth());
         ByteBuffer bytebuffer = ByteBuffer.allocate(4 * aint.length);
 
         for (int i : aint) {

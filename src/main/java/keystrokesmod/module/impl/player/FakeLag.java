@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FakeLag extends Module {
-    private SliderSetting packetDelay;
-    private ConcurrentHashMap<Packet, Long> delayedPackets = new ConcurrentHashMap<>();
+    private final SliderSetting packetDelay;
+    private final ConcurrentHashMap<Packet, Long> delayedPackets = new ConcurrentHashMap<>();
 
     public FakeLag() {
         super("FakeLag", category.player);

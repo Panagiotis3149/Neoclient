@@ -18,10 +18,10 @@ import java.util.Iterator;
 import java.util.List;
 
 public class MurderMystery extends Module {
-    private ButtonSetting alert;
-    private ButtonSetting highlightMurderer;
-    private ButtonSetting highlightBow;
-    private ButtonSetting highlightInnocent;
+    private final ButtonSetting alert;
+    private final ButtonSetting highlightMurderer;
+    private final ButtonSetting highlightBow;
+    private final ButtonSetting highlightInnocent;
     private final List<EntityPlayer> murderers = new ArrayList();
     private final List<EntityPlayer> hasBow = new ArrayList();
     private final String c1 = "MURDER";

@@ -15,13 +15,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.List;
 
 public class AntiKnockback extends Module {
-    private SliderSetting horizontal;
-    private SliderSetting vertical;
-    private ButtonSetting cancelExplosion;
-    private ButtonSetting damageBoost;
-    private SliderSetting boostMultiplier;
-    private ButtonSetting groundCheck;
-    private ButtonSetting lobbyCheck;
+    private final SliderSetting horizontal;
+    private final SliderSetting vertical;
+    private final ButtonSetting cancelExplosion;
+    private final ButtonSetting damageBoost;
+    private final SliderSetting boostMultiplier;
+    private final ButtonSetting groundCheck;
+    private final ButtonSetting lobbyCheck;
 
     public AntiKnockback() {
         super("AntiKB", category.combat);
@@ -40,8 +40,8 @@ public class AntiKnockback extends Module {
         if (!Utils.nullCheck() || LongJump.stopModules || e.isCanceled()) {
             return;
         }
-        if (e.getPacket() instanceof S12PacketEntityVelocity) {
-            if (((S12PacketEntityVelocity) e.getPacket()).getEntityID() == mc.thePlayer.getEntityId()) {
+        if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity) {
+            if (((S12PacketEntityVelocity) ReceivePacketEvent.getPacket()).getEntityID() == mc.thePlayer.getEntityId()) {
                 if (lobbyCheck.isToggled() && isLobby()) {
                     return;
                 }
@@ -49,7 +49,7 @@ public class AntiKnockback extends Module {
                 if (cancel()) {
                     return;
                 }
-                S12PacketEntityVelocity s12PacketEntityVelocity = (S12PacketEntityVelocity) e.getPacket();
+                S12PacketEntityVelocity s12PacketEntityVelocity = (S12PacketEntityVelocity) ReceivePacketEvent.getPacket();
                 if (horizontal.getInput() == 0 && vertical.getInput() > 0) {
                     mc.thePlayer.motionY = ((double) s12PacketEntityVelocity.getMotionY() / 8000) * vertical.getInput()/100;
                 }
@@ -71,7 +71,7 @@ public class AntiKnockback extends Module {
                 }
             }
         }
-        else if (e.getPacket() instanceof S27PacketExplosion) {
+        else if (ReceivePacketEvent.getPacket() instanceof S27PacketExplosion) {
             if (lobbyCheck.isToggled() && isLobby()) {
                 return;
             }
@@ -79,7 +79,7 @@ public class AntiKnockback extends Module {
             if (cancelExplosion.isToggled() || cancel()) {
                 return;
             }
-            S27PacketExplosion s27PacketExplosion = (S27PacketExplosion) e.getPacket();
+            S27PacketExplosion s27PacketExplosion = (S27PacketExplosion) ReceivePacketEvent.getPacket();
             if (horizontal.getInput() == 0 && vertical.getInput() > 0) {
                 mc.thePlayer.motionY += s27PacketExplosion.func_149144_d() * vertical.getInput()/100;
             }
@@ -110,9 +110,7 @@ public class AntiKnockback extends Module {
             List<String> sidebarLines = Utils.getSidebarLines();
             if (!sidebarLines.isEmpty()) {
                 String[] parts = Utils.stripColor(sidebarLines.get(1)).split("  ");
-                if (parts.length > 1 && parts[1].charAt(0) == 'L') {
-                    return true;
-                }
+                return parts.length > 1 && parts[1].charAt(0) == 'L';
             }
         }
         return false;

@@ -3,7 +3,7 @@ package keystrokesmod.module.impl.render;
 import keystrokesmod.Raven;
 import keystrokesmod.module.Module;
 import keystrokesmod.module.ModuleManager;
-import keystrokesmod.module.impl.world.AntiBot;
+import keystrokesmod.module.impl.combat.AntiBot;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.DescriptionSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
@@ -23,15 +23,15 @@ public class PlayerESP extends Module {
     public SliderSetting blue;
     public ButtonSetting teamColor;
     public ButtonSetting rainbow;
-    private ButtonSetting twoD;
-    private ButtonSetting box;
-    private ButtonSetting healthBar;
+    private final ButtonSetting twoD;
+    private final ButtonSetting box;
+    private final ButtonSetting healthBar;
     public ButtonSetting outline;
-    private ButtonSetting shaded;
-    private ButtonSetting ring;
+    private final ButtonSetting shaded;
+    private final ButtonSetting ring;
     public ButtonSetting redOnDamage;
     public ButtonSetting renderSelf;
-    private ButtonSetting showInvis;
+    private final ButtonSetting showInvis;
     private int rgb_c = 0;
     // none, outline, box, shaded, 2d, ring
 

@@ -2,17 +2,13 @@ package keystrokesmod.module.impl.movement;
 
 import keystrokesmod.event.JumpEvent;
 import keystrokesmod.event.PrePlayerInputEvent;
-import keystrokesmod.event.PreUpdateEvent;
 import keystrokesmod.module.Module;
 import keystrokesmod.module.ModuleManager;
 import keystrokesmod.module.impl.combat.KillAura;
-import keystrokesmod.utility.PlayerRotation;
+import keystrokesmod.utility.*;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.script.classes.Vec3;
-import keystrokesmod.utility.BlockUtils;
-import keystrokesmod.utility.MoveUtil;
-import keystrokesmod.utility.Utils;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.MinecraftForge;
@@ -86,7 +82,7 @@ public class TargetStrafe extends Module {
         if (mc.thePlayer.isCollidedHorizontally || !BlockUtils.isBlockUnder(5)) {
             if (!colliding) {
                 if (strafe.isToggled()) {
-                    MoveUtil.strafea(); // Always call strafe if module is enabled
+                    MoveUtil.strafe5(MoveUtil.getSpeed()); // Always call strafe if module is enabled
                 }
                 left = !left;
             }

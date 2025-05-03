@@ -12,7 +12,7 @@ import keystrokesmod.utility.Utils;
 
 public class Speed extends Module {
     public static SliderSetting speed;
-    private ButtonSetting strafeOnly;
+    private final ButtonSetting strafeOnly;
 
     public Speed() {
         super("Speed (DEPRECATED)", Module.category.movement, 0);

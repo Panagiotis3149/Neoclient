@@ -58,7 +58,7 @@ public class BadPacketsHandler { // ensures you don't get banned
             }
         }
         else if (e.getPacket() instanceof S0CPacketSpawnPlayer && Minecraft.getMinecraft().thePlayer != null) {
-            if (((S0CPacketSpawnPlayer) e.getPacket()).getEntityID() != Minecraft.getMinecraft().thePlayer.getEntityId()) {
+            if (((S0CPacketSpawnPlayer) ReceivePacketEvent.getPacket()).getEntityID() != Minecraft.getMinecraft().thePlayer.getEntityId()) {
                 return;
             }
             this.playerSlot = -1;

@@ -4,7 +4,7 @@ import keystrokesmod.module.Module;
 import keystrokesmod.module.setting.impl.DescriptionSetting;
 
 public class AntiShuffle extends Module {
-    private static String shuffleStr = "§k";
+    private static final String shuffleStr = "§k";
 
     public AntiShuffle() {
         super("AntiShuffle", Module.category.render, 0);

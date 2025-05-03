@@ -13,7 +13,7 @@ public class ReceivePacketEvent extends Event {
     private boolean cancelPacket;
 
     public ReceivePacketEvent(Packet<?> packet) {
-        this.packet = packet;
+        ReceivePacketEvent.packet = packet;
     }
 
     public static Packet<?> getPacket() {

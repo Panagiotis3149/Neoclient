@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class BedESP extends Module {
-    public SliderSetting theme;
+    public static SliderSetting theme;
     private SliderSetting range;
     private SliderSetting rate;
     private ButtonSetting firstBed;

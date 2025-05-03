@@ -28,8 +28,8 @@ public class Criticals extends Module {
 
     @SubscribeEvent
     public void onPacketReceive(@NotNull ReceivePacketEvent event) {
-        if (event.getPacket() instanceof S12PacketEntityVelocity) {
-            if (((S12PacketEntityVelocity) event.getPacket()).getEntityID() == mc.thePlayer.getEntityId()) {
+        if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity) {
+            if (((S12PacketEntityVelocity) ReceivePacketEvent.getPacket()).getEntityID() == mc.thePlayer.getEntityId()) {
                 ticksSinceVelocity = 0;
             }
         }

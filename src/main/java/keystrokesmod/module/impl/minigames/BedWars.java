@@ -1,7 +1,7 @@
 package keystrokesmod.module.impl.minigames;
 
 import keystrokesmod.module.Module;
-import keystrokesmod.module.impl.world.AntiBot;
+import keystrokesmod.module.impl.combat.AntiBot;
 import keystrokesmod.module.setting.impl.ButtonSetting;
 import keystrokesmod.utility.BlockUtils;
 import keystrokesmod.utility.RenderUtils;
@@ -27,17 +27,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BedWars extends Module {
     public static ButtonSetting whitelistOwnBed;
-    private ButtonSetting diamondArmor;
-    private ButtonSetting enderPearl;
-    private ButtonSetting obsidian;
-    private ButtonSetting shouldPing;
+    private final ButtonSetting diamondArmor;
+    private final ButtonSetting enderPearl;
+    private final ButtonSetting obsidian;
+    private final ButtonSetting shouldPing;
     private BlockPos spawnPos;
     private boolean check;
     public static boolean outsideSpawn = true;
-    private List<String> armoredPlayer = new ArrayList<>();
-    private Map<String, String> lastHeldMap = new ConcurrentHashMap<>();
-    private Set<BlockPos> obsidianPos = new HashSet<>();
-    private int obsidianColor = new Color(0, 0,0).getRGB();
+    private final List<String> armoredPlayer = new ArrayList<>();
+    private final Map<String, String> lastHeldMap = new ConcurrentHashMap<>();
+    private final Set<BlockPos> obsidianPos = new HashSet<>();
+    private final int obsidianColor = new Color(0, 0,0).getRGB();
 
     public BedWars() {
         super("BedWars", category.minigames);

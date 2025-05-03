@@ -27,18 +27,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Indicators extends Module {
-    private ButtonSetting renderArrows;
-    private ButtonSetting renderPearls;
-    private ButtonSetting renderFireballs;
-    private ButtonSetting renderPlayers;
-    private SliderSetting radius;
-    private ButtonSetting itemColors;
-    private ButtonSetting renderItem;
-    private ButtonSetting threatsOnly;
-    private HashSet<Entity> threats = new HashSet<>();
-    private Map<String, String> lastHeldItems = new ConcurrentHashMap<>();
-    private int pearlColor = new Color(173, 12, 255).getRGB();
-    private int fireBallColor = new Color(255, 109, 0).getRGB();
+    private final ButtonSetting renderArrows;
+    private final ButtonSetting renderPearls;
+    private final ButtonSetting renderFireballs;
+    private final ButtonSetting renderPlayers;
+    private final SliderSetting radius;
+    private final ButtonSetting itemColors;
+    private final ButtonSetting renderItem;
+    private final ButtonSetting threatsOnly;
+    private final HashSet<Entity> threats = new HashSet<>();
+    private final Map<String, String> lastHeldItems = new ConcurrentHashMap<>();
+    private final int pearlColor = new Color(173, 12, 255).getRGB();
+    private final int fireBallColor = new Color(255, 109, 0).getRGB();
 
     public Indicators() {
         super("Indicators", category.render);

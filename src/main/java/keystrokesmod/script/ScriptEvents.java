@@ -54,10 +54,10 @@ public class ScriptEvents {
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent e) {
-        if (e.isCanceled() || e.getPacket() == null) {
+        if (e.isCanceled() || ReceivePacketEvent.getPacket() == null) {
             return;
         }
-        SPacket a = PacketHandler.convertClientBound(e.getPacket());
+        SPacket a = PacketHandler.convertClientBound(ReceivePacketEvent.getPacket());
         if (a != null && Raven.scriptManager.invokeBoolean("onPacketReceived", module, a) == 0) {
             e.setCanceled(true);
         }

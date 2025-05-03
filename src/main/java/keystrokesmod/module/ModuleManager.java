@@ -1,16 +1,12 @@
 package keystrokesmod.module;
 
-import keystrokesmod.module.impl.client.CommandLine;
-import keystrokesmod.module.impl.client.Gui;
-import keystrokesmod.module.impl.client.Notifications;
-import keystrokesmod.module.impl.client.Settings;
+import keystrokesmod.module.impl.client.*;
 import keystrokesmod.module.impl.combat.*;
 import keystrokesmod.module.impl.minigames.*;
 import keystrokesmod.module.impl.movement.*;
 import keystrokesmod.module.impl.other.*;
 import keystrokesmod.module.impl.player.*;
 import keystrokesmod.module.impl.render.*;
-import keystrokesmod.module.impl.world.*;
 import keystrokesmod.utility.font.FontManager;
 import keystrokesmod.utility.font.impl.FontRenderer;
 import keystrokesmod.utility.profile.Manager;
@@ -32,6 +28,7 @@ public class ModuleManager {
     public static Module antiShuffle;
     public static Module commandLine;
     public static Module antiBot;
+    public static Module animations;
     public static Sprint sprint;
     public static Module noSlow;
     public static Notifications notifications;
@@ -56,6 +53,8 @@ public class ModuleManager {
     public static TargetStrafe targetStrafe;
     public static BHop bHop;
     public static Scaffold scaffold;
+    public static Watermark watermark;
+    public static TargetESP targetESP;
 
     public void register() {
         this.addModule(autoClicker = new AutoClicker());
@@ -107,11 +106,12 @@ public class ModuleManager {
         this.addModule(bedESP = new BedESP());
         this.addModule(murderMystery = new MurderMystery());
         this.addModule(new keystrokesmod.script.Manager());
+        this.addModule(new ClientTheme());
         this.addModule(killAura = new KillAura());
-        this.addModule(new Watermark());
-        this.addModule(new Animations());
+        this.addModule(watermark = new Watermark());
+        this.addModule(animations = new  Animations());
         this.addModule(new Criticals());
-        this.addModule(new TargetESP());
+        this.addModule(targetESP = new TargetESP());
         this.addModule(new MHelper());
         this.addModule(new RotationHandler());
         this.addModule(new NoRotate());
@@ -125,8 +125,11 @@ public class ModuleManager {
         this.addModule(new ViewPackets());
         this.addModule(new AutoWho());
         this.addModule(new Gui());
+        this.addModule(new BHelper());
+        this.addModule(new Step());
+        this.addModule(new AntiVoid());
         this.addModule(notifications = new Notifications());
-        Collections.sort(this.modules, Comparator.comparing(Module::getName));
+        Collections.sort(modules, Comparator.comparing(Module::getName));
     }
 
     public void addModule(Module m) {
@@ -182,6 +185,7 @@ public class ModuleManager {
             case 4: fontRenderer = FontManager.sfRegular20; break;
             case 5: fontRenderer = FontManager.greyCliffCF20; break;
             case 6: fontRenderer = FontManager.productSansLight22; break;
+            case 7: fontRenderer = FontManager.poppinsBold20; break;
             default:
                 fontRenderer = FontManager.helveticaNeue;
                 break;
@@ -205,8 +209,8 @@ public class ModuleManager {
                     width1 = finalFontRenderer.getStringWidth(nameWithInfo1) + 10;
                     width2 = finalFontRenderer.getStringWidth(nameWithInfo2) + 10;
                 } else {
-                    width1 = MinecraftFontRenderer.INSTANCE.width(nameWithInfo1) + 10;
-                    width2 = MinecraftFontRenderer.INSTANCE.width(nameWithInfo2) + 10;
+                    width1 = MinecraftFontRenderer.INSTANCE.getAccurateWidthTest(nameWithInfo1) + 10;
+                    width2 = MinecraftFontRenderer.INSTANCE.getAccurateWidthTest(nameWithInfo2) + 10;
                 }
 
                 return Double.compare(width2, width1);
