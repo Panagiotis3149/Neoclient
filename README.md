@@ -19,6 +19,7 @@
 - Pulsive
 - Moonlight (lmfao)
 - Augustus 2.6 (lmfao)
+- Cryptix
 
 ❌ **Removed in Current Version:**
 - Liquidbounce++ (Enorsu's fork)
