@@ -1,14 +1,14 @@
 [
   {
-    "modid": "keystrokesmod",
-    "name": "Neoclient - ",
+    "modid": "neo",
+    "name": "Neoclient",
     "description": "Neoclient",
-    "version": "I forget to update this",
-    "url": "",
-    "updateUrl": "",
-    "authorList": ["panagiotis3149"],
+    "version": "2.0",
+    "url": "https://github.com/Panagiotis3149/Neoclient",
+    "updateUrl": "https://github.com/Panagiotis3149/Neoclient/releases/",
+    "authorList": ["Panagiotis3149"],
     "credits": "go check the skidded clients list",
-    "logoFile": "assets/keystrokesmod/textures/gui/Logo.png",
+    "logoFile": "assets/neo/textures/gui/Logo.png",
     "screenshots": [],
     "dependencies": []
   }

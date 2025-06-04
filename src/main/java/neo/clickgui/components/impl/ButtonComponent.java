@@ -1,0 +1,83 @@
+package neo.clickgui.components.impl;
+
+import neo.Neo;
+import neo.clickgui.components.Component;
+import neo.module.Module;
+import neo.module.setting.impl.ButtonSetting;
+import neo.util.font.MinecraftFontRenderer;
+import neo.util.render.RenderUtils;
+import neo.util.profile.ProfileModule;
+import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
+
+public class ButtonComponent extends Component {
+    private final int c = (new Color(20, 255, 0)).getRGB();
+    private final Module mod;
+    private final ButtonSetting buttonSetting;
+    private final ModuleComponent p;
+    private int o;
+    private int x;
+    private int y;
+
+    public ButtonComponent(Module mod, ButtonSetting op, ModuleComponent b, int o) {
+        this.mod = mod;
+        this.buttonSetting = op;
+        this.p = b;
+        this.x = b.categoryComponent.getX() + b.categoryComponent.getWidth();
+        this.y = b.categoryComponent.getY() + b.o;
+        this.o = o;
+    }
+
+    public void render() {
+        RenderUtils.drawRect(
+                this.p.categoryComponent.getX() + 4,
+                this.p.categoryComponent.getY() + this.o + 4,
+                this.p.categoryComponent.getX() + 4 + this.p.categoryComponent.getWidth() - 8,
+                this.p.categoryComponent.getY() + this.o + 14, // Adjust height as needed
+                0x00000000
+        );
+
+        GL11.glPushMatrix();
+        GL11.glScaled(0.5D, 0.5D, 0.5D);
+
+        // Render button text
+        MinecraftFontRenderer font = neo.util.font.MinecraftFontRenderer.INSTANCE;
+        font.drawString(
+                (this.buttonSetting.isMethodButton ? "[~]  " : (this.buttonSetting.isToggled() ? "[+]  " : "[-]  ")) + this.buttonSetting.getName(),
+                (float) ((this.p.categoryComponent.getX() + 4) * 2),
+                (float) ((this.p.categoryComponent.getY() + this.o + 4) * 2),
+                this.buttonSetting.isToggled() ? this.c : -1,
+                false // No drop shadow
+        );
+        GL11.glPopMatrix();
+    }
+
+    public void so(int n) {
+        this.o = n;
+    }
+
+    public void drawScreen(int x, int y) {
+        this.y = this.p.categoryComponent.getModuleY() + this.o;
+        this.x = this.p.categoryComponent.getX();
+    }
+
+    public boolean onClick(int x, int y, int b) {
+        if (this.i(x, y) && b == 0 && this.p.isOpened) {
+            if (this.buttonSetting.isMethodButton) {
+                this.buttonSetting.runMethod();
+                return false;
+            }
+            this.buttonSetting.toggle();
+            this.mod.guiButtonToggled(this.buttonSetting);
+            if (Neo.currentProfile != null) {
+                ((ProfileModule) Neo.currentProfile.getModule()).saved = false;
+            }
+        }
+        return false;
+    }
+
+    public boolean i(int x, int y) {
+        return x > this.x && x < this.x + this.p.categoryComponent.getWidth() && y > this.y && y < this.y + 11;
+    }
+}

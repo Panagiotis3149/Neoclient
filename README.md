@@ -14,11 +14,12 @@
 - Raven xD
 - Raven B+
 - Rise 6.2.4
-- Zazu Recode 5.2 (i think)
+- Zazu Recode 5.2 
 - FDP
+- Pandaware 0.4.3
 - Pulsive
-- Moonlight (lmfao)
-- Augustus 2.6 (lmfao)
+- Moonlight
+- Augustus 2.6 
 - Cryptix
 
 ❌ **Removed in Current Version:**

@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "keystrokesmod.mixins.impl",
+  "package": "neo.mixins.impl",
   "refmap": "mixins.raven.refmap.json",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
@@ -14,9 +14,13 @@
     "entity.MixinEntityPlayer",
     "render.MixinRendererLivingEntity",
     "render.ItemRendererAccessor",
+    "render.MixinItemRenderer",
+    "render.MixinGuiInGame",
+    "entity.MixinRenderEntityItem",
     "render.MixinEntityRenderer",
     "network.MixinModList",
     "client.PlayerControllerMPAccessor",
-    "client.MixinMovementInputFromOptions"
+    "client.MixinMovementInputFromOptions",
+    "client.MixinMinecraft"
   ]
 }
