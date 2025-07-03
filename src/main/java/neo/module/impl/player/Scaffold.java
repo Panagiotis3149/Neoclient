@@ -7,6 +7,7 @@ import neo.module.impl.other.SlotHandler;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.*;
+import neo.util.other.MathUtil;
 import neo.util.packet.PacketUtils;
 import neo.util.player.move.RotationUtils;
 import neo.util.render.Theme;
@@ -40,9 +41,11 @@ import org.lwjgl.input.Mouse;
 
 import java.awt.*;
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Scaffold extends Module {
     private int ticks = 0;
+    private int unlticks = 0;
     private final SliderSetting motion;
     private final SliderSetting rotation;
     private final SliderSetting fastScaffold;
@@ -61,7 +64,7 @@ public class Scaffold extends Module {
     private final ButtonSetting moveFix;
     private int lastSlot;
     private final String[] rotationModes = new String[]{"None", "Simple", "Strict", "Precise"};
-    private final String[] fastScaffoldModes = new String[]{"Disabled", "Sprint", "Edge", "Jump A", "Jump B", "Jump C", "KeepY", "Verus", "VerusFast", "Legit (T)"};
+    private final String[] fastScaffoldModes = new String[]{"Disabled", "Sprint", "Edge", "Jump A", "Jump B", "Jump C", "KeepY", "Verus", "VerusFast", "Legit (T)", "BMC"};
     private final String[] precisionModes = new String[]{"Very low", "Low", "Moderate", "High", "Very high"};
     private final String[] towerModes = new String[]{"None", "Vanilla", "NCP"};
     private final String[] multiPlaceModes = new String[]{"Disabled", "1 extra", "2 extra"};
@@ -94,6 +97,10 @@ public class Scaffold extends Module {
     private final BlockPos[] offsets = {new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 0, 1), new BlockPos(0, 0, -1), new BlockPos(0, -1, 0)};
     private ReceivePacketEvent ReceivePacketEvent;
     public static SliderSetting theme;
+    private int is;
+    private int floatTick;
+    private boolean ground;
+    private int onGroundTicks;
 
     public Scaffold() {
         super("Scaffold", category.player);
@@ -104,7 +111,7 @@ public class Scaffold extends Module {
         this.registerSetting(multiPlace = new SliderSetting("Multi-place", multiPlaceModes, 0));
         this.registerSetting(theme = new SliderSetting("Theme (For Highlight)", Theme.themes, 0));
         this.registerSetting(tower = new SliderSetting("Tower Mode", towerModes, 0));
-        this.registerSetting(autoSwap = new ButtonSetting("Auto Swap", false)); // Fixed (05/02/25)
+        this.registerSetting(autoSwap = new ButtonSetting("Auto Swap", true)); // Fixed (05/02/25)
         this.registerSetting(delayOnJump = new ButtonSetting("Delay on jump", true));
         this.registerSetting(fastOnRMB = new ButtonSetting("Fast on RMB", false));
         this.registerSetting(highlightBlocks = new ButtonSetting("Highlight blocks", true));
@@ -116,6 +123,7 @@ public class Scaffold extends Module {
     }
 
     public void onDisable() {
+        Utils.resetTimer();
         placeBlock = null;
         if (lastSlot != -1) {
             mc.thePlayer.inventory.currentItem = lastSlot;
@@ -131,7 +139,10 @@ public class Scaffold extends Module {
         place = false;
         placedUp = false;
         blockSlot = -1;
+        ground = true;
         blocksPlaced = 0;
+        ticks = 0;
+        unlticks = 0;
         if (autoSwap.isToggled()) {
             if (lastSlot != -1) {
                 mc.thePlayer.inventory.currentItem = lastSlot;
@@ -142,8 +153,8 @@ public class Scaffold extends Module {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent e) {
-        if (bypass.isToggled() && e.getPacket() instanceof C0BPacketEntityAction) {
-            C0BPacketEntityAction actionPacket = (C0BPacketEntityAction) e.getPacket();
+        if (bypass.isToggled() && SendPacketEvent.getPacket() instanceof C0BPacketEntityAction) {
+            C0BPacketEntityAction actionPacket = (C0BPacketEntityAction) SendPacketEvent.getPacket();
             if (actionPacket.getAction() == C0BPacketEntityAction.Action.START_SPRINTING ||
                     actionPacket.getAction() == C0BPacketEntityAction.Action.STOP_SPRINTING) {
                 e.cancelEvent();
@@ -225,12 +236,12 @@ public class Scaffold extends Module {
     }
 
 
-    public boolean canTower() {return totalBlocks() > 0 && mc.currentScreen == null && !MoveUtil.isMoving() && Utils.nullCheck() && Utils.jumpDown() && mc.thePlayer.hurtTime < 9;}
+    public boolean canTower() {return totalBlocks() > 0 && mc.currentScreen == null && !MoveUtil.isMoving() && Utils.isnull() && Utils.jumpDown() && mc.thePlayer.hurtTime < 9;}
 
 
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return;
         }
 
@@ -270,14 +281,6 @@ public class Scaffold extends Module {
         }
     }
 
-
-    private boolean shouldPlaceBlock() {
-        BlockPos blockPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.0, mc.thePlayer.posZ);;
-        Block blockUnder = mc.theWorld.getBlockState(blockPos).getBlock();
-        return blockUnder instanceof BlockAir || blockUnder instanceof BlockLiquid;
-    }
-
-
     @SubscribeEvent
     public void onJump(JumpEvent e) {
         delay = true;
@@ -295,13 +298,15 @@ public class Scaffold extends Module {
     @SubscribeEvent
     public void onPreUpdate(PreUpdateEvent e) {
         ticks++;
+        unlticks++;
         if (ticks > 40) ticks = 0;
-        float yaw = RotationUtils.renderYaw;
         if (mc.thePlayer.isAirBorne) {
             offGroundTicks++;
+            onGroundTicks = 0;
         }
         if (mc.thePlayer.onGround) {
             offGroundTicks = 0;
+            onGroundTicks++;
         }
         if (delay && delayOnJump.isToggled()) {
             delay = false;
@@ -322,38 +327,70 @@ public class Scaffold extends Module {
             placedUp = false;
         }
 
+        if (fastScaffold.getInput() == 10) {
+            if (!(unlticks > 30) && MathUtil.isInAnyOffsetRange(ticks, 2, 6)) {
+                Utils.getTimer().timerSpeed = 1.2f;
+            } else {
+                Utils.resetTimer();
+            }
+            if (MoveUtil.isMoving()) {
+                is++;
+                if(ground && mc.thePlayer.onGround) {
+                    mc.thePlayer.motionY = 0.42F;
+                    MoveUtil.strafec(0.47);
+                    ground = false;
+                    return;
+                }
+                mc.thePlayer.setSprinting(true);
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindSprint.getKeyCode(), true);
+            } else {
+                ground = true;
+                is = 0;
+                floatTick = 0;
+                return;
+            }
+            if (mc.thePlayer.onGround && !mc.gameSettings.keyBindJump.isKeyDown() && !ground) {
+                if (floatTick < -5) {
+                    ground = true;
+                    is = 0;
+                    return;
+                }
+                if (onGroundTicks % 2 == 0 && floatTick > 0) {
+                    mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.0522, mc.thePlayer.posZ);
+                }
+                MoveUtil.strafec(mc.thePlayer.isPotionActive(Potion.moveSpeed) ? is % 11 == 0 ? 0.146 : 0.296 : 0.20);
+            }
+        }
 
         if (fastScaffold.getInput() == 7 && !Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
             bypass.enable(); // Enables Bypass (xd)
             mc.thePlayer.setSprinting(true);
-            Utils.verusSSDisablerTest(ReceivePacketEvent, true);
+
 
 
             Utils.resetTimer();
             if (!MoveUtil.isMoving()) return;
             if (Utils.isMoving() && mc.thePlayer.onGround) {
-                MoveUtil.strafe5(0.45);
+                MoveUtil.strafe(0.45);
                 MoveUtil.jump(0.44f);
             }
-            MoveUtil.strafe5(0.32);
+            MoveUtil.strafe(0.32);
         }
 
         if (fastScaffold.getInput() == 8) {
             bypass.enable(); // Enables Bypass (xd)
             mc.thePlayer.setSprinting(true);
-            Utils.verusSSDisablerTest(ReceivePacketEvent, true);
-
 
             Utils.resetTimer();
             if (!MoveUtil.isMoving()) return;
             if (Utils.isMoving() && mc.thePlayer.onGround) {
                 mc.thePlayer.motionY = 0;
-                MoveUtil.strafe5(0.5);
+                MoveUtil.strafe(0.5);
                 if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                    MoveUtil.strafe5(((.06 * (1 + (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier()))) + 0.1));
+                    MoveUtil.strafe(((.06 * (1 + (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier()))) + 0.1));
                 }
             }
-            MoveUtil.strafe5(0.33);
+            MoveUtil.strafe(0.33);
         }
 
         if (fastScaffold.getInput() == 8) {
@@ -514,7 +551,7 @@ public class Scaffold extends Module {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (!Utils.nullCheck() || !showBlockCount.isToggled()) {
+        if (!Utils.isnull() || !showBlockCount.isToggled()) {
             return;
         }
         if (ev.phase == TickEvent.Phase.END) {
@@ -658,7 +695,7 @@ public class Scaffold extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (!Utils.nullCheck() || !highlightBlocks.isToggled() || highlight.isEmpty()) {
+        if (!Utils.isnull() || !highlightBlocks.isToggled() || highlight.isEmpty()) {
             return;
         }
         Iterator<Map.Entry<BlockPos, Timer>> iterator = highlight.entrySet().iterator();
@@ -699,8 +736,15 @@ public class Scaffold extends Module {
     }
 
     private boolean keepYPosition() {
-        return this.isEnabled() && Utils.keysDown() && (fastScaffold.getInput() == 4 || fastScaffold.getInput() == 3 || fastScaffold.getInput() == 5 || fastScaffold.getInput() == 6 || fastScaffold.getInput() == 7 || fastScaffold.getInput() == 9) && (!Utils.jumpDown() || fastScaffold.getInput() == 6) && (!fastOnRMB.isToggled() || Mouse.isButtonDown(1));
+        int input = (int) fastScaffold.getInput();
+        boolean inputValid = IntStream.of(3, 4, 5, 6, 7, 9, 10).anyMatch(i -> i == input);
+        boolean jumpValid = !Utils.jumpDown() || input == 6;
+        boolean rmbValid = !fastOnRMB.isToggled() || Mouse.isButtonDown(1);
+
+        return this.isEnabled() && Utils.keysDown() && inputValid && jumpValid && rmbValid;
     }
+
+
 
     public boolean safewalk() {
         return this.isEnabled() && safeWalk.isToggled() && (!keepYPosition() || fastScaffold.getInput() == 3 || totalBlocks() == 0);
@@ -838,17 +882,18 @@ public class Scaffold extends Module {
 
 
     @SubscribeEvent
-    public void onStrafe(PrePlayerInputEvent e) {
+    public void onPrePlayerInput(PrePlayerInputEvent e) {
         if (fastScaffold.getInput() == 8) {
+            if (!MoveUtil.isMoving()) return;
             if (mc.thePlayer.onGround) {
-                MoveUtil.strafe5(.51);
+                MoveUtil.strafe(.51);
                 if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                    MoveUtil.strafe5(((.06 * (1 + (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier()))) + 0.1));
+                    MoveUtil.strafe(((.06 * (1 + (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier()))) + 0.1));
                 }
             } else if (mc.thePlayer.motionY < .77) {
-                MoveUtil.strafe5(.3);
+                MoveUtil.strafe(.3);
                 if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                    MoveUtil.strafe5(((.01 * (1 + (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier()))) + 0.1));
+                    MoveUtil.strafe(((.01 * (1 + (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier()))) + 0.1));
                 }
             }
         }

@@ -5,7 +5,6 @@ import neo.event.SendPacketEvent;
 import neo.module.Module;
 import neo.module.ModuleManager;
 import neo.util.Utils;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
@@ -15,14 +14,15 @@ public class BindCommand {
 
     public BindCommand(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
+
         if (!(event.getPacket() instanceof C01PacketChatMessage)) return;
         C01PacketChatMessage chat = (C01PacketChatMessage) event.getPacket();
         String msg = chat.getMessage().toLowerCase().trim();
+
 
         if (msg.startsWith(".bind ")) {
             event.setCanceled(true);

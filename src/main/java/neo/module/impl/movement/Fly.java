@@ -2,8 +2,9 @@ package neo.module.impl.movement;
 
 import neo.event.PreMotionEvent;
 import neo.module.Module;
-import neo.module.impl.movement.mode.fly.TestFly;
+import neo.module.ModuleManager;
 import neo.module.impl.other.SlotHandler;
+import neo.module.impl.render.BPSCounter;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.*;
@@ -32,11 +33,13 @@ public class Fly extends Module {
     private final ButtonSetting stopMotion;
     private double moveSpeed;
     private boolean d;
-    private int stage, ticks, ticksl, offGroundTicks;
+    private int stage, ticks, ticksl;
+    public static int offGroundTicks;
     private int i;
     private double floatPos;
-    private final String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus1", "Mospixel", "BMC", "Test"};
+    private final String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus1", "Mospixel", "BMC"};
     private double jumpGround = 0.0;
+    private boolean wE;
 
     public Fly() {
         super("Fly", category.movement);
@@ -57,6 +60,10 @@ public class Fly extends Module {
         floatPos = mc.thePlayer.posY;
         if (mode.getInput() == 9) {
             DamageUtil.oldNCPTestSelfDamage();
+        }
+        wE = ModuleManager.bpsCounter.isEnabled();
+        if (!wE && showBPS.isToggled()) {
+            ModuleManager.bpsCounter.toggle();
         }
         }
 
@@ -220,13 +227,11 @@ public class Fly extends Module {
                     Utils.getTimer().timerSpeed = 1.25F;
                     MoveUtil.strafec(MoveUtil.getSpeed() * 1.06);
                 } else if (offGroundTicks >= 4) {
-                    Utils.getTimer().timerSpeed = 2.5F;
+                    Utils.getTimer().timerSpeed = 2.25F;
                     MoveUtil.strafec(MoveUtil.getSpeed() * 1.02);
                 }
 
-                if (offGroundTicks >= 10) {
-                 this.toggle();
-                }
+                if (offGroundTicks >= 10) {this.toggle();}
 
                 if (i < 5) {
                     i++;
@@ -241,7 +246,6 @@ public class Fly extends Module {
                 }
                 MoveUtil.strafec(MoveUtil.getSpeed());
                 break;
-
                 }
         }
 
@@ -273,6 +277,9 @@ public class Fly extends Module {
         }
         ticksl = 0;
         moveSpeed = 0;
+        if (!wE && showBPS.isToggled()) {
+            ModuleManager.bpsCounter.toggle();
+        }
     }
 
 
@@ -280,21 +287,9 @@ public class Fly extends Module {
    public void onPreMotion(PreMotionEvent e) {
         if (mode.getInput() == 7) {
             e.setOnGround(true);
-        } if (mode.getInput() == 9) {
-           TestFly.TestFly(e);
         }
    }
 
-    @SubscribeEvent
-    public void onRenderTick(TickEvent.RenderTickEvent e) {
-        if (!showBPS.isToggled() || e.phase != TickEvent.Phase.END || !Utils.nullCheck()) {
-            return;
-        }
-        if (mc.currentScreen != null || mc.gameSettings.showDebugInfo) {
-            return;
-        }
-        RenderUtils.renderBPS(true, false);
-    }
 
     public static void setSpeed(final double n) {
         if (n == 0.0) {

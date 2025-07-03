@@ -50,7 +50,7 @@ public class Nametags extends Module {
 
     @SubscribeEvent
     public void onRenderTick(RenderGameOverlayEvent.Post ev) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return;
         }
         if (ev.type != RenderGameOverlayEvent.ElementType.ALL) {
@@ -78,7 +78,7 @@ public class Nametags extends Module {
             final float renderPartialTicks = Utils.getTimer().renderPartialTicks;
             final EntityPlayer player = (Freecam.freeEntity == null) ? mc.thePlayer : Freecam.freeEntity;
             final double deltaX = player.lastTickPosX + (player.posX - player.lastTickPosX) * renderPartialTicks - (entityPlayer.lastTickPosX + (entityPlayer.posX - entityPlayer.lastTickPosX) * renderPartialTicks);
-            final double deltaY = player.lastTickPosY + (player.posY - player.lastTickPosY) * renderPartialTicks - (entityPlayer.lastTickPosY + (entityPlayer.posY - entityPlayer.posY) * renderPartialTicks);
+            final double deltaY = player.lastTickPosY + (player.posY - player.lastTickPosY) * renderPartialTicks - (entityPlayer.lastTickPosY + (0.0) * renderPartialTicks);
             final double deltaZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * renderPartialTicks - (entityPlayer.lastTickPosZ + (entityPlayer.posZ - entityPlayer.lastTickPosZ) * renderPartialTicks);
             double distance = MathHelper.sqrt_double(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
 
@@ -140,7 +140,7 @@ public class Nametags extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent renderWorldLastEvent) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return;
         }
         updatePositions();
@@ -186,7 +186,7 @@ public class Nametags extends Module {
         }
     }
 
-    private double[] convertTo2D(double x, double y, double z) {
+    public static double[] convertTo2D(double x, double y, double z) {
         FloatBuffer screenCoords = BufferUtils.createFloatBuffer(3);
         IntBuffer viewport = BufferUtils.createIntBuffer(16);
         FloatBuffer modelView = BufferUtils.createFloatBuffer(16);

@@ -2,13 +2,11 @@ package neo.module.impl.client;
 
 import neo.Neo;
 import neo.module.Module;
-import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.render.Theme;
 import neo.util.Utils;
 
 public class Gui extends Module {
-    public static ButtonSetting removePlayerModel;
     public static SliderSetting theme;
 
     public Gui() {
@@ -17,7 +15,7 @@ public class Gui extends Module {
     }
 
     public void onEnable() {
-        if (Utils.nullCheck() && mc.currentScreen != Neo.clickGui) {
+        if (Utils.isnull() && mc.currentScreen != Neo.clickGui) {
             mc.displayGuiScreen(Neo.clickGui);
             Neo.clickGui.initMain();
         }

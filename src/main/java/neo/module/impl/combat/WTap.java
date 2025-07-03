@@ -24,7 +24,7 @@ public class WTap extends Module {
 
     @SubscribeEvent
     public void onAttack(AttackEntityEvent event) {
-        if (!Utils.nullCheck() || event.entityPlayer != mc.thePlayer || !mc.thePlayer.isSprinting()) {
+        if (!Utils.isnull() || event.entityPlayer != mc.thePlayer || !mc.thePlayer.isSprinting()) {
             return;
         }
         if (chance.getInput() == 0) {

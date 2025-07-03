@@ -1,6 +1,7 @@
 package neo.mixins.impl.entity;
 
 import neo.event.MoveEvent;
+import neo.event.StrafeEvent;
 import neo.module.ModuleManager;
 import neo.module.impl.player.SafeWalk;
 import net.minecraft.block.Block;
@@ -9,6 +10,7 @@ import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
@@ -124,6 +126,44 @@ public abstract class MixinEntity {
 
     @Shadow
     public float rotationYaw;
+
+    @Overwrite
+    public void moveFlying(float strafe, float forward, float friction) {
+        boolean player = (Object) this == Minecraft.getMinecraft().thePlayer;
+        float yaw = this.rotationYaw;
+
+        if (player) {
+            final StrafeEvent strafeEvent = new StrafeEvent(forward, strafe, friction, yaw);
+            EVENT_BUS.post(strafeEvent);
+
+            // only reason for the event is friction, lol.
+          //  forward = strafeEvent.getForward();
+          //  strafe = strafeEvent.getStrafe();
+            friction = strafeEvent.getFriction();
+        }
+
+        float f = strafe * strafe + forward * forward;
+
+        if (f >= 1.0E-4F)
+
+        {
+            f = MathHelper.sqrt_float(f);
+
+            if (f < 1.0F)
+            {
+                f = 1.0F;
+            }
+
+            f = friction / f;
+            strafe = strafe * f;
+            forward = forward * f;
+            float f1 = MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F);
+            float f2 = MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F);
+            this.motionX += strafe * f2 - forward * f1;
+            this.motionZ += forward * f2 + strafe * f1;
+        }
+    }
+
 
     @Overwrite
     public void moveEntity(double x, double y, double z) {

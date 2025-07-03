@@ -4,7 +4,9 @@ import neo.Neo;
 import neo.clickgui.components.Component;
 import neo.module.Module;
 import neo.module.setting.impl.ButtonSetting;
+import neo.util.font.FontManager;
 import neo.util.font.MinecraftFontRenderer;
+import neo.util.font.impl.FontRenderer;
 import neo.util.render.RenderUtils;
 import neo.util.profile.ProfileModule;
 import org.lwjgl.opengl.GL11;
@@ -14,7 +16,7 @@ import java.awt.*;
 public class ButtonComponent extends Component {
     private final int c = (new Color(20, 255, 0)).getRGB();
     private final Module mod;
-    private final ButtonSetting buttonSetting;
+    public final ButtonSetting buttonSetting;
     private final ModuleComponent p;
     private int o;
     private int x;
@@ -30,19 +32,21 @@ public class ButtonComponent extends Component {
     }
 
     public void render() {
+        if (!buttonSetting.isVisible()) return;
+        /*
         RenderUtils.drawRect(
                 this.p.categoryComponent.getX() + 4,
                 this.p.categoryComponent.getY() + this.o + 4,
                 this.p.categoryComponent.getX() + 4 + this.p.categoryComponent.getWidth() - 8,
                 this.p.categoryComponent.getY() + this.o + 14, // Adjust height as needed
-                0x00000000
+                0xBF1C1C1C
         );
+         */
 
         GL11.glPushMatrix();
         GL11.glScaled(0.5D, 0.5D, 0.5D);
 
-        // Render button text
-        MinecraftFontRenderer font = neo.util.font.MinecraftFontRenderer.INSTANCE;
+        FontRenderer font = FontManager.productSans20;
         font.drawString(
                 (this.buttonSetting.isMethodButton ? "[~]  " : (this.buttonSetting.isToggled() ? "[+]  " : "[-]  ")) + this.buttonSetting.getName(),
                 (float) ((this.p.categoryComponent.getX() + 4) * 2),
@@ -58,11 +62,13 @@ public class ButtonComponent extends Component {
     }
 
     public void drawScreen(int x, int y) {
+        if (!buttonSetting.isVisible()) return;
         this.y = this.p.categoryComponent.getModuleY() + this.o;
         this.x = this.p.categoryComponent.getX();
     }
 
     public boolean onClick(int x, int y, int b) {
+        if (!buttonSetting.isVisible()) return false;
         if (this.i(x, y) && b == 0 && this.p.isOpened) {
             if (this.buttonSetting.isMethodButton) {
                 this.buttonSetting.runMethod();

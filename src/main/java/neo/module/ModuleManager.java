@@ -11,6 +11,7 @@ import neo.util.font.FontManager;
 import neo.util.font.MinecraftFontRenderer;
 import neo.util.font.impl.FontRenderer;
 import neo.util.profile.Manager;
+import sun.text.resources.cldr.ps.FormatData_ps;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ public class ModuleManager {
     public static Interface interfacemod; // Can't use Interface for some reason, probably java's interface
     public static FastMine fastMine;
     public static Module antiBot;
+    public static BPSCounter bpsCounter;
     public static Module animations;
     public static Sprint sprint;
     public static Module noSlow;
@@ -45,11 +47,9 @@ public class ModuleManager {
     public static Module wTap;
     public static TargetHUD targetHUD;
     public static NoFall noFall;
-    public static PlayerESP playerESP;
     public static SafeWalk safeWalk;
     public static Module keepSprint;
     public static Module antiKnockback;
-    public static Velocity2 velocity2;
     public static Module bedwars;
     public static TargetStrafe targetStrafe;
     public static BHop bHop;
@@ -77,14 +77,11 @@ public class ModuleManager {
         this.addModule(new InvMove());
         this.addModule(new Enabler());
         this.addModule(targetStrafe = new TargetStrafe());
-        this.addModule(new Trajectories());
         this.addModule(new AutoSwap());
         this.addModule(keepSprint = new KeepSprint());
         this.addModule(bedAura = new BedAura());
         this.addModule(noSlow = new NoSlow());
-        this.addModule(new Indicators());
         this.addModule(sprint = new Sprint());
-        this.addModule(velocity2 = new Velocity2());
         this.addModule(timer = new Timer());
         this.addModule(new AutoPlace());
         this.addModule(fastPlace = new FastPlace());
@@ -95,13 +92,14 @@ public class ModuleManager {
         this.addModule(antiBot = new AntiBot());
         this.addModule(new Chams());
         this.addModule(new ChestESP());
-        this.addModule(new Nametags());
-        this.addModule(playerESP = new PlayerESP());
+        this.addModule(new SpeedTest());
         this.addModule(hud = new HUD());
         this.addModule(new Anticheat());
         this.addModule(new BreakProgress());
+        this.addModule(bpsCounter = new BPSCounter());
         this.addModule(wTap = new WTap());
         this.addModule(targetHUD = new TargetHUD());
+        this.addModule(new FPSCounter());
         this.addModule(antiFireball = new AntiFireball());
         this.addModule(bedESP = new BedESP());
         this.addModule(murderMystery = new MurderMystery());
@@ -111,7 +109,6 @@ public class ModuleManager {
         this.addModule(watermark = new Watermark());
         this.addModule(animations = new  Animations());
         this.addModule(itemPhysics = new ItemPhysics());
-        this.addModule(new Criticals());
         this.addModule(targetESP = new TargetESP());
         this.addModule(new RotationHandler());
         this.addModule(new NoRotate());
@@ -191,6 +188,7 @@ public class ModuleManager {
             case 6: fontRenderer = FontManager.productSansLight22; break;
             case 7: fontRenderer = FontManager.poppinsBold20; break;
             case 8: fontRenderer = FontManager.proximaNova; break;
+            case 9: fontRenderer = FontManager.comfortaa; break;
             default:
                 fontRenderer = FontManager.helveticaNeue;
                 break;

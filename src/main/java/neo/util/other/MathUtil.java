@@ -21,6 +21,16 @@ public final class MathUtil {
     public static final DecimalFormat DF_1D = new DecimalFormat("0.#");
     public static final DecimalFormat DF_2D = new DecimalFormat("0.##");
 
+
+    public static float inverseFloat(float val, float min, float max) {
+        return max - (val - min);
+    }
+
+    public static boolean isInAnyOffsetRange(int n, int base, int range) {
+        return n >= (n / base) * base && n < (n / base) * base + range || n >= ((n / base) - 1) * base && n < ((n / base) - 1) * base + range;
+    }
+
+
     public double lerp(final double a, final double b, final double c) {
         return a + c * (b - a);
     }
@@ -35,6 +45,10 @@ public final class MathUtil {
 
     public static double roundToDecimal(double number, double places) {
         return Math.round(number * Math.pow(10, places)) / Math.pow(10, places);
+    }
+
+    public static double roundToPlace(double value, int places) {
+        return BigDecimal.valueOf(value).setScale(places, RoundingMode.HALF_UP).doubleValue();
     }
 
     public double round(final double value, final int places) {

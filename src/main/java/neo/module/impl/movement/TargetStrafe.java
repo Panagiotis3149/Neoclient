@@ -84,7 +84,7 @@ public class TargetStrafe extends Module {
         if (mc.thePlayer.isCollidedHorizontally || !BlockUtils.isBlockUnder(5)) {
             if (!colliding) {
                 if (strafe.isToggled()) {
-                    MoveUtil.strafe5(MoveUtil.getSpeed()); // Always call strafe if module is enabled
+                    MoveUtil.strafe(MoveUtil.getSpeed()); // Always call strafe if module is enabled
                 }
                 left = !left;
             }

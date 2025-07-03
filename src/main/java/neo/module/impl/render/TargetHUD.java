@@ -68,7 +68,7 @@ public class TargetHUD extends Module {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             reset();
             return;
         }

@@ -19,7 +19,7 @@ import static neo.util.render.RenderUtils.drawRoundedGradientRect;
 import static neo.util.render.Theme.getColors;
 
 public class SliderComponent extends Component {
-    private final SliderSetting sliderSetting;
+    public final SliderSetting sliderSetting;
     private final ModuleComponent moduleComponent;
     private int o;
     private int x;
@@ -36,14 +36,17 @@ public class SliderComponent extends Component {
     }
 
     public void render() {
-        FontRenderer font = FontManager.helveticaNeue;
+        if (!sliderSetting.isVisible()) return;
+        FontRenderer font = FontManager.productSans20;
+        /*
         RenderUtils.drawRect(
                 this.moduleComponent.categoryComponent.getX() + 4,
                 this.moduleComponent.categoryComponent.getY() + this.o + 11,
                 this.moduleComponent.categoryComponent.getX() + 4 + this.moduleComponent.categoryComponent.getWidth() - 8,
                 this.moduleComponent.categoryComponent.getY() + this.o + 15,
-                0x11202024
+                0xBF1C1C1C
         );
+        */
 
         int[] colors = getColors((int) Gui.theme.getInput());
         int firstColor = colors[0];
@@ -100,6 +103,7 @@ public class SliderComponent extends Component {
     }
 
     public void drawScreen(int x, int y) {
+        if (!sliderSetting.isVisible()) return;
         this.y = this.moduleComponent.categoryComponent.getModuleY() + this.o;
         this.x = this.moduleComponent.categoryComponent.getX();
         double d = Math.min(this.moduleComponent.categoryComponent.getWidth() - 8, Math.max(0, x - this.x));
@@ -135,6 +139,7 @@ public class SliderComponent extends Component {
     }
 
     public boolean onClick(int x, int y, int b) {
+        if (!sliderSetting.isVisible()) return false;
         if ((this.u(x, y) || this.i(x, y)) && b == 0 && this.moduleComponent.isOpened) {
             this.heldDown = true;
         }

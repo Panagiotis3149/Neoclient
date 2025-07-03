@@ -3,24 +3,22 @@ package neo.mixins.impl.client;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.imageio.ImageIO;
-
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.shader.Framebuffer;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
+
+import static neo.util.render.RenderUtils.drawImage;
 
 @Mixin(Minecraft.class)
 public class MixinMinecraft {
@@ -28,11 +26,11 @@ public class MixinMinecraft {
     private static final ResourceLocation CUSTOM_IMAGE = new ResourceLocation("neo", "textures/gui/image.png");
 
     @Inject(method = "drawSplashScreen", at = @At("HEAD"), cancellable = true)
-    private void drawSplashScreen(TextureManager textureManagerInstance, CallbackInfo ci) throws LWJGLException {
+    private void drawSplashScreen(TextureManager texMgr, CallbackInfo ci) throws LWJGLException {
+        ci.cancel();
         Minecraft mc = (Minecraft)(Object)this;
-        ScaledResolution scaled = new ScaledResolution(mc);
-        int dispW = scaled.getScaledWidth();
-        int dispH = scaled.getScaledHeight();
+        ScaledResolution sr = new ScaledResolution(mc);
+        int w = sr.getScaledWidth(), h = sr.getScaledHeight();
 
         BufferedImage img;
         try (InputStream in = mc.getResourceManager().getResource(CUSTOM_IMAGE).getInputStream()) {
@@ -41,54 +39,32 @@ public class MixinMinecraft {
             return;
         }
 
-        int imgW = img.getWidth();
-        int imgH = img.getHeight();
-        float scaleFactor = Math.min((float)dispW / imgW, (float)dispH / imgH);
-        int drawW = Math.round(imgW * scaleFactor);
-        int drawH = Math.round(imgH * scaleFactor);
-        int x = (dispW - drawW) / 2;
-        int y = (dispH - drawH) / 2;
+        float sf = Math.min((float)w / img.getWidth(), (float)h / img.getHeight());
+        int dw = Math.round(img.getWidth() * sf), dh = Math.round(img.getHeight() * sf);
+        int x = (w - dw) / 2, y = (h - dh) / 2;
 
-        ResourceLocation logoLoc = textureManagerInstance.getDynamicTextureLocation(
-                "neo:splash", new DynamicTexture(img)
-        );
-        textureManagerInstance.bindTexture(logoLoc);
+        ResourceLocation dynLoc = texMgr.getDynamicTextureLocation("neo:splash", new DynamicTexture(img));
 
-        Framebuffer fb = new Framebuffer(dispW * scaled.getScaleFactor(), dispH * scaled.getScaleFactor(), true);
-        fb.bindFramebuffer(false);
-        GlStateManager.clear(16640); // clear color + depth
-        GlStateManager.matrixMode(5889);
+        Framebuffer fb = new Framebuffer(w * sr.getScaleFactor(), h * sr.getScaleFactor(), true);
+        fb.bindFramebuffer(true);
+        GlStateManager.clearColor(0f, 0f, 0f, 1f);
+        GlStateManager.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+        GlStateManager.matrixMode(GL11.GL_PROJECTION);
         GlStateManager.loadIdentity();
-        GlStateManager.ortho(0.0D, dispW, dispH, 0.0D, 1000.0D, 3000.0D);
-        GlStateManager.matrixMode(5888);
+        GlStateManager.ortho(0, w, h, 0, 1000, 3000);
+        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.loadIdentity();
-        GlStateManager.translate(0.0F, 0.0F, -2000.0F);
+        GlStateManager.translate(0, 0, -2000);
 
-        GlStateManager.disableLighting();
-        GlStateManager.disableFog();
-        GlStateManager.disableDepth();
-        GlStateManager.enableTexture2D();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFunc(770, 771);
+        drawImage(dynLoc, x, y, dw, dh, 0xFFFFFFFF);
 
-        Tessellator t = Tessellator.getInstance();
-        WorldRenderer wr = t.getWorldRenderer();
-        wr.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        wr.pos(x,        y + drawH, 0).tex(0, 1).color(255,255,255,255).endVertex();
-        wr.pos(x + drawW, y + drawH, 0).tex(1, 1).color(255,255,255,255).endVertex();
-        wr.pos(x + drawW, y,         0).tex(1, 0).color(255,255,255,255).endVertex();
-        wr.pos(x,        y,         0).tex(0, 0).color(255,255,255,255).endVertex();
-        t.draw();
-
-        GlStateManager.disableLighting();
-        GlStateManager.disableFog();
         fb.unbindFramebuffer();
-        fb.framebufferRender(dispW * scaled.getScaleFactor(), dispH * scaled.getScaleFactor());
-        GlStateManager.enableAlpha();
-        GlStateManager.alphaFunc(516, 0.1F);
-        mc.updateDisplay();
+        fb.framebufferRender(w * sr.getScaleFactor(), h * sr.getScaleFactor());
 
-        ci.cancel();
+        GlStateManager.enableAlpha();
+        GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
+        mc.updateDisplay();
     }
 
 

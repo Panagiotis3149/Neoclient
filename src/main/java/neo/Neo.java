@@ -112,8 +112,9 @@ public class Neo {
         FMLCommonHandler.instance().bus().register(new CPSCalculator());
         FMLCommonHandler.instance().bus().register(badPacketsHandler = new BadPacketsHandler());
 
-        new ToggleCommand(moduleManager);
-        new BindCommand(moduleManager);
+        FMLCommonHandler.instance().bus().register(new BindCommand(moduleManager));
+        FMLCommonHandler.instance().bus().register(new ToggleCommand(moduleManager));
+
         RPC rpc = new RPC();
         rpc.onUpdate();
         Reflection.getFields();
@@ -143,7 +144,7 @@ public class Neo {
     @SubscribeEvent
     public void onTick(ClientTickEvent e) {
         if (e.phase == Phase.END) {
-            if (Utils.nullCheck()) {
+            if (Utils.isnull()) {
                 if (Reflection.sendMessage) {
                     Utils.sendMessage("&cewwor, pwease rewaunch");
                     Reflection.sendMessage = false;

@@ -12,17 +12,9 @@ import static org.lwjgl.opengl.GL11.GL_LINE_SMOOTH;
 import static org.lwjgl.opengl.GL11.GL_POINT_BIT;
 
 
-// For RISE
+// RenderUtil for skidded stuff, yes...
 
 public class RenderUtil {
-
-    public static void glColor(final int hex) {
-        final float a = (hex >> 24 & 0xFF) / 255.0F;
-        final float r = (hex >> 16 & 0xFF) / 255.0F;
-        final float g = (hex >> 8 & 0xFF) / 255.0F;
-        final float b = (hex & 0xFF) / 255.0F;
-        GL11.glColor4f(r, g, b, a);
-    }
 
     public static void glColor(final Color color) {
         GL11.glColor4f(color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F, color.getAlpha() / 255.0F);
@@ -73,7 +65,6 @@ public class RenderUtil {
     }
 
 
-
     public static Color interpolateColorC(Color color1, Color color2, float amount) {
         amount = Math.min(1, Math.max(0, amount));
         return new Color(ColorUtils.interpolateInt(color1.getRed(), color2.getRed(), amount),
@@ -90,19 +81,19 @@ public class RenderUtil {
         GLUtil.setup2DRendering();
         color(color);
         GL11.glLineWidth(lineWidth);
-        GL11.glEnable(GL_LINE_SMOOTH);
-        GL11.glBegin(GL_POINT_BIT);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glBegin(GL11.GL_LINE_LOOP);
 
-        int i = 0;
-        while (i <= 360) {
-            GL11.glVertex2d(x + Math.sin((double) i * 3.141526 / 180.0) * (double) radius, y + Math.cos((double) i * 3.141526 / 180.0) * (double) radius);
-            ++i;
+        for (int i = 0; i <= 360; i++) {
+            double angle = Math.toRadians(i);
+            GL11.glVertex2d(x + Math.sin(angle) * radius, y + Math.cos(angle) * radius);
         }
 
         GL11.glEnd();
-        GL11.glDisable(GL_LINE_SMOOTH);
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
         GLUtil.end2DRendering();
     }
+
 
     /**
      * Better to use gl state manager to avoid bugs
@@ -128,9 +119,6 @@ public class RenderUtil {
         GlStateManager.resetColor();
     }
 
-    public void rectangle(final double x, final double y, final double width, final double height) {
-        rectangle(x, y, width, height, null);
-    }
 
     public static void rectangle(final double x, final double y, final double width, final double height, final Color color) {
         start();

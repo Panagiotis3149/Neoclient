@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "neo.mixins.impl",
-  "refmap": "mixins.raven.refmap.json",
+  "refmap": "mixins.neo.refmap.json",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "entity.MixinEntity",

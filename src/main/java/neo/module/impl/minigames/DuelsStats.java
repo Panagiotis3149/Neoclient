@@ -64,7 +64,7 @@ public class DuelsStats extends Module {
 
     @SubscribeEvent
     public void onMessageReceived(ClientChatReceivedEvent c) {
-        if (Utils.nullCheck() && this.id()) {
+        if (Utils.isnull() && this.id()) {
             String s = Utils.stripColor(c.message.getUnformattedText());
             if (s.contains(" ")) {
                 String[] sp = s.split(" ");

@@ -29,7 +29,7 @@ public class FastPlace extends Module {
             if (ModuleManager.scaffold.stopFastPlace()) {
                 return;
             }
-            if (Utils.nullCheck() && mc.inGameHasFocus && Reflection.rightClickDelayTimerField != null) {
+            if (Utils.isnull() && mc.inGameHasFocus && Reflection.rightClickDelayTimerField != null) {
                 if (blocksOnly.isToggled()) {
                     ItemStack item = mc.thePlayer.getHeldItem();
                     if (item == null || !(item.getItem() instanceof ItemBlock)) {

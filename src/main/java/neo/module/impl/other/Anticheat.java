@@ -2,45 +2,49 @@ package neo.module.impl.other;
 
 import neo.module.Module;
 import neo.module.impl.combat.AntiBot;
+import neo.module.impl.other.anticheat.AnticheatComponent;
+import neo.module.impl.other.anticheat.impl.*;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.DescriptionSetting;
 import neo.module.setting.impl.SliderSetting;
-import neo.util.world.block.BlockUtils;
-import neo.util.player.move.PlayerData;
 import neo.util.Utils;
-import net.minecraft.block.BlockAir;
+import java.util.List;
+import neo.util.player.move.PlayerData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.event.ClickEvent;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.*;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 import static neo.Variables.clientName;
 
 public class Anticheat extends Module {
-    private final SliderSetting interval;
-    private final ButtonSetting enemyAdd;
-    private final ButtonSetting autoReport;
-    private final ButtonSetting ignoreTeammates;
-    private final ButtonSetting atlasSuspect;
-    private final ButtonSetting shouldPing;
-    private final ButtonSetting autoBlock;
-    private final ButtonSetting noFall;
-    private final ButtonSetting noSlow;
-    private final ButtonSetting scaffold;
-    private final ButtonSetting legitScaffold;
+    public final SliderSetting interval;
+    public final ButtonSetting enemyAdd;
+    public final ButtonSetting autoReport;
+    public final ButtonSetting ignoreTeammates;
+    public final ButtonSetting atlasSuspect;
+    public final ButtonSetting shouldPing;
+
+    public final ButtonSetting autoBlock;
+    public final ButtonSetting noFall;
+    public final ButtonSetting noSlow;
+    public final ButtonSetting scaffold;
+    public final ButtonSetting legitScaffold;
+    public final ButtonSetting flight;
+    public final ButtonSetting speed;
+
     private final HashMap<UUID, HashMap<ButtonSetting, Long>> flags = new HashMap<>();
     private final HashMap<UUID, PlayerData> players = new HashMap<>();
+    private final List<AnticheatComponent> components = new ArrayList<>();
+
     private long lastAlert;
+
     public Anticheat() {
         super("Anticheat", category.other);
+
         this.registerSetting(new DescriptionSetting("Tries to detect cheaters."));
         this.registerSetting(interval = new SliderSetting("Flag interval", 20.0, 0.0, 60.0, 1.0, " second"));
         this.registerSetting(enemyAdd = new ButtonSetting("Add cheaters as enemy", false));
@@ -51,72 +55,102 @@ public class Anticheat extends Module {
         this.registerSetting(new DescriptionSetting("Detected cheats"));
         this.registerSetting(autoBlock = new ButtonSetting("Autoblock", true));
         this.registerSetting(noFall = new ButtonSetting("NoFall", true));
+        this.registerSetting(flight = new ButtonSetting("Fly", true));
+        this.registerSetting(speed = new ButtonSetting("Speed", true));
         this.registerSetting(noSlow = new ButtonSetting("NoSlow", true));
         this.registerSetting(scaffold = new ButtonSetting("Scaffold", true));
         this.registerSetting(legitScaffold = new ButtonSetting("Legit scaffold", true));
+
+        components.add(new AutoblockCheck());
+        components.add(new LegitScaffoldCheck());
+        components.add(new NoSlowCheck());
+        components.add(new ScaffoldCheck());
+        components.add(new SpeedCheck());
+        components.add(new FlightCheck());
+        components.add(new NoFallCheck());
     }
 
-    private void alert(final EntityPlayer entityPlayer, ButtonSetting mode) {
-        if (Utils.isFriended(entityPlayer) || (ignoreTeammates.isToggled() && Utils.isTeamMate(entityPlayer))) {
-            return;
-        }
-        if (atlasSuspect.isToggled()) {
-            if (!entityPlayer.getName().equals("Suspect§r")) {
-                return;
-            }
-        }
-        else if (enemyAdd.isToggled()) {
+    public void alert(EntityPlayer entityPlayer, ButtonSetting mode, String details) {
+        if (Utils.isFriended(entityPlayer) || (ignoreTeammates.isToggled() && Utils.isTeamMate(entityPlayer))) return;
+        if (atlasSuspect.isToggled() && !entityPlayer.getName().equals("Suspect§r")) return;
+
+        if (enemyAdd.isToggled()) {
             Utils.addEnemy(entityPlayer.getName());
         }
-        final long currentTimeMillis = System.currentTimeMillis();
+
+        final long now = System.currentTimeMillis();
         if (interval.getInput() > 0.0) {
             HashMap<ButtonSetting, Long> hashMap = flags.get(entityPlayer.getUniqueID());
-            if (hashMap == null) {
-                hashMap = new HashMap<>();
-            }
+            if (hashMap == null) hashMap = new HashMap<>();
             else {
-                final Long n = hashMap.get(mode);
-                if (n != null && Utils.getDifference(n, currentTimeMillis) <= interval.getInput() * 1000.0) {
-                    return;
-                }
+                Long last = hashMap.get(mode);
+                if (last != null && Utils.getDifference(last, now) <= interval.getInput() * 1000.0) return;
             }
-            hashMap.put(mode, currentTimeMillis);
+            hashMap.put(mode, now);
             flags.put(entityPlayer.getUniqueID(), hashMap);
         }
-        final ChatComponentText chatComponentText = new ChatComponentText(Utils.formatColor("&7[&b" + clientName + "&7]&r " + entityPlayer.getDisplayName().getUnformattedText() + " &7detected for &d" + mode.getName()));
-        final ChatStyle chatStyle = new ChatStyle();
-        chatStyle.setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wdr " + entityPlayer.getName()));
-        ((IChatComponent)chatComponentText).appendSibling(new ChatComponentText(Utils.formatColor(" §7[§cWDR§7]")).setChatStyle(chatStyle));
-        mc.thePlayer.addChatMessage(chatComponentText);
-        if (shouldPing.isToggled() && Utils.getDifference(lastAlert, currentTimeMillis) >= 1500L) {
+
+        ChatComponentText msg = new ChatComponentText(Utils.formatColor("&7[&b" + clientName + "&7]&r " + entityPlayer.getDisplayName().getUnformattedText() + " &7detected for &d" + mode.getName() + " - " + details));
+        ChatStyle style = new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/report " + entityPlayer.getName()));
+        msg.appendSibling(new ChatComponentText(Utils.formatColor(" §7[§cReport§7]")).setChatStyle(style));
+        mc.thePlayer.addChatMessage(msg);
+
+        if (shouldPing.isToggled() && Utils.getDifference(lastAlert, now) >= 1500L) {
             mc.thePlayer.playSound("note.pling", 1.0f, 1.0f);
-            lastAlert = currentTimeMillis;
+            lastAlert = now;
         }
+
         if (autoReport.isToggled() && !Utils.isFriended(entityPlayer)) {
-            mc.thePlayer.sendChatMessage("/wdr " + Utils.stripColor(entityPlayer.getGameProfile().getName()));
+            mc.thePlayer.sendChatMessage("/report " + Utils.stripColor(entityPlayer.getGameProfile().getName()));
+        }
+    }
+
+    public void alert(EntityPlayer entityPlayer, ButtonSetting mode) {
+        if (Utils.isFriended(entityPlayer) || (ignoreTeammates.isToggled() && Utils.isTeamMate(entityPlayer))) return;
+        if (atlasSuspect.isToggled() && !entityPlayer.getName().equals("Suspect§r")) return;
+
+        if (enemyAdd.isToggled()) {
+            Utils.addEnemy(entityPlayer.getName());
+        }
+
+        final long now = System.currentTimeMillis();
+        if (interval.getInput() > 0.0) {
+            HashMap<ButtonSetting, Long> hashMap = flags.get(entityPlayer.getUniqueID());
+            if (hashMap == null) hashMap = new HashMap<>();
+            else {
+                Long last = hashMap.get(mode);
+                if (last != null && Utils.getDifference(last, now) <= interval.getInput() * 1000.0) return;
+            }
+            hashMap.put(mode, now);
+            flags.put(entityPlayer.getUniqueID(), hashMap);
+        }
+
+        ChatComponentText msg = new ChatComponentText(Utils.formatColor("&7[&b" + clientName + "&7]&r " + entityPlayer.getDisplayName().getUnformattedText() + " &7detected for &d" + mode.getName()));
+        ChatStyle style = new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/report " + entityPlayer.getName()));
+        msg.appendSibling(new ChatComponentText(Utils.formatColor(" §7[§cReport§7]")).setChatStyle(style));
+        mc.thePlayer.addChatMessage(msg);
+
+        if (shouldPing.isToggled() && Utils.getDifference(lastAlert, now) >= 1500L) {
+            mc.thePlayer.playSound("note.pling", 1.0f, 1.0f);
+            lastAlert = now;
+        }
+
+        if (autoReport.isToggled() && !Utils.isFriended(entityPlayer)) {
+            mc.thePlayer.sendChatMessage("/report " + Utils.stripColor(entityPlayer.getGameProfile().getName()));
         }
     }
 
     public void onUpdate() {
-        if (mc.isSingleplayer()) {
-            return;
-        }
+        if (mc.isSingleplayer()) return;
+
         for (EntityPlayer entityPlayer : mc.theWorld.playerEntities) {
-            if (entityPlayer == null) {
-                continue;
-            }
-            if (entityPlayer == mc.thePlayer) {
-                continue;
-            }
-            if (AntiBot.isBot(entityPlayer)) {
-                continue;
-            }
-            PlayerData data = players.get(entityPlayer.getUniqueID());
-            if (data == null) {
-                data = new PlayerData();
-            }
+            if (entityPlayer == null || entityPlayer == mc.thePlayer || AntiBot.isBot(entityPlayer)) continue;
+
+            PlayerData data = players.getOrDefault(entityPlayer.getUniqueID(), new PlayerData());
             data.update(entityPlayer);
-            this.performCheck(entityPlayer, data);
+            for (AnticheatComponent check : components) {
+                check.check(entityPlayer, data, this);
+            }
             data.updateServerPos(entityPlayer);
             data.updateSneak(entityPlayer);
             players.put(entityPlayer.getUniqueID(), data);
@@ -135,48 +169,5 @@ public class Anticheat extends Module {
         players.clear();
         flags.clear();
         lastAlert = 0L;
-    }
-
-    private void performCheck(EntityPlayer entityPlayer, PlayerData playerData) {
-        if (autoBlock.isToggled() && playerData.autoBlockTicks >= 10) {
-            alert(entityPlayer, autoBlock);
-            return;
-        }
-        if (legitScaffold.isToggled() && playerData.sneakTicks >= 3) {
-            alert(entityPlayer, legitScaffold);
-            return;
-        }
-        if (noSlow.isToggled() && playerData.noSlowTicks >= 11 && playerData.speed >= 0.08) {
-            alert(entityPlayer, noSlow);
-            return;
-        }
-        if (scaffold.isToggled() && entityPlayer.isSwingInProgress && entityPlayer.rotationPitch >= 70.0f && entityPlayer.getHeldItem() != null && entityPlayer.getHeldItem().getItem() instanceof ItemBlock && playerData.fastTick >= 20 && entityPlayer.ticksExisted - playerData.lastSneakTick >= 30 && entityPlayer.ticksExisted - playerData.aboveVoidTicks >= 20) {
-            boolean overAir = true;
-            BlockPos blockPos = entityPlayer.getPosition().down(2);
-            for (int i = 0; i < 4; ++i) {
-                if (!(BlockUtils.getBlock(blockPos) instanceof BlockAir)) {
-                    overAir = false;
-                    break;
-                }
-                blockPos = blockPos.down();
-            }
-            if (overAir) {
-                alert(entityPlayer, scaffold);
-                return;
-            }
-        }
-        if (noFall.isToggled() && !entityPlayer.capabilities.isFlying) {
-            double serverPosX = entityPlayer.serverPosX / 32;
-            double serverPosY = entityPlayer.serverPosY / 32;
-            double serverPosZ= entityPlayer.serverPosZ / 32;
-            double deltaX = Math.abs(playerData.serverPosX - serverPosX);
-            double deltaY = playerData.serverPosY - serverPosY;
-            double deltaZ = Math.abs(playerData.serverPosZ - serverPosZ);
-            if (deltaY >= 5 && deltaX <= 10 && deltaZ <= 10 && deltaY <= 40) {
-                if (!Utils.overVoid(serverPosX, serverPosY, serverPosZ) && Utils.getFallDistance(entityPlayer) > 3) {
-                    alert(entityPlayer, noFall);
-                }
-            }
-        }
     }
 }

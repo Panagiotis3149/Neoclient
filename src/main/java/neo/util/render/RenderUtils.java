@@ -1,7 +1,6 @@
 package neo.util.render;
 
 import neo.module.impl.player.Freecam;
-import neo.other.RetardedException;
 import neo.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -454,7 +453,7 @@ public class RenderUtils {
 
     public static Color colorWithAlpha(int color, int alpha) {
         if (alpha < 0 || alpha > 255) {
-            throw new RetardedException("ewwor");
+            throw new IndexOutOfBoundsException("ewwor");
         }
 
         if ((color & 0xFF000000) != 0) {

@@ -4,7 +4,9 @@ import neo.Neo;
 import neo.clickgui.components.Component;
 import neo.module.Module;
 import neo.module.impl.client.Gui;
+import neo.util.font.FontManager;
 import neo.util.font.MinecraftFontRenderer;
+import neo.util.font.impl.FontRenderer;
 import neo.util.render.Theme;
 import neo.util.profile.ProfileModule;
 import org.lwjgl.input.Keyboard;
@@ -96,7 +98,7 @@ public class BindComponent extends Component {
     }
 
     private void drawString(String s) {
-        MinecraftFontRenderer font = neo.util.font.MinecraftFontRenderer.INSTANCE;
+        FontRenderer font = FontManager.productSans20;
         font.drawString(s, (float) ((this.moduleComponent.categoryComponent.getX() + 4) * 2), (float) ((this.moduleComponent.categoryComponent.getY() + this.bind + 3) * 2), !this.moduleComponent.mod.hidden ? Theme.getGradient(Theme.descriptor[0], Theme.descriptor[1], 0) : Theme.getGradient(Theme.hiddenBind[0], Theme.hiddenBind[1], 0), true);
     }
 

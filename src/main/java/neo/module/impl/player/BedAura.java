@@ -8,6 +8,7 @@ import neo.event.ReceivePacketEvent;
 import neo.module.Module;
 import neo.module.ModuleManager;
 import neo.module.impl.minigames.BedWars;
+import neo.module.impl.render.BedESP;
 import neo.module.impl.render.HUD;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
@@ -105,7 +106,7 @@ public class BedAura extends Module {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPreUpdate(PreUpdateEvent e) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return;
         }
         if (ModuleManager.bedwars != null && ModuleManager.bedwars.isEnabled() && BedWars.whitelistOwnBed.isToggled() && !BedWars.outsideSpawn) {
@@ -168,7 +169,7 @@ public class BedAura extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent e) {
-        if (!Utils.nullCheck() || !cancelKnockback.isToggled() || currentBlock == null) {
+        if (!Utils.isnull() || !cancelKnockback.isToggled() || currentBlock == null) {
             return;
         }
         if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity) {
@@ -204,11 +205,11 @@ public class BedAura extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent renderWorldLastEvent) {
-        if (!renderOutline.isToggled() || currentBlock == null || !Utils.nullCheck()) {
+        if (!renderOutline.isToggled() || currentBlock == null || !Utils.isnull()) {
             return;
         }
         if (ModuleManager.bedESP != null && ModuleManager.bedESP.isEnabled()) {
-            outlineColor = Theme.getGradient((int) ModuleManager.bedESP.theme.getInput(), 0);
+            outlineColor = Theme.getGradient((int) BedESP.theme.getInput(), 0);
         }
         else if (ModuleManager.hud != null && ModuleManager.hud.isEnabled()) {
             outlineColor = Theme.getGradient((int) HUD.theme.getInput(), 0);

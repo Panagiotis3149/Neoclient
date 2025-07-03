@@ -84,6 +84,27 @@ public class Utils {
         return stringBuilder.toString();
     }
 
+    public static double round3(double val) {
+        return Math.round(val * 1000.0) / 1000.0;
+    }
+
+    public static double round2(double val) {
+        return Math.round(val * 100.0) / 100.0;
+    }
+
+
+
+    public static void waitInNewThread(int milliseconds) {
+        new Thread(() -> {
+            try {
+                Thread.sleep(milliseconds);
+            } catch (InterruptedException e) {
+                System.out.println("ewwor, nap interrupted");
+            }
+        }).start();
+    }
+
+
     public static boolean addEnemy(String name) {
         if (enemies.add(name.toLowerCase())) {
             Utils.sendMessage("&7Added &cenemy&7: &b" + name);
@@ -211,14 +232,14 @@ public class Utils {
     }
 
     public static void sendMessage(String txt) {
-        if (nullCheck()) {
+        if (isnull()) {
             String m = formatColor("&7[&b" + clientName + "&7]&r " + txt);
             mc.thePlayer.addChatMessage(new ChatComponentText(m));
         }
     }
 
     public static void sendDebugMessage(String message) {
-        if (nullCheck()) {
+        if (isnull()) {
             mc.thePlayer.addChatMessage(new ChatComponentText("§7[§b" + clientName + "§7]§r " + message));
         }
     }
@@ -248,7 +269,7 @@ public class Utils {
     }
 
     public static void sendRawMessage(String txt) {
-        if (nullCheck()) {
+        if (isnull()) {
             mc.thePlayer.addChatMessage(new ChatComponentText(formatColor(txt)));
         }
     }
@@ -349,7 +370,7 @@ public class Utils {
         return a.getInput() == b.getInput() ? a.getInput() : a.getInput() + r.nextDouble() * (b.getInput() - a.getInput());
     }
 
-    public static boolean nullCheck() {
+    public static boolean isnull() {
         return mc.thePlayer != null && mc.theWorld != null;
     }
 
@@ -416,7 +437,7 @@ public class Utils {
     private static final List<Packet> blinkedPackets = new ArrayList<>();
 
     public static void blinkPackets(SendPacketEvent e) {
-        Packet packet = e.getPacket();
+        Packet packet = SendPacketEvent.getPacket();
         if (packet.getClass().getSimpleName().startsWith("S")) {
             return;
         }
@@ -456,19 +477,6 @@ public class Utils {
 
 
 
-    public static void verusSSDisablerTest(ReceivePacketEvent event, boolean sprinting) {
-        if (ReceivePacketEvent.getPacket() instanceof C0BPacketEntityAction) {
-            C0BPacketEntityAction packet = (C0BPacketEntityAction) ReceivePacketEvent.getPacket();
-            if (packet.getAction() == C0BPacketEntityAction.Action.START_SPRINTING ||
-                    packet.getAction() == C0BPacketEntityAction.Action.STOP_SPRINTING) {
-                if (sprinting) {
-                    event.setCanceled(true);
-                }
-            }
-        }
-    }
-
-
     public static double GCD(float a, float b) {
         while (b != 0) {
             float temp = b;
@@ -488,7 +496,7 @@ public class Utils {
     }
 
     public static boolean inInventory() {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return false;
         }
         return (mc.currentScreen != null) && (mc.thePlayer.inventoryContainer != null) && (mc.thePlayer.inventoryContainer instanceof ContainerPlayer) && (mc.currentScreen instanceof GuiInventory);
@@ -502,7 +510,7 @@ public class Utils {
     }
 
     public static int getBedwarsStatus() {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return -1;
         }
         final Scoreboard scoreboard = mc.theWorld.getScoreboard();
@@ -717,6 +725,13 @@ public class Utils {
         double z = en.posZ - en.prevPosZ;
         double sp = Math.sqrt(x * x + z * z) * 20.0D;
         return rnd(sp, d);
+    }
+
+    public static double rawBPS(Entity en) {
+        double x = en.posX - en.prevPosX;
+        double z = en.posZ - en.prevPosZ;
+        double sp = Math.sqrt(x * x + z * z) * 20.0D;
+        return sp;
     }
 
     public static String removeFormatCodes(String str) {

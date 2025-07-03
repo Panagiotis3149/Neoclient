@@ -32,6 +32,7 @@ public class HUD extends Module {
     public static ButtonSetting dropShadow;
     public static ButtonSetting alphabeticalSort;
     public static ButtonSetting wText;
+    public static ButtonSetting wsText;
     public static SliderSetting fonts;
     public static SliderSetting bloomType;
     public static SliderSetting outliness;
@@ -45,19 +46,21 @@ public class HUD extends Module {
     public static ButtonSetting wout;
     public static int hudX = 5;
     public static int hudY = 70;
-    private boolean isAlphabeticalSort;
-    private boolean canShowInfo;
+    public static float bh;
+    private final ButtonSetting srndr;
     public String[] cbgs = new String[]{"None", "Light", "Normal", "Heavy"};
     public String[] outlines = new String[]{"None", "Sidebar", "NewSidebar"}; // , "AllOutline"};
     public String[] blurs = new String[]{"None", "Light", "Normal", "Heavy"};
     public String[] bgs = new String[]{"None", "Transparent", "Normal", "Opaque"};
-    public String[] blooms = new String[]{"None", "Shadow", "Glow"};
-    public String[] fontss = new String[]{"Minecraft", "Helvetica Neue", "Product Sans", "Google", "Apple UI", "Greycliff CF", "Product Sans Light", "Poppins Bold", "Proxima Nova"};
+    public String[] blooms = new String[]{"None", "Shadow", "Glow", "Both"};
+    public String[] fontss = new String[]{"Minecraft", "Helvetica Neue", "Product Sans", "Google", "Apple UI", "Greycliff CF", "Product Sans Light", "Poppins Bold", "Proxima Nova", "Comfortaa"};
+    private boolean isAlphabeticalSort;
+    private boolean canShowInfo;
 
     public HUD() {
         super("Arraylist", Module.category.render);
         this.registerSetting(new DescriptionSetting("Right click bind to hide modules."));
-        this.registerSetting(fonts = new SliderSetting("Font", fontss, 0));
+        this.registerSetting(fonts = new SliderSetting("Font", fontss, 2));
         this.registerSetting(theme = new SliderSetting("Theme", Theme.themes, 0));
         this.registerSetting(new ButtonSetting("Edit position", () -> mc.displayGuiScreen(new EditScreen())));
         this.registerSetting(alignRight = new ButtonSetting("Align right", true));
@@ -66,19 +69,21 @@ public class HUD extends Module {
         this.registerSetting(lowercase = new ButtonSetting("Lowercase", false));
         this.registerSetting(showInfo = new ButtonSetting("Show module info", false));
         this.registerSetting(wText = new ButtonSetting("White Text", false));
+        this.registerSetting(wsText = new ButtonSetting("White Information", true));
         this.registerSetting(wout = new ButtonSetting("White Sidebar", false));
+        this.registerSetting(srndr = new ButtonSetting("Hide Render", false));
         this.registerSetting(bloomType = new SliderSetting("Bloom Type", blooms, 0));
         this.registerSetting(blurss = new SliderSetting("Blur Type", blurs, 0));
         this.registerSetting(bgss = new SliderSetting("Background Type", bgs, 0));
         this.registerSetting(cbgss = new SliderSetting("Color Type", cbgs, 0));
-        this.registerSetting(outliness = new SliderSetting("Sidebar Type", outlines, 0));
+        this.registerSetting(outliness = new SliderSetting("Sidebar Type", outlines, 2));
 //      this.registerSetting(round = new SliderSetting("Roundness", 0, 0.0, 8, 1));
     }
 
 
     @SubscribeEvent
     public void onRenderTick(RenderTickEvent ev) {
-        if (ev.phase != TickEvent.Phase.END || !Utils.nullCheck()) return;
+        if (ev.phase != TickEvent.Phase.END || !Utils.isnull()) return;
         if (isAlphabeticalSort != alphabeticalSort.isToggled()) {
             isAlphabeticalSort = alphabeticalSort.isToggled();
             ModuleManager.sort();
@@ -95,15 +100,19 @@ public class HUD extends Module {
 
         for (Module module : ModuleManager.organizedModules) {
             if (module.isEnabled() && module != this) {
-                if (module.isHidden()) continue;
+                if (module.isHidden() || (module.moduleCategory().equals(category.render) && srndr.isToggled())) continue;
                 String moduleName = module.getName();
                 String moduleInfo = "";
                 if (module.getInfo() != null && !Objects.equals(module.getInfo(), "")) {
                     moduleInfo = "§7" + " " + module.getInfo();
+                    if (wsText.isToggled()) {
+                        moduleInfo = "§f" + " " + module.getInfo();
+                    }
                 }
 
                 if (fonts.getInput() == 0) {
                     MinecraftFontRenderer font = MinecraftFontRenderer.INSTANCE;
+                    bh = (float) ((float) font.height() + 0.65);
 
                     {
                         String text = showInfo.isToggled() ? moduleName + moduleInfo : moduleName;
@@ -121,32 +130,27 @@ public class HUD extends Module {
                         if (alignRight.isToggled()) {
                             n3 -= width - MinecraftFontRenderer.INSTANCE.width("ModuleExample");
                         }
-                        if (bloomType.getInput() == 1) {
+                        if (bloomType.getInput() == 3 || bloomType.getInput() == 1) {
                             BlurUtils.prepareBloom();
-                            drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, Color.black);
+                            drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, Color.black);
                             BlurUtils.bloomEnd(2, 2F);
-                        }
-                        if (bloomType.getInput() == 2) {
-                            BlurUtils.prepareBloom();
-                            drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, RenderUtils.toColor(e));
-                            BlurUtils.bloomEnd(2, 2.25F);
                         }
                         switch ((int) blurss.getInput()) {
                             case 0:
                                 break;
                             case 1:
                                 BlurUtils.prepareBlur();
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, Color.black);
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, Color.black);
                                 BlurUtils.blurEnd(2, 0.25F);
                                 break;
                             case 2:
                                 BlurUtils.prepareBlur();
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, Color.black);
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, Color.black);
                                 BlurUtils.blurEnd(2, 0.75F);
                                 break;
                             case 3:
                                 BlurUtils.prepareBlur();
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, Color.black);
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, Color.black);
                                 BlurUtils.blurEnd(2, 1.5F);
                                 break;
                         }
@@ -154,27 +158,27 @@ public class HUD extends Module {
                             case 0:
                                 break;
                             case 1:
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, new Color(0, 0, 0, 64).getRGB());
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, new Color(0, 0, 0, 64).getRGB());
                                 break;
                             case 2:
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, new Color(0, 0, 0, 128).getRGB());
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, new Color(0, 0, 0, 128).getRGB());
                                 break;
                             case 3:
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, new Color(32, 32, 36, 255).getRGB());
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, new Color(32, 32, 36, 255).getRGB());
                                 break;
                         }
                         switch ((int) cbgss.getInput()) {
                             case 0:
                                 break;
                             case 1:
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 32));
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 32));
                                 break;
                             case 2:
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 92));
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 92));
                                 break;
                             case 3:
                                 e = RenderUtils.toArgb(Color.WHITE, 255);
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 255));
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 255));
                                 break;
                         }
                         switch ((int) outliness.getInput()) {
@@ -184,7 +188,10 @@ public class HUD extends Module {
                                 RenderUtils.drawRect(alignRight.isToggled() ? n3 + width : n3 + 1, n - 1, alignRight.isToggled() ? n3 + width + 2 : n3 - 1, n + (float) font.height() + 0.7, wout.isToggled() ? 0xFFFFFFFF : Theme.getGradient((int) theme.getInput(), 0.0));
                                 break;
                             case 2:
-                                drawRound((float) (alignRight.isToggled() ? n3 + (width + 3) : n3 - 2), (float) n, (float) ((alignRight.isToggled() ? n3 + width - 1 : n3 - 1) - (alignRight.isToggled() ? n3 + width - 2 : n3 - 2)), (float) ((float) font.height() + 0.7), 1f, wout.isToggled() ? 0xFFFFFFFF : Theme.getGradient((int) theme.getInput(), 0.0));
+                                if (bloomType.getInput() == 3 || bloomType.getInput() == 2) BlurUtils.prepareBloom();
+                                drawRound((float) (n3 + width + 2.2), n + (bh * 0.1f), 1f, bh * 0.8f, 1f, wout.isToggled() ? 0xFFFFFFFF : Theme.getGradient((int) theme.getInput(), 0.0));
+                                if (bloomType.getInput() == 3 || bloomType.getInput() == 2) BlurUtils.bloomEnd(2, 2.25F);
+                                drawRound((float) (n3 + width + 2.2), n + (bh * 0.1f), 1f, bh * 0.8f, 1f, wout.isToggled() ? 0xFFFFFFFF : Theme.getGradient((int) theme.getInput(), 0.0));
                                 break;
                         }
                         if (wText.isToggled()) {
@@ -199,29 +206,41 @@ public class HUD extends Module {
                     }
                 } else {
                     neo.util.font.impl.FontRenderer font = FontManager.helveticaNeue;
+                    bh = (float) ((float) font.height() + 0.5);
                     switch ((int) fonts.getInput()) {
                         case 2:
                             font = FontManager.productSans20;
+                            bh = (float) ((float) font.height() + 0.65);
                             break;
                         case 3:
                             font = FontManager.googleMedium20;
+                            bh = (float) ((float) font.height() + 0.55);
                             break;
                         case 4:
                             font = FontManager.sfRegular;
+                            bh = (float) ((float) font.height() + 0.45);
                             break;
                         case 5:
                             font = FontManager.greyCliffCF;
+                            bh = (float) ((float) font.height() + 1.5);
                             break;
                         case 6:
                             font = FontManager.productSansLight22;
+                            bh = (float) ((float) font.height() + 0.65);
                             break;
                         case 7:
                             font = FontManager.poppinsBold20;
+                            bh = (float) ((float) font.height() + 0.65);
                             break;
                         case 8:
                             font = FontManager.proximaNova;
+                            bh = (float) ((float) font.height() + 0.65);
                             break;
+                        case 9:
+                            font = FontManager.comfortaa;
+                            bh = (float) ((float) font.height() + 0.7);
                         default:
+                            bh = (float) ((float) font.height() + 0.5);
                             break;
                     }
                     {
@@ -240,32 +259,27 @@ public class HUD extends Module {
                         if (alignRight.isToggled()) {
                             n3 -= width - MinecraftFontRenderer.INSTANCE.width("ModuleExample");
                         }
-                        if (bloomType.getInput() == 1) {
+                        if (bloomType.getInput() == 3 || bloomType.getInput() == 1) {
                             BlurUtils.prepareBloom();
-                            drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, Color.black);
+                            drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, Color.black);
                             BlurUtils.bloomEnd(2, 2F);
-                        }
-                        if (bloomType.getInput() == 2) {
-                            BlurUtils.prepareBloom();
-                            drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, RenderUtils.toColor(e));
-                            BlurUtils.bloomEnd(2, 2.25F);
                         }
                         switch ((int) blurss.getInput()) {
                             case 0:
                                 break;
                             case 1:
                                 BlurUtils.prepareBlur();
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, Color.black);
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, Color.black);
                                 BlurUtils.blurEnd(2, 0.5F);
                                 break;
                             case 2:
                                 BlurUtils.prepareBlur();
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, Color.black);
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, Color.black);
                                 BlurUtils.blurEnd(2, 0.1F);
                                 break;
                             case 3:
                                 BlurUtils.prepareBlur();
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, Color.black);
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, Color.black);
                                 BlurUtils.blurEnd(2, 1.75F);
                                 break;
                         }
@@ -273,13 +287,13 @@ public class HUD extends Module {
                             case 0:
                                 break;
                             case 1:
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, new Color(0, 0, 0, 64).getRGB());
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, new Color(0, 0, 0, 64).getRGB());
                                 break;
                             case 2:
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, new Color(0, 0, 0, 128).getRGB());
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, new Color(0, 0, 0, 128).getRGB());
                                 break;
                             case 3:
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, new Color(32, 32, 36, 255).getRGB());
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, new Color(32, 32, 36, 255).getRGB());
                                 break;
                         }
                         switch ((int) cbgss.getInput()) {
@@ -287,15 +301,15 @@ public class HUD extends Module {
                                 break;
                             case 1:
                                 e = RenderUtils.toArgb(Color.WHITE, 255);
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 32));
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 32));
                                 break;
                             case 2:
                                 e = RenderUtils.toArgb(Color.WHITE, 255);
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 92));
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 92));
                                 break;
                             case 3:
                                 e = RenderUtils.toArgb(Color.WHITE, 255);
-                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), (float) ((float) font.height() + 0.7), 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 255));
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), bh, 0, RenderUtils.colorWithAlpha(Theme.getGradient(theme.getInput(), 0), 255));
                                 break;
                         }
                         switch ((int) outliness.getInput()) {
@@ -305,14 +319,21 @@ public class HUD extends Module {
                                 RenderUtils.drawRect(alignRight.isToggled() ? n3 + width : n3 - 2, n - 1, alignRight.isToggled() ? n3 + width + 1 : n3 - 1, n + (float) font.height() + 0.7, wout.isToggled() ? 0xFFFFFFFF : Theme.getGradient((int) theme.getInput(), 0.0));
                                 break;
                             case 2:
-                                drawRound((float) (alignRight.isToggled() ? n3 + (width + 3) : n3 - 2), (float) n, (float) ((alignRight.isToggled() ? n3 + width - 1 : n3 - 1) - (alignRight.isToggled() ? n3 + width - 2 : n3 - 2)), (float) ((float) font.height() + 0.7), 1f, wout.isToggled() ? 0xFFFFFFFF : Theme.getGradient((int) theme.getInput(), 0.0));
+                                if (bloomType.getInput() == 3 || bloomType.getInput() == 2) BlurUtils.prepareBloom();
+                                drawRound((float) (n3 + width + 2.2), n + (bh * 0.1f), 1f, bh * 0.8f, 1f, wout.isToggled() ? 0xFFFFFFFF : Theme.getGradient((int) theme.getInput(), 0.0));
+                                if (bloomType.getInput() == 3 || bloomType.getInput() == 2) BlurUtils.bloomEnd(2, 2F);
+                                drawRound((float) (n3 + width + 2.2), n + (bh * 0.1f), 1f, bh * 0.8f, 1f, wout.isToggled() ? 0xFFFFFFFF : Theme.getGradient((int) theme.getInput(), 0.0));
                                 break;
                         }
                         if (wText.isToggled()) {
                             e = RenderUtils.toArgb(Color.WHITE, 255);
                         }
                         font.drawString(text, n3, n, e, dropShadow.isToggled());
-                        n += (int) (font.height() + 2);
+                        if (fonts.getInput() != 5) {
+                            n += (int) (font.height() + 2);
+                        } else {
+                            n += (int) (font.height() + 3);
+                        }
                     }
                 }
             }

@@ -1,6 +1,8 @@
 package neo.event;
 
+import neo.util.player.move.MoveUtil;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import static neo.util.Utils.mc;
 
 public class StrafeEvent extends Event {
     private float forward;
@@ -13,6 +15,17 @@ public class StrafeEvent extends Event {
         this.forward = forward;
         this.friction = friction;
         this.yaw = yaw;
+    }
+
+    public void setSpeed(final double speed) {
+        setFriction((float) (getForward() != 0 && getStrafe() != 0 ? speed * 0.98F : speed));
+        MoveUtil.stop();
+    }
+
+    public void setSpeed(final double speed, final double motionMultiplier) {
+        setFriction((float) (getForward() != 0 && getStrafe() != 0 ? speed * 0.98F : speed));
+        mc.thePlayer.motionX *= motionMultiplier;
+        mc.thePlayer.motionZ *= motionMultiplier;
     }
 
     public float getStrafe() {

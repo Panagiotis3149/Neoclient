@@ -10,7 +10,7 @@ import neo.util.font.impl.FontRenderer;
 import org.lwjgl.opengl.GL11;
 
 public class DescriptionComponent extends Component {
-    private final DescriptionSetting desc;
+    public final DescriptionSetting desc;
     private final ModuleComponent p;
     private int o;
     private final int x;
@@ -25,17 +25,19 @@ public class DescriptionComponent extends Component {
     }
 
     public void render() {
-        // Draw background for the description
+        if (!desc.isVisible()) return;
+        /*
         RenderUtils.drawRect(
                 this.p.categoryComponent.getX() + 4,
                 this.p.categoryComponent.getY() + this.o + 11,
                 this.p.categoryComponent.getX() + this.p.categoryComponent.getWidth() - 8,
                 this.p.categoryComponent.getY() + this.o + 15,
-                0x00000000
+                0xBF1C1C1C
         );
+       */
 
         // Draw description text
-        MinecraftFontRenderer font = neo.util.font.MinecraftFontRenderer.INSTANCE;
+        FontRenderer font = FontManager.productSans20;
         GL11.glPushMatrix();
         GL11.glScaled(0.5D, 0.5D, 0.5D);
         font.drawString(

@@ -81,7 +81,7 @@ public class AutoPlace extends Module {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void bh(DrawBlockHighlightEvent ev) {
-        if (Utils.nullCheck()) {
+        if (Utils.isnull()) {
             if (mc.currentScreen == null && !mc.thePlayer.capabilities.isFlying) {
                 ItemStack i = mc.thePlayer.getHeldItem();
                 if (i != null && i.getItem() instanceof ItemBlock) {

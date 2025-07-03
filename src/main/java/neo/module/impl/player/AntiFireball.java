@@ -104,7 +104,7 @@ public class AntiFireball extends Module {
 
     @SubscribeEvent
     public void onEntityJoin(EntityJoinWorldEvent e) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return;
         }
         if (e.entity == mc.thePlayer) {
@@ -137,7 +137,7 @@ public class AntiFireball extends Module {
     }
 
     private boolean condition() {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return false;
         }
         if (mc.thePlayer.capabilities.isFlying && disableWhileFlying.isToggled()) {

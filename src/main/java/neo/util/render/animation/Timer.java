@@ -23,6 +23,10 @@ public class Timer {
                     break;
                 case 3:
                     t = this.bounce(t);
+                    break;
+                case 4:
+                    t = t < 0.5F ? (float)(0.5 * Math.pow(2, 20 * t - 10)) : (float)(1 - 0.5 * Math.pow(2, -20 * t + 10));
+
             }
 
             float value = begin + t * (end - begin);

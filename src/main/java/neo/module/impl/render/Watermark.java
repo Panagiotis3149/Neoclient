@@ -41,7 +41,7 @@ public class Watermark extends Module {
 
     @SubscribeEvent
     public void onRenderTick(RenderTickEvent ev) {
-        if (ev.phase != TickEvent.Phase.END || !Utils.nullCheck()) {
+        if (ev.phase != TickEvent.Phase.END || !Utils.isnull()) {
             return;
         }
 
@@ -178,7 +178,7 @@ public class Watermark extends Module {
             FontRenderer fontver = FontManager.productSansMedium18;
             BlurUtils.prepareBloom();
             fontneo.drawString("Neo", 6, 6, Theme.getGradient((int) theme.getInput(), 0.0));
-            BlurUtils.bloomEnd(2, 8F);
+            BlurUtils.bloomEnd(2, 4F);
             fontneo.drawString("Neo", 6, 6, Theme.getGradient((int) theme.getInput(), 0.0));
             fontver.drawString(shortClientVersionNV, 6 + fontneo.getStringWidth("Neo") + 2, 6, 0xFFFFFFFF);
         } if (mode.getInput() == 10) {
@@ -187,16 +187,4 @@ public class Watermark extends Module {
             font.drawString("eoclient" + " [" + ScriptDefaults.client.getFPS() + " FPS]", 4 + font.width("N"), 4, 0xFFAAAAAA, true);
         }
     }
-
-    // Used for NEW ClickGUI
-    public static void renderrise(int x, int y, int color) {
-        FontRenderer fontneo = FontManager.productSansMedium36;
-        FontRenderer fontver = FontManager.productSansMedium18;
-        BlurUtils.prepareBloom();
-        fontneo.drawString("Neo", x, y, color);
-        BlurUtils.bloomEnd(2, 8F);
-        fontneo.drawString("Neo", x, y, color);
-        fontver.drawString(shortClientVersionNV, x + fontneo.getStringWidth("Neo") + 2, y, 0xFFFFFFFF);
-    }
-
 }

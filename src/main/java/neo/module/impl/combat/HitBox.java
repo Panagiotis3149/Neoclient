@@ -45,8 +45,8 @@ public class HitBox extends Module {
 
     @SubscribeEvent
     public void m(MouseEvent e) {
-        if (Utils.nullCheck()) {
-            if (e.button != 0 || !e.buttonstate || !Utils.nullCheck() || multiplier.getInput() == 1 || mc.thePlayer.isBlocking() || mc.currentScreen != null) {
+        if (Utils.isnull()) {
+            if (e.button != 0 || !e.buttonstate || !Utils.isnull() || multiplier.getInput() == 1 || mc.thePlayer.isBlocking() || mc.currentScreen != null) {
                 return;
             }
             if (weaponOnly.isToggled() && !Utils.holdingWeapon()) {
@@ -69,7 +69,7 @@ public class HitBox extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (showHitbox.isToggled() && Utils.nullCheck()) {
+        if (showHitbox.isToggled() && Utils.isnull()) {
             for (Entity en : mc.theWorld.loadedEntityList) {
                 if (en != mc.thePlayer && en instanceof EntityLivingBase && ((EntityLivingBase) en).deathTime == 0 && !(en instanceof EntityArmorStand) && !en.isInvisible()) {
                     this.rh(en, Color.WHITE);

@@ -1,15 +1,12 @@
 package neo.util.other;
 
-import neo.other.RetardedException;
 import java.util.Random;
 
 public class Bi11iona1reRandFunc {
 
-    // Credits to the_bi11iona1re for the goated randomization                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 (This is a joke)
-
     public static int pro(int min, int max) {
         if (min > max) {
-            throw new RetardedException("ewwor");
+            throw new IndexOutOfBoundsException("ewwor");
         }
 
         Random random = new Random();

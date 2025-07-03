@@ -3,14 +3,19 @@ package neo.clickgui.components.impl;
 import neo.Neo;
 import neo.clickgui.components.Component;
 import neo.module.Module;
+import neo.module.impl.client.Gui;
 import neo.util.render.RenderUtils;
+import neo.util.render.Theme;
 import neo.util.render.animation.Timer;
 import neo.util.font.FontManager;
 import neo.util.profile.Manager;
 import neo.util.profile.Profile;
+import neo.util.shader.BlurUtils;
+import neo.util.shader.RoundedUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -49,7 +54,20 @@ public class CategoryComponent {
     private int lastModuleY;
     private int screenHeight;
 
-
+    public String getIconForCategory(String categoryName) {
+        switch (categoryName.toLowerCase()) {
+            case "combat": return FontManager.BOMB;
+            case "movement": return FontManager.WHEELCHAIR;
+            case "player": return FontManager.PERSON;
+            case "render": return FontManager.EYE;
+            case "minigames": return FontManager.STAR;
+            case "other": return FontManager.INFO;
+            case "client": return FontManager.SETTINGS;
+            case "profiles": return FontManager.SAVE;
+            case "scripts": return FontManager.SCRIPT;
+            default: return FontManager.BUG; // Fallback.
+        }
+    }
 
     public CategoryComponent(Module.category category) {
         this.categoryName = category;
@@ -155,6 +173,7 @@ public class CategoryComponent {
 
     public void render(FontRenderer renderer) {
         neo.util.font.impl.FontRenderer font = FontManager.googleSansMedium;
+        neo.util.font.impl.FontRenderer icon = FontManager.newicon24;
         this.moduleY = Math.min(this.moduleY, this.y);
         if (this.moduleY + this.bigSettings < this.y + this.big + this.titleHeight) {
             this.moduleY = (int) (this.y + this.big - this.bigSettings);
@@ -179,8 +198,9 @@ public class CategoryComponent {
             bigSettings = settingsHeight;
         }
 
-        float middlePos = (float) (this.x + this.width / 2 - Minecraft.getMinecraft().fontRendererObj.getStringWidth(this.categoryName.name()) / 2);
+        float middlePos = (float) (this.x + this.width / 2 - font.width(this.categoryName.name()) / 2);
         float xPos = opened ? middlePos : this.x + 12;
+        float iconPos = this.x + 6;
         float extra = this.y + this.titleHeight + modulesHeight + 4;
 
         if (smoothTimer != null && System.currentTimeMillis() - smoothTimer.last >= 400) {
@@ -203,8 +223,14 @@ public class CategoryComponent {
         GL11.glPushMatrix();
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
         RenderUtils.scissor(0, this.y - 2, this.x + this.width + 4, extra - this.y + 4);
-
+        String icons = getIconForCategory(categoryName.name());
         RenderUtils.drawRoundedRectangle(this.x, this.y, this.x + this.width, extra, 12, 0x33202024);
+        GlStateManager.enableBlend();
+        GlStateManager.enableAlpha();
+        GlStateManager.resetColor();
+        GlStateManager.color(1f, 1f, 1f, 1f);
+        GlStateManager.disableLighting();
+        icon.drawString(icons, iconPos, this.y + 4, 0xFFFFFFFF, false);
 
         font.drawString(this.n4m ? this.pvp : cFL(this.categoryName.name()), this.x + this.width / 2 - (font.getStringWidth(categoryName.name()) / 2), (float) (this.y + 4), categoryNameColor, false);
         

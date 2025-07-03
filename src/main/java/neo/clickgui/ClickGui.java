@@ -9,6 +9,7 @@ import neo.module.Module;
 import neo.module.impl.client.Gui;
 import neo.util.render.RenderUtils;
 import neo.util.render.Theme;
+import neo.util.render.animation.Direction;
 import neo.util.render.animation.Timer;
 import neo.util.render.ClickCircle;
 import neo.util.shader.BlurUtils;
@@ -36,20 +37,17 @@ public class ClickGui extends GuiScreen {
     private Timer blurSmooth;
     private ScaledResolution sr;
     public static ArrayList<CategoryComponent> categories;
-    private final ClickCircle clickCircle = new ClickCircle();
+    private static final java.util.List<ClickCircle> circleClicks = new ArrayList<>();
 
     public ClickGui() {
         categories = new ArrayList();
-        int y = 5;
-        Module.category[] values;
-        int length = (values = Module.category.values()).length;
-
-        for (int i = 0; i < length; ++i) {
-            Module.category c = values[i];
+        int x = 5;
+        for (Module.category c : Module.category.values()) {
             CategoryComponent categoryComponent = new CategoryComponent(c);
-            categoryComponent.setY(y);
+            categoryComponent.setX(x);
+            categoryComponent.setY(5);
             categories.add(categoryComponent);
-            y += 20;
+            x += categoryComponent.getWidth() + 5;
         }
 
 
@@ -80,6 +78,12 @@ public class ClickGui extends GuiScreen {
         drawRect(0, 0, this.width, this.height, (int) (this.aR.getValueFloat(0.0F, 0.7F, 2) * 255.0F) << 24);
         int r;
 
+        int color = Theme.getGradient(Gui.theme.getInput(), 0.0);
+        circleClicks.removeIf(ClickCircle::isDone);
+        for (ClickCircle clickCircle : circleClicks) {
+            clickCircle.drawScreen(color);
+        }
+
 
         for (CategoryComponent c : categories) {
             c.render(this.fontRendererObj);
@@ -96,10 +100,10 @@ public class ClickGui extends GuiScreen {
     public void mouseClicked(int x, int y, int m) throws IOException {
         Iterator var4 = categories.iterator();
 
-        int gradientColorInt = Theme.getGradient(Gui.theme.getInput(), 0.0);
-        Color gradientColor = RenderUtils.toColor(gradientColorInt);
-        this.clickCircle.render();
-        this.clickCircle.addCircle(x, y, 0, 20, gradientColor);
+        circleClicks.removeIf(ClickCircle::isDone);
+        ClickCircle clickCircle = new ClickCircle(x, y);
+        circleClicks.add(clickCircle);
+
 
 
         while (true) {

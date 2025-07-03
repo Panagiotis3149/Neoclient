@@ -46,20 +46,31 @@ public class AimAssist extends Module {
 
                             float currentYaw = mc.thePlayer.rotationYaw;
                             float currentPitch = mc.thePlayer.rotationPitch;
+
                             float yawDiff = MathHelper.wrapAngleTo180_float(rotations[0] - currentYaw);
                             float pitchDiff = rotations[1] - currentPitch;
 
                             float accFactor = (float) (speed.getInput() / 400.0);
 
-                            float yawStep = Math.abs(yawDiff) * accFactor;
-                            float pitchStep = Math.abs(pitchDiff) * accFactor;
+                            float jitterYaw = (float) (Math.random() * 0.15 - 0.075);
+                            float jitterPitch = (float) (Math.random() * 0.15 - 0.075);
 
-                            float newYaw = currentYaw + (yawDiff > 0 ? yawStep : -yawStep);
-                            float newPitch = currentPitch + (pitchDiff > 0 ? pitchStep : -pitchStep);
+                            float randomFactor = 0.9f + (float) (Math.random() * 0.15);
+
+                            float yawStep = Math.abs(yawDiff) * accFactor * randomFactor + 0.26f;
+                            float pitchStep = Math.abs(pitchDiff) * accFactor * randomFactor + 0.26f;
+
+                            yawStep = Math.min(yawStep, 19.9f);
+                            pitchStep = Math.min(pitchStep, 19.9f);
+
+                            float newYaw = currentYaw + (yawDiff > 0 ? yawStep : -yawStep) + jitterYaw;
+                            float newPitch = currentPitch + (pitchDiff > 0 ? pitchStep : -pitchStep) + jitterPitch;
+
                             newPitch = MathHelper.clamp_float(newPitch, -90, 90);
 
                             mc.thePlayer.rotationYaw = newYaw;
                             mc.thePlayer.rotationPitch = newPitch;
+
                         }
                     }
                 }

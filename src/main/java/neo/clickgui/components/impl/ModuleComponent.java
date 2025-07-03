@@ -8,13 +8,17 @@ import neo.module.setting.Setting;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.DescriptionSetting;
 import neo.module.setting.impl.SliderSetting;
-import neo.util.font.MinecraftFontRenderer;
-import neo.util.profile.ProfileModule;;
+import neo.util.font.FontManager;
+import neo.util.font.impl.FontRenderer;
+import neo.util.other.MathUtil;
+import neo.util.profile.ProfileModule;
+import neo.util.render.animation.Timer;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
 import static neo.util.render.RenderUtils.drawRoundedGradientRect;
 import static neo.util.render.Theme.getColors;
 
@@ -25,6 +29,9 @@ public class ModuleComponent extends Component {
     public ArrayList<Component> settings;
     public boolean isOpened;
     private boolean hovering;
+    private Timer opacityTimer = new Timer(500F);
+    private Timer opacityOutTimer = new Timer(500F);
+
 
     public ModuleComponent(Module mod, CategoryComponent p, int o) {
         this.mod = mod;
@@ -35,6 +42,7 @@ public class ModuleComponent extends Component {
         int y = o + 12;
         if (mod != null && !mod.getSettings().isEmpty()) {
             for (Setting v : mod.getSettings()) {
+                if (!v.isVisible()) continue;
                 if (v instanceof SliderSetting) {
                     SliderSetting n = (SliderSetting) v;
                     SliderComponent s = new SliderComponent(n, this, y);
@@ -59,20 +67,28 @@ public class ModuleComponent extends Component {
     public void so(int n) {
         this.o = n;
         int y = this.o + 16;
-        Iterator var3 = this.settings.iterator();
 
-        while (true) {
-            while (var3.hasNext()) {
-                Component co = (Component) var3.next();
-                co.so(y);
-                if (co instanceof SliderComponent) {
-                    y += 16;
-                } else if (co instanceof ButtonComponent || co instanceof BindComponent || co instanceof DescriptionComponent) {
-                    y += 12;
-                }
+        for (Component co : this.settings) {
+            boolean vis;
+
+            if (co instanceof SliderComponent) {
+                vis = ((SliderComponent) co).sliderSetting.isVisible();
+            } else if (co instanceof ButtonComponent) {
+                vis = ((ButtonComponent) co).buttonSetting.isVisible();
+            } else if (co instanceof DescriptionComponent) {
+                vis = ((DescriptionComponent) co).desc.isVisible();
+            } else {
+                vis = true;
             }
 
-            return;
+            if (!vis) continue;
+
+            co.so(y);
+            if (co instanceof SliderComponent) {
+                y += 16;
+            } else {
+                y += 12;
+            }
         }
     }
 
@@ -123,11 +139,36 @@ public class ModuleComponent extends Component {
     public void render() {
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
-        MinecraftFontRenderer font = neo.util.font.MinecraftFontRenderer.INSTANCE;
+        FontRenderer font = FontManager.productSans20;
 
-        int[] colors = getColors((int) Gui.theme.getInput());
-        int firstColor = colors[0];
-        int secondColor = colors[1];
+        int[] baseColors = getColors((int) Gui.theme.getInput());
+        int baseFirstColor = baseColors[0];
+        int baseSecondColor = baseColors[1];
+
+        int alpha;
+
+        if (this.mod.isEnabled()) {
+            if (opacityTimer != null) {
+                alpha = (int) opacityTimer.getValueFloat(0f, 255f, 2);
+                if (alpha >= 255) opacityTimer = null;
+            } else {
+                alpha = 255;
+            }
+        } else {
+            if (opacityOutTimer != null) {
+                alpha = (int) MathUtil.inverseFloat(opacityOutTimer.getValueFloat(0f, 255f, 2), 0, 255f);
+                if (alpha <= 0) opacityOutTimer = null;
+            } else {
+                alpha = 0;
+            }
+        }
+
+        if (alpha > 255) alpha = 255;
+        if (alpha < 0) alpha = 0;
+
+        int firstColor = (alpha << 24) | (baseFirstColor & 0x00FFFFFF);
+        int secondColor = (alpha << 24) | (baseSecondColor & 0x00FFFFFF);
+
 
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -141,10 +182,10 @@ public class ModuleComponent extends Component {
                 this.categoryComponent.getX() + this.categoryComponent.getWidth(),
                 this.categoryComponent.getY() + 16 + this.o,
                 roundness,
-                this.mod.isEnabled() ? firstColor : 0x33202024,
-                this.mod.isEnabled() ? firstColor : 0x33202024,
-                this.mod.isEnabled() ? secondColor : 0x33202024,
-                this.mod.isEnabled() ? secondColor : 0x33202024
+                firstColor,
+                firstColor,
+                secondColor,
+                secondColor
         );
 
         GL11.glPushMatrix();
@@ -159,7 +200,12 @@ public class ModuleComponent extends Component {
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glPushMatrix();
         float textX = (float) (this.categoryComponent.getX() + (this.categoryComponent.getWidth() / 2f) - (font.width(this.mod.getName()) / 2f));
+
+        GlStateManager.enableBlend();
+        GlStateManager.enableAlpha();
+        GlStateManager.resetColor();
         GlStateManager.color(1f, 1f, 1f, 1f);
+        GlStateManager.disableLighting();
         font.drawString(this.mod.getName(), textX, this.categoryComponent.getY() + this.o + 4,  0xFFFFFFFF);
         GlStateManager.resetColor();
         GL11.glPopMatrix();
@@ -177,9 +223,21 @@ public class ModuleComponent extends Component {
                 while (var2.hasNext()) {
                     Component c = (Component) var2.next();
                     if (c instanceof SliderComponent) {
-                        h += 16;
+                        if (((SliderComponent) c).sliderSetting.isVisible()) {
+                            h += 16;
+                        }
                     } else if (c instanceof ButtonComponent || c instanceof BindComponent || c instanceof DescriptionComponent) {
-                        h += 12;
+                        if (c instanceof ButtonComponent) {
+                            if (((ButtonComponent) c).buttonSetting.isVisible()) {
+                                h += 16;
+                            }
+                        } else if (c instanceof DescriptionComponent) {
+                            if (((DescriptionComponent) c).desc.isVisible()) {
+                                h += 16;
+                            }
+                        } else if (c instanceof BindComponent) {
+                            h += 16;
+                        }
                     }
                 }
 
@@ -203,7 +261,20 @@ public class ModuleComponent extends Component {
 
     public boolean onClick(int x, int y, int b) {
         if (this.overModuleName(x, y) && b == 0 && this.mod.canBeEnabled()) {
+            boolean wasEnabled = this.mod.isEnabled();
+
             this.mod.toggle();
+
+            if (this.mod.isEnabled()) {
+                this.opacityOutTimer = null;
+                opacityTimer = new Timer(500F);
+                this.opacityTimer.start();
+            } else if (wasEnabled) {
+                this.opacityTimer = null;
+                opacityOutTimer = new Timer(500F);
+                this.opacityOutTimer.start();
+            }
+
             if (this.mod.moduleCategory() != Module.category.profiles) {
                 if (Neo.currentProfile != null) {
                     ((ProfileModule) Neo.currentProfile.getModule()).saved = false;

@@ -1,5 +1,6 @@
 package neo.module.impl.other;
-import neo.util.other.java.Vec3d;
+
+import org.joml.Vector3d;
 import neo.event.*;
 import neo.module.Module;
 import neo.module.setting.impl.SliderSetting;
@@ -18,10 +19,10 @@ public class ServerHelper extends Module {
     public static String[] modes = new String[]{"Miniblox", "BloxD"};
     public static SliderSetting mode;
     private final Minecraft mc = Minecraft.getMinecraft();
-    public Vec3d impulseVector;
-    public Vec3d forceVector;
-    public Vec3d velocityVector;
-    public Vec3d gravityVector;
+    public Vector3d impulseVector;
+    public Vector3d forceVector;
+    public Vector3d velocityVector;
+    public Vector3d gravityVector;
     public double gravityMul = 2d;
     public final double mass = 1;
     private final double delta = 1 / 30d;
@@ -32,14 +33,14 @@ public class ServerHelper extends Module {
     public ServerHelper() {
         super("Helper", Module.category.other, 0);
         registerSetting(mode = new SliderSetting("Mode", modes, 0));
-        this.impulseVector = new Vec3d(0, 0, 0);
-        this.forceVector = new Vec3d(0, 0, 0);
-        this.velocityVector = new Vec3d(0, 0, 0);
-        this.gravityVector = new Vec3d(0, -10, 0);
+        this.impulseVector = new Vector3d(0, 0, 0);
+        this.forceVector = new Vector3d(0, 0, 0);
+        this.velocityVector = new Vector3d(0, 0, 0);
+        this.gravityVector = new Vector3d(0, -10, 0);
     }
 
 
-    public Vec3d getMotionForTick() {
+    public Vector3d getMotionForTick() {
         // forces
         double massDiv = 1 / mass;
         this.forceVector.mul(massDiv);
@@ -71,15 +72,15 @@ public class ServerHelper extends Module {
 
 
     @SubscribeEvent
-    public void OnMove(MoveEvent event) {
+    public void OnPreMotion(PreMotionEvent event) {
         if (mode.getInput() == 1) {
             if (mc.thePlayer.onGround && velocityVector.y < 0) {
                velocityVector.set(0, 0, 0);
             }
 
-            if (event.y == (double)0.42f) {
+            if (event.posY == (double)0.42f) {
                 jumpfunny = Math.min(jumpfunny + 1, 3);
-                impulseVector.add(new Vec3d(0, 8, 0));
+                impulseVector.add(new Vector3d(0, 8, 0));
             }
 
             jumpfunny = groundTicks > 5 ? 0 : jumpfunny;
@@ -96,26 +97,26 @@ public class ServerHelper extends Module {
                 }
             }
 
-            Vec3d moveDirection = getMoveDirection(speed);
+            Vector3d moveDirection = getMoveDirection(speed);
             if (mc.theWorld.isBlockLoaded(mc.thePlayer.getPosition()) || mc.thePlayer.posY <= 0) {
                 gravityMul = 2.0;
-                event.x = moveDirection.x;
-                event.y = getMotionForTick().y * (1 / 30d);
-                event.z = moveDirection.z;
+                event.posX = moveDirection.x;
+                event.posY = getMotionForTick().y * (1 / 30d);
+                event.posZ = moveDirection.z;
             } else {
-                event.x = 0;
-                event.y = 0;
-                event.z = 0;
+                event.posX = 0;
+                event.posY = 0;
+                event.posZ = 0;
             }
         }
     }
 
-    private Vec3d getMoveDirection(double speed) {
+    private Vector3d getMoveDirection(double speed) {
         float forward = this.mc.thePlayer.movementInput.moveForward;
         float strafe = this.mc.thePlayer.movementInput.moveStrafe;
         float yaw = this.mc.thePlayer.rotationYaw;
         if (forward == 0.0f && strafe == 0.0f) {
-            return new Vec3d(0.0, 0.0, 0.0);
+            return new Vector3d(0.0, 0.0, 0.0);
         }
         if (forward != 0.0f) {
             if (strafe > 0.0f) {
@@ -130,7 +131,7 @@ public class ServerHelper extends Module {
         double cos = Math.cos(Math.toRadians(yaw + 90.0f));
         double x = (double)forward * speed * cos + (double)strafe * speed * sin;
         double z = (double)forward * speed * sin - (double)strafe * speed * cos;
-        return new Vec3d(x, 0.0, z);
+        return new Vector3d(x, 0.0, z);
     }
 
     @SubscribeEvent

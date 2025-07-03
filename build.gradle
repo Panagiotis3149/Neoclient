@@ -47,7 +47,7 @@ mixin {
     defaultObfuscationEnv searge
     sourceSets {
         main {
-            ext.refMap = 'mixins.raven.refmap.json'
+            ext.refMap = 'mixins.neo.refmap.json'
         }
     }
 }
@@ -81,7 +81,7 @@ dependencies {
     }
     implementation 'org.jetbrains:annotations:24.1.0'
     embed files("libraries/discord-rpc.jar")
-    embed files("libraries/FastUtil.jar")
+    embed files("libraries/Joml.jar")
     implementation 'fr.litarvan:openauth:1.1.3'
     implementation 'org.projectlombok:lombok:1.18.28' //   implementation "org.jetbrains.kotlin:kotlin-stdlib:1.7.0"
     //implementation 'com.parse:parse:1.18.0'
@@ -111,11 +111,12 @@ jar {
                 'LICENSE.txt',
                 'META-INF/MUMFREY.RSA',
                 'META-INF/maven/**',
-                'org/**/*.html'
+                'org/**/*.html',
+                'module-info.class'
     }
     manifest {
         attributes(
-                'MixinConfigs': 'mixins.raven.json',
+                'MixinConfigs': 'mixins.neo.json',
                 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                 'TweakOrder': 0,
                 "FMLCorePlugin": "neo.mixins.MixinLoader",

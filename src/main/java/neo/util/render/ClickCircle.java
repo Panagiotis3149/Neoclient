@@ -1,82 +1,51 @@
 package neo.util.render;
 
-import net.minecraft.util.MathHelper;
+import neo.util.render.animation.DecelerateAnimation;
+import neo.util.render.animation.Direction;
+import neo.util.render.animation.Anim;
+import net.minecraft.client.renderer.GlStateManager;
 
-import java.awt.*;
+public class ClickCircle {
 
+    private final Anim scaleAnim = new DecelerateAnimation(150, 1, Direction.FORWARDS);
+    private final Anim fadeAnim = new DecelerateAnimation(300, 1, Direction.FORWARDS);
+    private final int x, y;
 
-public class ClickCircle extends Container<ClickCircle.Circle> {
-
-    public void render() {
-        this.getItems().removeIf(circle -> circle.getAlpha() <= 0);
-
-        this.getItems().forEach(Circle::render);
+    public ClickCircle(int x, int y) {
+        this.x = x;
+        this.y = y;
+        scaleAnim.setDirection(Direction.FORWARDS);
+        fadeAnim.setDirection(Direction.BACKWARDS); // start full opacity
     }
 
-    public void addCircle(double x, double y, double startRadius, double maxRadius, Color color) {
-        this.getItems().add(new Circle(x, y, startRadius, maxRadius, color));
+    public void drawScreen(int baseColor) {
+        if (scaleAnim.isDone() && scaleAnim.getDirection() == Direction.FORWARDS) {
+            // When expansion is done, start fade out + shrink
+            scaleAnim.setDirection(Direction.BACKWARDS);
+            fadeAnim.setDirection(Direction.FORWARDS);
+        }
+
+        float scale = lerp(0.5f, 5f, scaleAnim.getOutput().floatValue());
+        float alpha = lerp(1f, 0f, fadeAnim.getOutput().floatValue());
+
+        int fadedColor = applyAlpha(baseColor, alpha);
+
+        GlStateManager.alphaFunc(516, 0.15f);
+        GlStateManager.color(1, 1, 1, 1);
+        RenderUtil.drawUnfilledCircle(x, y, scale, 4, fadedColor);
+        GlStateManager.alphaFunc(516, 0.1f);
     }
 
-    public static class Circle {
-        private final double x;
-        private final double y;
-        private final double startRadius;
-        private final double maxRadius;
-        private final double speed;
-        private final Color color;
+    private int applyAlpha(int color, float alpha) {
+        int a = (int) (alpha * 255f);
+        return (a << 24) | (color & 0x00FFFFFF);
+    }
 
-        private double radius;
-        private int alpha = 255;
+    private float lerp(float a, float b, float t) {
+        return a + (b - a) * t;
+    }
 
-        public Circle(double x, double y, double startRadius, double maxRadius, Color color) {
-            this.x = x;
-            this.y = y;
-            this.startRadius = startRadius;
-            this.maxRadius = maxRadius;
-            double calculatedSpeed = (maxRadius - startRadius) / 34.0;
-            this.speed = calculatedSpeed * RenderUtils.fpsMultiplier();
-            this.color = color;
-        }
-
-        public double getX() {
-            return x;
-        }
-
-        public double getY() {
-            return y;
-        }
-
-
-        public double getSpeed() {
-            return speed;
-        }
-
-        public Color getColor() {
-            return color;
-        }
-
-        public double getRadius() {
-            return radius;
-        }
-
-        public int getAlpha() {
-            return alpha;
-        }
-
-        public void render() {
-            this.radius += this.speed * RenderUtils.fpsMultiplier();
-            this.radius = MathHelper.clamp_double(this.radius, this.startRadius, this.maxRadius);
-
-            if (this.radius >= (this.maxRadius / 2)) {
-                this.alpha -= (int) (25 * RenderUtils.fpsMultiplier());
-                this.alpha = MathHelper.clamp_int(this.alpha, 0, 255);
-            }
-
-            RenderUtils.drawRoundedOutline(
-                    (float) ((float) this.x - (this.radius / 2f)), (float) (this.y - (this.radius / 2f)),
-                    (float) this.radius, (float) this.radius, (float) (radius / 2), 3f,
-                    RenderUtils.toARGBInt(new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue(), this.alpha))
-            );
-        }
+    public boolean isDone() {
+        return fadeAnim.isDone() && fadeAnim.getDirection() == Direction.FORWARDS;
     }
 }

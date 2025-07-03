@@ -5,6 +5,8 @@ import neo.Neo;
 import neo.clickgui.ClickGui;
 import neo.clickgui.components.impl.CategoryComponent;
 import neo.module.Module;
+import neo.module.impl.render.BPSCounter;
+import neo.module.impl.render.FPSCounter;
 import neo.module.impl.render.HUD;
 import neo.module.setting.Setting;
 import neo.module.setting.impl.ButtonSetting;
@@ -71,15 +73,23 @@ public class ProfileManager {
 
     private static JsonObject getJsonObject(Module module) {
         JsonObject moduleInformation = new JsonObject();
-        moduleInformation.addProperty("name", (module.moduleCategory() == Module.category.scripts && !(module instanceof Manager)) ?  "sc-" + module.getName() :  module.getName());
+        moduleInformation.addProperty("name", (module.moduleCategory() == Module.category.scripts && !(module instanceof Manager)) ? "sc-" + module.getName() : module.getName());
         if (module.canBeEnabled) {
             moduleInformation.addProperty("enabled", module.isEnabled());
             moduleInformation.addProperty("hidden", module.isHidden());
             moduleInformation.addProperty("keybind", module.getKeycode());
-        }
-        if (module instanceof HUD) {
+            }
+            if (module instanceof HUD) {
             moduleInformation.addProperty("posX", HUD.hudX);
             moduleInformation.addProperty("posY", HUD.hudY);
+        }
+        if (module instanceof FPSCounter) {
+            moduleInformation.addProperty("posX", FPSCounter.X);
+            moduleInformation.addProperty("posY", FPSCounter.Y);
+        }
+        if (module instanceof BPSCounter) {
+            moduleInformation.addProperty("posX", BPSCounter.X);
+            moduleInformation.addProperty("posY", BPSCounter.Y);
         }
         for (Setting setting : module.getSettings()) {
             if (setting instanceof ButtonSetting && !((ButtonSetting) setting).isMethodButton) {
@@ -167,7 +177,7 @@ public class ProfileManager {
                         }
                     }
 
-                    if (module.getName().equals("HUD")) {
+                    if (module.getName().equals("Arraylist")) { // fixed 28/06/25
                         if (moduleInformation.has("posX")) {
                             int hudX = moduleInformation.get("posX").getAsInt();
                             HUD.hudX = hudX;
@@ -175,6 +185,26 @@ public class ProfileManager {
                         if (moduleInformation.has("posY")) {
                             int hudY = moduleInformation.get("posY").getAsInt();
                             HUD.hudY = hudY;
+                        }
+                    }
+                    if (module.getName().equals("FPSCounter")) {
+                        if (moduleInformation.has("posX")) {
+                            int hudX = moduleInformation.get("posX").getAsInt();
+                            FPSCounter.X = hudX;
+                        }
+                        if (moduleInformation.has("posY")) {
+                            int hudY = moduleInformation.get("posY").getAsInt();
+                            FPSCounter.Y = hudY;
+                        }
+                    }
+                    if (module.getName().equals("BPSCounter")) {
+                        if (moduleInformation.has("posX")) {
+                            int hudX = moduleInformation.get("posX").getAsInt();
+                            BPSCounter.X = hudX;
+                        }
+                        if (moduleInformation.has("posY")) {
+                            int hudY = moduleInformation.get("posY").getAsInt();
+                            BPSCounter.Y = hudY;
                         }
                     }
 

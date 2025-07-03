@@ -7,9 +7,9 @@ import neo.util.player.move.MoveUtil;
 import static neo.util.Utils.mc;
 
 public class PreMotionEvent extends Event {
-    private double posX;
+    public double posX;
     public double posY;
-    private double posZ;
+    public double posZ;
     private float yaw;
     private float pitch;
     private boolean onGround;

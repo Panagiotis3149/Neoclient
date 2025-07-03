@@ -8,6 +8,7 @@ import net.minecraftforge.client.event.RenderPlayerEvent.Post;
 import net.minecraftforge.client.event.RenderPlayerEvent.Pre;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL45;
 
 import java.util.HashSet;
 

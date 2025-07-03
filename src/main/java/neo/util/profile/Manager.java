@@ -16,7 +16,7 @@ public class Manager extends Module {
     public Manager() {
         super("Manager", category.profiles);
         this.registerSetting(createProfile = new ButtonSetting("Create config", () -> {
-            if (Utils.nullCheck() && Neo.profileManager != null) {
+            if (Utils.isnull() && Neo.profileManager != null) {
                 String name = "cfg-";
                 for (int i = 1; i <= 100; i++) {
                     if (Neo.profileManager.getProfile(name + i) != null) {
@@ -31,7 +31,7 @@ public class Manager extends Module {
             }
         }));
         this.registerSetting(loadProfiles = new ButtonSetting("Load configs", () -> {
-            if (Utils.nullCheck() && Neo.profileManager != null) {
+            if (Utils.isnull() && Neo.profileManager != null) {
                 Neo.profileManager.loadProfiles();
             }
         }));

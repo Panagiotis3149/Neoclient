@@ -42,7 +42,7 @@ public class BurstClicker extends Module {
                     int cl = (int) clicks.getInput();
                     int del = (int) delay.getInput();
 
-                    for (int i = 0; i < cl * 2 && this.isEnabled() && Utils.nullCheck() && mc.currentScreen == null && mc.inGameHasFocus; ++i) {
+                    for (int i = 0; i < cl * 2 && this.isEnabled() && Utils.isnull() && mc.currentScreen == null && mc.inGameHasFocus; ++i) {
                         if (i % 2 == 0) {
                             this.l_c = true;
                             if (del != 0) {
@@ -78,7 +78,7 @@ public class BurstClicker extends Module {
 
     @SubscribeEvent
     public void r(RenderTickEvent ev) {
-        if (Utils.nullCheck()) {
+        if (Utils.isnull()) {
             if (this.l_c) {
                 this.c(true);
                 this.l_c = false;

@@ -1,6 +1,7 @@
 package neo.util.render;
 
 import neo.util.render.animation.AnimationUtils;
+import neo.util.render.animation.Timer;
 import net.minecraft.client.renderer.GlStateManager;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +22,35 @@ public class ColorUtils {
     }
     private static final Pattern COLOR_PATTERN = Pattern.compile("(?i)§[0-9A-FK-OR]");
     private static final Pattern COLOR_CODE_PATTERN = Pattern.compile("(?i)§([0-9A-FK-OR])");
+
+    public static int getContrastColor(int argb) {
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+
+        float brightness = (r * 0.299f + g * 0.587f + b * 0.114f) / 255f;
+        return brightness > 0.75f ? 0xFF000000 : 0xFFFFFFFF;
+    }
+
+    public static int getEasedContrastColor(int argb, Timer timer, int easingType) {
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+
+        float brightness = (r * 0.299f + g * 0.587f + b * 0.114f) / 255f;
+
+        float eased = timer.getValueFloat(0f, 1f, easingType);
+        float threshold = 0.75f;
+
+        return (brightness * eased) > threshold ? 0xFF000000 : 0xFFFFFFFF;
+    }
+
+
+    public static int getContrastColor(Color color) {
+        float brightness = (color.getRed() * 0.299f + color.getGreen() * 0.587f + color.getBlue() * 0.114f) / 255f;
+        return brightness > 0.75f ? 0xFF000000 : 0xFFFFFFFF;
+    }
+
 
     public static Color getFontColor(int id, int alpha) {
         Color rawColor = getRawFontColor(id);

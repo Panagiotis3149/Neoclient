@@ -37,11 +37,11 @@ public class AntiKnockback extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent e) {
-        if (!Utils.nullCheck() || LongJump.stopModules || e.isCanceled()) {
+        if (!Utils.isnull() || LongJump.stopModules || e.isCanceled()) {
             return;
         }
         if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity) {
-            if (((S12PacketEntityVelocity) ReceivePacketEvent.getPacket()).getEntityID() == mc.thePlayer.getEntityId()) {
+            if (((S12PacketEntityVelocity) (e.getPacket())).getEntityID() == mc.thePlayer.getEntityId()) {
                 if (lobbyCheck.isToggled() && isLobby()) {
                     return;
                 }

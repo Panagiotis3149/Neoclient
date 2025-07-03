@@ -26,7 +26,7 @@ public class ScriptEvents {
 
     @SubscribeEvent
     public void onChat(ClientChatReceivedEvent e) {
-        if (e.type == 2 || !Utils.nullCheck()) {
+        if (e.type == 2 || !Utils.isnull()) {
             return;
         }
         final String r = Utils.stripColor(e.message.getUnformattedText());
@@ -40,13 +40,13 @@ public class ScriptEvents {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent e) {
-        if (e.isCanceled() || e.getPacket() == null) {
+        if (e.isCanceled() || SendPacketEvent.getPacket() == null) {
             return;
         }
-        if (e.getPacket().getClass().getSimpleName().startsWith("S")) {
+        if (SendPacketEvent.getPacket().getClass().getSimpleName().startsWith("S")) {
             return;
         }
-        CPacket a = PacketHandler.convertServerBound(e.getPacket());
+        CPacket a = PacketHandler.convertServerBound(SendPacketEvent.getPacket());
         if (a != null && Neo.scriptManager.invokeBoolean("onPacketSent", module, a) == 0) {
             e.setCanceled(true);
         }
@@ -65,7 +65,7 @@ public class ScriptEvents {
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent e) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return;
         }
         Neo.scriptManager.invoke("onRenderWorld", module, e.partialTicks);
@@ -83,7 +83,7 @@ public class ScriptEvents {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent e) {
-        if (e.phase != TickEvent.Phase.END || !Utils.nullCheck()) {
+        if (e.phase != TickEvent.Phase.END || !Utils.isnull()) {
             return;
         }
         Neo.scriptManager.invoke("onRenderTick", module, e.renderTickTime);

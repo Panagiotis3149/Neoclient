@@ -25,12 +25,12 @@ import java.util.List;
 
 public class BedESP extends Module {
     public static SliderSetting theme;
-    private SliderSetting range;
-    private SliderSetting rate;
-    private ButtonSetting firstBed;
-    private ButtonSetting renderFullBlock;
+    private final SliderSetting range;
+    private final SliderSetting rate;
+    private final ButtonSetting firstBed;
+    private final ButtonSetting renderFullBlock;
     private BlockPos[] bed = null;
-    private List<BlockPos[]> beds = new ArrayList<>();
+    private final List<BlockPos[]> beds = new ArrayList<>();
     private long lastCheck = 0;
 
     public BedESP() {
@@ -85,7 +85,7 @@ public class BedESP extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (Utils.nullCheck()) {
+        if (Utils.isnull()) {
             if (firstBed.isToggled() && this.bed != null) {
                 if (!(mc.theWorld.getBlockState(bed[0]).getBlock() instanceof BlockBed)) {
                     this.bed = null;

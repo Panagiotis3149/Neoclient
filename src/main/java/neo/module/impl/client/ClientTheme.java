@@ -27,6 +27,8 @@ public class ClientTheme extends Module {
             HUD.theme.setValueRaw(theme.getInput());
             Watermark.theme.setValueRaw(theme.getInput());
             BedESP.theme.setValueRaw(theme.getInput());
+            ChestESP.theme.setValueRaw(theme.getInput());
+            Notifications.theme.setValueRaw(theme.getInput());
             this.disable();
     }
 }

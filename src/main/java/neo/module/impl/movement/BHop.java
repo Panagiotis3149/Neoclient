@@ -5,6 +5,7 @@ import neo.module.Module;
 import neo.module.impl.movement.mode.speed.BMCSpeed;
 import neo.module.impl.movement.mode.speed.KarhuSpeed;
 import neo.module.impl.movement.mode.speed.MospixelSpeed;
+import neo.module.impl.movement.mode.speed.MatrixSpeed;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.player.move.MoveUtil;
@@ -23,7 +24,7 @@ public class BHop extends Module {
     private final ButtonSetting liquidDisable;
     private final ButtonSetting sneakDisable;
     private final ButtonSetting stopMotion;
-    public static String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "BMC"};
+    public static String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "BMC", "Matrix"};
     public boolean hopping;
     private int ticks = 0;
     private int ticksl = 0;
@@ -185,7 +186,7 @@ public class BHop extends Module {
                 if (Utils.isMoving() && mc.thePlayer.onGround && autoJump.isToggled()) {
                     mc.thePlayer.jump();
                 }
-                MoveUtil.strafe5(0.345);
+                MoveUtil.strafe(0.345);
                 break;
             case 8:
                 if (!MoveUtil.isMoving()) return;
@@ -217,6 +218,7 @@ public class BHop extends Module {
     @Override
     public void onDisable() {
         BMCSpeed.speed = 0;
+        MospixelSpeed.speed = 0;
         Utils.resetTimer();
         if (stopMotion.isToggled()) {
             mc.thePlayer.motionZ = 0;
@@ -241,6 +243,13 @@ public class BHop extends Module {
     public void onReceivePacket(@NotNull ReceivePacketEvent event) {
         if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity) {
             ticksSinceVelocity = 0;
+        }
+    }
+
+    @SubscribeEvent
+    public void onStrafe(StrafeEvent e) {
+        if (mode.getInput() == 13) {
+                MatrixSpeed.MatrixSpeed(e);
         }
     }
 }

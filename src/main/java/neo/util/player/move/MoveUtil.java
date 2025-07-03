@@ -14,8 +14,10 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.MovementInput;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,8 +59,21 @@ public class MoveUtil {
         strafe(speed(), mc.thePlayer);
     }
 
+    public static void strafe(final double speed) {
+        strafe(speed, mc.thePlayer);
+    }
+
     public static double defaultSpeed() {
         double baseSpeed = 0.2873;
+        if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+            int amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
+            baseSpeed *= 1.0 + 0.2 * (double)(amplifier + 1);
+        }
+        return baseSpeed;
+    }
+
+    public static double defaultSpeedBase(double base) {
+        double baseSpeed = base;
         if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
             int amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
             baseSpeed *= 1.0 + 0.2 * (double)(amplifier + 1);
@@ -77,7 +92,7 @@ public class MoveUtil {
         double motionX = mc.thePlayer.motionX;
         double motionZ = mc.thePlayer.motionZ;
 
-        MoveUtil.strafe5(Utils.getHorizontalSpeed());
+        MoveUtil.strafe(Utils.getHorizontalSpeed());
 
         mc.thePlayer.motionX = motionX + (mc.thePlayer.motionX - motionX) * percentage;
         mc.thePlayer.motionZ = motionZ + (mc.thePlayer.motionZ - motionZ) * percentage;
@@ -118,16 +133,6 @@ public class MoveUtil {
     }
 
 
-    public static void strafe2() {
-        if (Utils.isMoving()) {
-            if (mc.thePlayer.onGround && autoJump.isToggled()) {
-                mc.thePlayer.jump();
-            }
-            mc.thePlayer.setSprinting(true);
-            Utils.setSpeed(Utils.getHorizontalSpeed() + 0.005 * speed.getInput());
-        }
-
-    }
 
     public static void stop() {
         mc.thePlayer.motionX = 0;
@@ -172,9 +177,6 @@ public class MoveUtil {
         mc.thePlayer.motionZ = MathHelper.cos(yaw) * speed;
     }
 
-    public static float getMovementYaw() {
-        return mc.thePlayer.rotationYaw;
-    }
 
     public static double direction() {
         float rotationYaw = TargetStrafe.getMovementYaw();
@@ -226,68 +228,6 @@ public class MoveUtil {
         return f;
     }
 
-    public static void setSpeedMoveIEvent(final MoveInputEvent moveEvent, final double moveSpeed) {
-        setSpeedMoveIEvent(moveEvent, moveSpeed, mc.thePlayer.rotationYaw, mc.thePlayer.movementInput.moveStrafe, mc.thePlayer.movementInput.moveForward);
-    }
-
-    public static void setSpeedMoveIEvent(final MoveInputEvent moveEvent, final double moveSpeed, final float pseudoYaw, final double pseudoStrafe, final double pseudoForward) {
-        double forward = pseudoForward;
-        double strafe = pseudoStrafe;
-        float yaw = pseudoYaw;
-
-        if (forward != 0.0D) {
-            if (strafe > 0.0D) {
-                yaw += ((forward > 0.0D) ? -45.0F : 45.0F);
-            } else if (strafe < 0.0D) {
-                yaw += ((forward > 0.0D) ? 45.0F : -45.0F);
-            }
-
-            strafe = 0.0D;
-
-            if (forward > 0.0D) {
-                forward = 1.0D;
-            } else if (forward < 0.0D) {
-                forward = -1.0D;
-            }
-        }
-
-        final double mx = Math.cos(Math.toRadians((yaw + 180F)));
-        final double mz = Math.sin(Math.toRadians((yaw + 180F)));
-        moveEvent.setX(forward * moveSpeed * mx + strafe * moveSpeed * mz);
-        moveEvent.setZ(forward * moveSpeed * mz - strafe * moveSpeed * mx);
-    }
-
-
-    public static void setSpeedMTest(final double moveSpeed) {
-        setSpeedMTest(moveSpeed, mc.thePlayer.rotationYaw, mc.thePlayer.movementInput.moveStrafe, mc.thePlayer.movementInput.moveForward);
-    }
-
-    public static void setSpeedMTest(final double moveSpeed, final float pseudoYaw, final double pseudoStrafe, final double pseudoForward) {
-        double forward = pseudoForward;
-        double strafe = pseudoStrafe;
-        float yaw = pseudoYaw;
-
-        if (forward != 0.0D) {
-            if (strafe > 0.0D) {
-                yaw += ((forward > 0.0D) ? -45.0F : 45.0F);
-            } else if (strafe < 0.0D) {
-                yaw += ((forward > 0.0D) ? 45.0F : -45.0F);
-            }
-
-            strafe = 0.0D;
-
-            if (forward > 0.0D) {
-                forward = 1.0D;
-            } else if (forward < 0.0D) {
-                forward = -1.0D;
-            }
-        }
-
-        final double mx = Math.cos(Math.toRadians((yaw + 180F)));
-        final double mz = Math.sin(Math.toRadians((yaw + 180F)));
-        mc.thePlayer.motionX = (forward * moveSpeed * mx + strafe * moveSpeed * mz);
-        mc.thePlayer.motionZ = (forward * moveSpeed * mz - strafe * moveSpeed * mx);
-    }
 
 
     public static void useDiagonalSpeed() {
@@ -331,9 +271,7 @@ public class MoveUtil {
                 + mc.thePlayer.motionZ * mc.thePlayer.motionZ);
     }
 
-    public static double getSpeed(MoveEvent moveEvent) {
-        return mc.thePlayer == null ? 0 : Math.sqrt(moveEvent.x * moveEvent.x + moveEvent.z * moveEvent.z);
-    }
+
 
     public double getSpeedDistance() {
         double distX = mc.thePlayer.posX - mc.thePlayer.lastTickPosX;
@@ -345,13 +283,6 @@ public class MoveUtil {
         strafe4(getSpeed());
     }
 
-
-    // PANDAWARE STRAFES ARE FROM PANDAWARE 0.4.3 (old af)
-
-    // Pandaware Strafe
-    public static void strafe4(MoveEvent event) {
-        strafe4(event, getSpeed());
-    }
 
     // Pandaware Strafe
     public static void strafe4(double movementSpeed) {
@@ -394,24 +325,6 @@ public class MoveUtil {
             mc.thePlayer.motionZ = mc.thePlayer.movementInput.moveForward * movementSpeed * Math.cos(Math.toRadians(mc.thePlayer.rotationYaw))
                     - mc.thePlayer.movementInput.moveStrafe * movementSpeed * -Math.sin(Math.toRadians(mc.thePlayer.rotationYaw));
         }
-    }
-
-    public static  double getLowHopMotion(double motion) {
-        double base = MathUtil.roundToDecimal(mc.thePlayer.posY - (int) mc.thePlayer.posY, 2);
-
-        if (base == 0.4) {
-            return 0.31f;
-        } else if (base == 0.71) {
-            return 0.05f;
-        } else if (base == 0.76) {
-            return -0.2f;
-        } else if (base == 0.56) {
-            return -0.19f;
-        } else if (base == 0.42) {
-            return -0.12;
-        }
-
-        return motion;
     }
 
     /**
@@ -458,59 +371,9 @@ public class MoveUtil {
                 : enoughMovementForSprinting());
     }
 
-
-    public static double jumpBoostMotion(final double motionY) {
-        if (mc.thePlayer.isPotionActive(Potion.jump)) {
-            return motionY + (mc.thePlayer.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
-        }
-        return motionY;
-
-
-
-    }
-
-    public static float simulationStrafeAngle(float currentMoveYaw, float maxAngle) {
-        float workingYaw;
-        float target = (float) Math.toDegrees(MoveUtil.direction());
-
-        if (Math.abs(currentMoveYaw - target) <= maxAngle) {
-            currentMoveYaw = target;
-        } else if (currentMoveYaw > target) {
-            currentMoveYaw -= maxAngle;
-        } else {
-            currentMoveYaw += maxAngle;
-        }
-
-        workingYaw = currentMoveYaw;
-
-        MoveUtil.strafe(MoveUtil.speed(), workingYaw);
-
-        return workingYaw;
-    }
-
-  // LB strafe i think idfk
-    public static void strafe3(float speed, MoveEvent moveEvent) {
-        double strength = 1.0;
-
-        if (mc.thePlayer != null) {
-
-            if (!Utils.isMoving()) {
-                return;
-            }
-
-            double prevX = mc.thePlayer.motionX * (1.0 - strength);
-            double prevZ = mc.thePlayer.motionZ * (1.0 - strength);
-            double useSpeed = speed * strength;
-
-            float yaw = Utils.getYaw(mc.thePlayer);
-            double x = (-Math.sin(yaw) * useSpeed) + prevX;
-            double z = (Math.cos(yaw) * useSpeed) + prevZ;
-        }
-    }
-
     // Strafe5 is RISE strafe
     public static void strafe5(final double speed) {
-        strafe(speed, mc.thePlayer);
+        strafe5(speed, mc.thePlayer);
     }
 
 

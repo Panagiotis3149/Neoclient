@@ -1,11 +1,9 @@
 package neo.module.impl.movement;
 
-import neo.event.MoveEvent;
 import neo.event.PreMotionEvent;
 import neo.event.ReceivePacketEvent;
 import neo.event.SendPacketEvent;
 import neo.module.Module;
-import neo.module.impl.movement.mode.longjump.MospixelLongjump;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.Utils;
@@ -33,7 +31,7 @@ public class LongJump extends Module {
     private boolean sentPlace;
     private int initTicks;
     private boolean threw;
-    private final String[] modes = new String[]{"Fireball", "Fireball Auto", "Mospixel"};
+    private final String[] modes = new String[]{"Fireball", "Fireball Auto"};
     public static int offGroundTicks;
 
     public LongJump() {
@@ -50,7 +48,7 @@ public class LongJump extends Module {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent e) {
-        if (e.getPacket() instanceof C08PacketPlayerBlockPlacement && ((C08PacketPlayerBlockPlacement) e.getPacket()).getStack() != null && ((C08PacketPlayerBlockPlacement) e.getPacket()).getStack().getItem() instanceof ItemFireball) {
+        if (SendPacketEvent.getPacket() instanceof C08PacketPlayerBlockPlacement && ((C08PacketPlayerBlockPlacement) SendPacketEvent.getPacket()).getStack() != null && ((C08PacketPlayerBlockPlacement) SendPacketEvent.getPacket()).getStack().getItem() instanceof ItemFireball) {
             threw = true;
             if (mc.thePlayer.onGround && jump.isToggled()) {
                 mc.thePlayer.jump();
@@ -60,7 +58,7 @@ public class LongJump extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent e) {
-        if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity && Utils.nullCheck()) {
+        if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity && Utils.isnull()) {
             if (((S12PacketEntityVelocity) ReceivePacketEvent.getPacket()).getEntityID() == mc.thePlayer.getEntityId() && threw) {
                 ticks = 0;
                 setSpeed = true;
@@ -72,7 +70,7 @@ public class LongJump extends Module {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPreMotion(PreMotionEvent e) {
-        if ( !Utils.nullCheck() ) {
+        if ( !Utils.isnull() ) {
             return;
         }
         if ( mode.getInput() == 1 ) {
@@ -135,12 +133,6 @@ public class LongJump extends Module {
          }
     }
 
-    @SubscribeEvent
-    public void onMove(MoveEvent e) {
-        if (mode.getInput() == 2) {
-            MospixelLongjump.MospixelLongJump(e);
-        }
-    }
 
 
     public void onDisable() {
@@ -150,8 +142,6 @@ public class LongJump extends Module {
         ticks = lastSlot = -1;
         setSpeed = stopModules = sentPlace = false;
         initTicks = 0;
-        MospixelLongjump.moveSpeed = 0;
-        MospixelLongjump.lastDistance = 0;
     }
 
     public void onEnable() {

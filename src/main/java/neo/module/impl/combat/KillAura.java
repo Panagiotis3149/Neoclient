@@ -136,7 +136,7 @@ public class KillAura extends Module {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return;
         }
         if (ev.phase != TickEvent.Phase.START) {
@@ -165,6 +165,7 @@ public class KillAura extends Module {
 
             mc.thePlayer.rotationYaw = newYaw;
             mc.thePlayer.rotationPitch = newPitch;
+
         }
     }
 
@@ -374,7 +375,7 @@ public class KillAura extends Module {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onSendPacket(SendPacketEvent e) {
-        if (!Utils.nullCheck() || !blinking) {
+        if (!Utils.isnull() || !blinking) {
             return;
         }
         Packet packet = e.getPacket();
@@ -384,7 +385,7 @@ public class KillAura extends Module {
         if (packet instanceof C00PacketKeepAlive) {
             return;
         }
-        blinkedPackets.add(e.getPacket());
+        blinkedPackets.add(SendPacketEvent.getPacket());
         e.setCanceled(true);
     }
 
@@ -592,7 +593,7 @@ public class KillAura extends Module {
     }
 
     private boolean basicCondition() {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return false;
         }
         return !mc.thePlayer.isDead;

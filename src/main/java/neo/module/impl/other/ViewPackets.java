@@ -47,7 +47,7 @@ public class ViewPackets extends Module {
     }
 
     private void sendMessage(final Packet packet, final boolean b) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             return;
         }
         final String s = b ? ("&a" + packet.getClass().getSimpleName()) : applyInfo(packet);
@@ -87,10 +87,10 @@ public class ViewPackets extends Module {
         if (!received.isToggled()) {
             return;
         }
-        if (singlePlayer.isToggled() && mc.isSingleplayer() && ReceivePacketEvent.getPacket().getClass().getSimpleName().charAt(0) == 'C') {
+        if (singlePlayer.isToggled() && mc.isSingleplayer() && e.getPacket().getClass().getSimpleName().charAt(0) == 'C') {
             return;
         }
-        sendMessage(ReceivePacketEvent.getPacket(), true);
+        sendMessage(e.getPacket(), true);
     }
 
     private String applyInfo(final Packet packet) {

@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FakeLag extends Module {
     private final SliderSetting packetDelay;
-    private final ConcurrentHashMap<Packet, Long> delayedPackets = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Packet<?>, Long> delayedPackets = new ConcurrentHashMap<>();
 
     public FakeLag() {
         super("FakeLag", category.player);
@@ -41,7 +41,7 @@ public class FakeLag extends Module {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             sendPacket(false);
             return;
         }
@@ -51,27 +51,28 @@ public class FakeLag extends Module {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onSendPacket(SendPacketEvent e) {
         long receiveTime = System.currentTimeMillis();
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             sendPacket(false);
             return;
         }
         if (e.isCanceled()) {
             return;
         }
-        Packet packet = e.getPacket();
+        Packet<?> packet = SendPacketEvent.getPacket();
         if (packet instanceof C00Handshake || packet instanceof C00PacketLoginStart || packet instanceof C00PacketServerQuery || packet instanceof C01PacketEncryptionResponse) {
             return;
         }
-        delayedPackets.put(e.getPacket(), receiveTime);
+        if (SendPacketEvent.getPacket() != null && !Utils.isnull()) {
+            delayedPackets.put(SendPacketEvent.getPacket(), receiveTime);
+        }
         e.setCanceled(true);
     }
 
     private void sendPacket(boolean delay) {
-        try {
-            Iterator<Map.Entry<Packet, Long>> packets = delayedPackets.entrySet().iterator();
+            Iterator<Map.Entry<Packet<?>, Long>> packets = delayedPackets.entrySet().iterator();
             while (packets.hasNext()) {
-                Map.Entry<Packet, Long> entry = packets.next();
-                Packet packet = entry.getKey();
+                Map.Entry<Packet<?>, Long> entry = packets.next();
+                Packet<?> packet = entry.getKey();
                 if (packet == null) {
                     continue;
                 }
@@ -82,8 +83,5 @@ public class FakeLag extends Module {
                     packets.remove();
                 }
             }
-        }
-        catch (Exception e) {
-        }
     }
 }

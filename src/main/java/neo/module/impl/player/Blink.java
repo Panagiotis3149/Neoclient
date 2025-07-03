@@ -56,11 +56,11 @@ public class Blink extends Module {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent e) {
-        if (!Utils.nullCheck()) {
+        if (!Utils.isnull()) {
             this.disable();
             return;
         }
-        Packet packet = e.getPacket();
+        Packet packet = SendPacketEvent.getPacket();
         if (packet.getClass().getSimpleName().startsWith("S")) {
             return;
         }
@@ -83,7 +83,7 @@ public class Blink extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (!Utils.nullCheck() || pos == null || !initialPosition.isToggled()) {
+        if (!Utils.isnull() || pos == null || !initialPosition.isToggled()) {
             return;
         }
         drawBox(pos);

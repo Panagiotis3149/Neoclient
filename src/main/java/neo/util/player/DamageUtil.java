@@ -12,6 +12,10 @@ public class DamageUtil {
         damagePlayer(DamageType.POSITION, value, true, true);
     }
 
+    public static void damagePlayerr(final double value) {
+        damagePlayer(DamageType.POSITION_ROTATION, value, true, true);
+    }
+
     public static void oldNCPTestSelfDamage() {
         for (int i = 0; i < 65 * 2; i++) {
             mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.049, mc.thePlayer.posZ, false));

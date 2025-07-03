@@ -14,7 +14,6 @@ public class ToggleCommand {
 
     public ToggleCommand(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
