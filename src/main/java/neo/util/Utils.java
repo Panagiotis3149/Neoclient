@@ -6,6 +6,7 @@ import neo.event.ReceivePacketEvent;
 import neo.event.SendPacketEvent;
 import neo.module.Module;
 import neo.module.ModuleManager;
+import neo.module.impl.client.ClientTheme;
 import neo.module.impl.client.Settings;
 import neo.module.impl.combat.AutoClicker;
 import neo.module.impl.minigames.DuelsStats;
@@ -14,6 +15,7 @@ import neo.module.setting.impl.SliderSetting;
 import neo.util.packet.PacketUtils;
 import neo.util.player.CPSCalculator;
 import neo.util.player.move.RotationUtils;
+import neo.util.render.Theme;
 import neo.util.world.block.BlockUtils;
 import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
@@ -90,18 +92,6 @@ public class Utils {
 
     public static double round2(double val) {
         return Math.round(val * 100.0) / 100.0;
-    }
-
-
-
-    public static void waitInNewThread(int milliseconds) {
-        new Thread(() -> {
-            try {
-                Thread.sleep(milliseconds);
-            } catch (InterruptedException e) {
-                System.out.println("ewwor, nap interrupted");
-            }
-        }).start();
     }
 
 
@@ -233,16 +223,18 @@ public class Utils {
 
     public static void sendMessage(String txt) {
         if (isnull()) {
-            String m = formatColor("&7[&b" + clientName + "&7]&r " + txt);
-            mc.thePlayer.addChatMessage(new ChatComponentText(m));
+            String msg = Theme.wrap(clientName) + " » §r" + txt;
+            mc.thePlayer.addChatMessage(new ChatComponentText(formatColor(msg)));
         }
     }
 
     public static void sendDebugMessage(String message) {
         if (isnull()) {
-            mc.thePlayer.addChatMessage(new ChatComponentText("§7[§b" + clientName + "§7]§r " + message));
+            String msg = Theme.wrap(clientName) + " » §r" + message;
+            mc.thePlayer.addChatMessage(new ChatComponentText(formatColor(msg)));
         }
     }
+
 
     public static void attackEntityV2(Entity target, boolean sendLook, float yaw, float pitch, boolean silentSwing) {
         if (sendLook) {

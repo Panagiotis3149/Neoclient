@@ -1,4 +1,4 @@
-package neo.clickgui.components;
+package neo.gui.click.components;
 
 public class Component {
     public void render() {

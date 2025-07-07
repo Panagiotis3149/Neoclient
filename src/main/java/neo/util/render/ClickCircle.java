@@ -32,7 +32,7 @@ public class ClickCircle {
 
         GlStateManager.alphaFunc(516, 0.15f);
         GlStateManager.color(1, 1, 1, 1);
-        RenderUtil.drawUnfilledCircle(x, y, scale, 4, fadedColor);
+        RenderUtils.drawUnfilledCircle(x, y, scale, 4, fadedColor);
         GlStateManager.alphaFunc(516, 0.1f);
     }
 

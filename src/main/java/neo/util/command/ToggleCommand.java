@@ -18,9 +18,9 @@ public class ToggleCommand {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
-        if (event.getPacket() instanceof C01PacketChatMessage) {
-            C01PacketChatMessage chatPacket = (C01PacketChatMessage) event.getPacket();
-            String message = chatPacket.getMessage().toLowerCase(); // Convert message to lower case
+        if (!(event.getNonStaticPacket() instanceof C01PacketChatMessage)) return;
+            C01PacketChatMessage chatPacket = (C01PacketChatMessage) event.getNonStaticPacket();
+            String message = chatPacket.getMessage().toLowerCase();
 
             if (message.startsWith(".t ") || message.startsWith(".toggle ")) {
                 event.setCanceled(true);
@@ -53,9 +53,12 @@ public class ToggleCommand {
                 } else {
                     event.setCanceled(true);
                     event.cancelEvent();
-                    Utils.sendMessage("&cUsage: .t {modulename}");
+                    Utils.sendMessage("&cUsage: .t <moduleName>");
                 }
+            } else if (message.startsWith(".t") || message.startsWith(".toggle")) {
+                    event.setCanceled(true);
+                    event.cancelEvent();
+                Utils.sendMessage("&cUsage: .t <moduleName>");
             }
-        }
-    }
+      }
 }

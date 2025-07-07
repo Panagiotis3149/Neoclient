@@ -1,20 +1,19 @@
 package neo;
 
 
-import neo.clickgui.ClickGui;
-import neo.clickgui.menu.MainMenu;
-import neo.util.command.BindCommand;
-import neo.util.command.ToggleCommand;
+import neo.gui.click.ClickGui;
+import neo.gui.menu.MainMenu;
+import neo.util.command.*;
 import neo.module.Module;
 import neo.module.ModuleManager;
 import neo.script.ScriptManager;
 import neo.util.*;
+import neo.util.config.Config;
 import neo.util.other.DebugInfoRenderer;
 import neo.util.other.java.Reflection;
 import neo.util.packet.BadPacketsHandler;
 import neo.util.player.CPSCalculator;
-import neo.util.profile.Profile;
-import neo.util.profile.ProfileManager;
+import neo.util.config.ConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.resources.IResource;
@@ -42,7 +41,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @Mod(
         modid = "neo",
         name = "Neoclient",
-        version = "2.0",
+        version = "2.0.0",
         acceptedMinecraftVersions = "1.8.9"
 )
 
@@ -52,9 +51,9 @@ public class Neo {
     private static final ScheduledExecutorService ex = Executors.newScheduledThreadPool(2);
     public static ModuleManager moduleManager;
     public static ClickGui clickGui;
-    public static ProfileManager profileManager;
+    public static ConfigManager configManager;
     public static ScriptManager scriptManager;
-    public static Profile currentProfile;
+    public static Config currentConfig;
     public static BadPacketsHandler badPacketsHandler;
 
     public Neo() {
@@ -112,8 +111,13 @@ public class Neo {
         FMLCommonHandler.instance().bus().register(new CPSCalculator());
         FMLCommonHandler.instance().bus().register(badPacketsHandler = new BadPacketsHandler());
 
+        // COMMANDS
         FMLCommonHandler.instance().bus().register(new BindCommand(moduleManager));
         FMLCommonHandler.instance().bus().register(new ToggleCommand(moduleManager));
+        FMLCommonHandler.instance().bus().register(new NameHiderCommand());
+        FMLCommonHandler.instance().bus().register(new HelpCommand());
+        FMLCommonHandler.instance().bus().register(new AnticheatCommand());
+        // END OF COMMANDS
 
         RPC rpc = new RPC();
         rpc.onUpdate();
@@ -122,16 +126,17 @@ public class Neo {
         moduleManager.register();
         scriptManager = new ScriptManager();
         clickGui = new ClickGui();
-        profileManager = new ProfileManager();
-        profileManager.loadProfiles();
-        profileManager.loadProfile("default");
+        configManager = new ConfigManager();
+        configManager.loadConfigs();
+        configManager.loadConfig("default");
         Reflection.setKeyBindings();
         scriptManager.loadScripts();
+        NeoCloud.checkVersionAsync();
     }
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
-        System.out.println("PostInitializationEvent");
+        System.out.println("Neo PostInit");
     }
 
     @SubscribeEvent
@@ -160,9 +165,9 @@ public class Neo {
                         module.onUpdate();
                     }
                 }
-                for (Profile profile : Neo.profileManager.profiles) {
+                for (Config config : Neo.configManager.configs) {
                     if (mc.currentScreen == null) {
-                        profile.getModule().keybind();
+                        config.getModule().keybind();
                     }
                 }
                 for (Module module : Neo.scriptManager.scripts.values()) {

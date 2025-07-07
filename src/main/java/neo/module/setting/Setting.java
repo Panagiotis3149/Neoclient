@@ -17,7 +17,7 @@ public abstract class Setting {
         return this.n;
     }
 
-    public abstract void loadProfile(JsonObject data);
+    public abstract void loadConfig(JsonObject data);
 
     public Setting setVisibleWhen(Supplier<Boolean> condition) {
         this.visiblePredicate = condition;
@@ -26,5 +26,10 @@ public abstract class Setting {
 
     public boolean isVisible() {
         return visiblePredicate == null || visiblePredicate.get();
+    }
+
+    public Setting setVisible(boolean vis) {
+        this.visiblePredicate = () -> vis;
+        return this;
     }
 }

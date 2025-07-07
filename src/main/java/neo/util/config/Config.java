@@ -1,16 +1,16 @@
-package neo.util.profile;
+package neo.util.config;
 
 import neo.module.Module;
 
-public class Profile {
+public class Config {
     private final Module module;
     private int bind = 0;
-    private final String profileName;
+    private final String configName;
 
-    public Profile(String profileName, int bind) {
-        this.profileName = profileName;
+    public Config(String configName, int bind) {
+        this.configName = configName;
         this.bind = bind;
-        this.module = new ProfileModule(this, profileName, bind);
+        this.module = new ConfigModule(this, configName, bind);
         this.module.ignoreOnSave = true;
     }
 
@@ -23,6 +23,6 @@ public class Profile {
     }
 
     public String getName() {
-        return profileName;
+        return configName;
     }
 }

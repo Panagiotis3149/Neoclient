@@ -7,7 +7,6 @@ import neo.module.setting.impl.SliderSetting;
 import neo.util.Utils;
 import neo.util.font.FontManager;
 import neo.util.font.impl.FontRenderer;
-import neo.util.render.ColorUtils;
 import neo.util.render.RenderUtils;
 import neo.util.render.Theme;
 import neo.util.render.animation.AnimationUtils;

@@ -1,7 +1,7 @@
-package neo.clickgui.components.impl;
+package neo.gui.click.components.impl;
 
 import neo.Neo;
-import neo.clickgui.components.Component;
+import neo.gui.click.components.Component;
 import neo.module.Module;
 import neo.module.impl.client.Gui;
 import neo.module.setting.Setting;
@@ -11,7 +11,7 @@ import neo.module.setting.impl.SliderSetting;
 import neo.util.font.FontManager;
 import neo.util.font.impl.FontRenderer;
 import neo.util.other.MathUtil;
-import neo.util.profile.ProfileModule;
+import neo.util.config.ConfigModule;
 import neo.util.render.animation.Timer;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
@@ -275,9 +275,9 @@ public class ModuleComponent extends Component {
                 this.opacityOutTimer.start();
             }
 
-            if (this.mod.moduleCategory() != Module.category.profiles) {
-                if (Neo.currentProfile != null) {
-                    ((ProfileModule) Neo.currentProfile.getModule()).saved = false;
+            if (this.mod.moduleCategory() != Module.category.config) {
+                if (Neo.currentConfig != null) {
+                    ((ConfigModule) Neo.currentConfig.getModule()).saved = false;
                 }
             }
         }

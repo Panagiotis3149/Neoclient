@@ -1,9 +1,7 @@
-package neo.clickgui.components.impl;
+package neo.gui.click.components.impl;
 
-import neo.clickgui.components.Component;
+import neo.gui.click.components.Component;
 import neo.module.setting.impl.DescriptionSetting;
-import neo.util.font.MinecraftFontRenderer;
-import neo.util.render.RenderUtils;
 import neo.util.render.Theme;
 import neo.util.font.FontManager;
 import neo.util.font.impl.FontRenderer;

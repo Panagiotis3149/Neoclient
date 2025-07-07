@@ -112,7 +112,6 @@ public abstract class MixinGuiInGame {
     private void injectCustomHotbar(ScaledResolution resolution, float delta, CallbackInfo ci) {
         if (mc.getRenderViewEntity() instanceof EntityPlayer && ModuleManager.interfacemod.isEnabled()) {
                 ci.cancel();
-                // I'll render here.
                 int middleScreen = resolution.getScaledWidth() / 2;
                 int height = resolution.getScaledHeight() - 1;
                 float slot = mc.thePlayer.inventory.currentItem;

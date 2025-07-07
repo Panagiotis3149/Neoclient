@@ -1,6 +1,7 @@
 package neo.module.impl.other;
 
 import neo.module.Module;
+import neo.module.impl.client.ClientTheme;
 import neo.module.impl.combat.AntiBot;
 import neo.module.impl.other.anticheat.AnticheatComponent;
 import neo.module.impl.other.anticheat.impl.*;
@@ -10,6 +11,7 @@ import neo.module.setting.impl.SliderSetting;
 import neo.util.Utils;
 import java.util.List;
 import neo.util.player.move.PlayerData;
+import neo.util.render.Theme;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.util.*;
@@ -90,7 +92,13 @@ public class Anticheat extends Module {
             flags.put(entityPlayer.getUniqueID(), hashMap);
         }
 
-        ChatComponentText msg = new ChatComponentText(Utils.formatColor("&7[&b" + clientName + "&7]&r " + entityPlayer.getDisplayName().getUnformattedText() + " &7detected for &d" + mode.getName() + " - " + details));
+        ChatComponentText msg = new ChatComponentText(
+                Utils.formatColor(
+                Theme.wrap(clientName) + "§f » §r" +
+                        entityPlayer.getDisplayName().getUnformattedText() +
+                        " §7detected for §d" + mode.getName() +
+                        " - " + details
+        ));
         ChatStyle style = new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/report " + entityPlayer.getName()));
         msg.appendSibling(new ChatComponentText(Utils.formatColor(" §7[§cReport§7]")).setChatStyle(style));
         mc.thePlayer.addChatMessage(msg);
@@ -125,7 +133,13 @@ public class Anticheat extends Module {
             flags.put(entityPlayer.getUniqueID(), hashMap);
         }
 
-        ChatComponentText msg = new ChatComponentText(Utils.formatColor("&7[&b" + clientName + "&7]&r " + entityPlayer.getDisplayName().getUnformattedText() + " &7detected for &d" + mode.getName()));
+        ChatComponentText msg = new ChatComponentText(
+                Utils.formatColor(
+                        Theme.wrap(clientName) + "§f » §r" +
+                                entityPlayer.getDisplayName().getUnformattedText() +
+                                " §7detected for §d" + mode.getName()
+                )
+        );
         ChatStyle style = new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/report " + entityPlayer.getName()));
         msg.appendSibling(new ChatComponentText(Utils.formatColor(" §7[§cReport§7]")).setChatStyle(style));
         mc.thePlayer.addChatMessage(msg);

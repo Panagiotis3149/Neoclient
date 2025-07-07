@@ -27,7 +27,6 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class RenderUtils {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public static boolean ring_c = false;
 
     public static void renderBlock(BlockPos blockPos, int color, boolean outline, boolean shade) {
         renderBox(blockPos.getX(), blockPos.getY(), blockPos.getZ(), 1, 1, 1, color, outline, shade);
@@ -55,13 +54,6 @@ public class RenderUtils {
         GL11.glScissor((int) x, (int) (y - height), (int) width, (int) height);
     }
 
-    public static Color interpolateColorC(Color color1, Color color2, float amount) {
-        amount = Math.min(1, Math.max(0, amount));
-        return new Color(interpolateInt(color1.getRed(), color2.getRed(), amount),
-                interpolateInt(color1.getGreen(), color2.getGreen(), amount),
-                interpolateInt(color1.getBlue(), color2.getBlue(), amount),
-                interpolateInt(color1.getAlpha(), color2.getAlpha(), amount));
-    }
 
     public static Color toColor(int argb) {
         return new Color(argb, true); // true ensures that the alpha channel is respected
@@ -80,9 +72,6 @@ public class RenderUtils {
         return (((int)alpha & 0xFF) << 24) | (color.getRGB() & 0xFFFFFF);
     }
 
-    public static int toArgb(int rgb, int alpha) {
-        return ((alpha & 0xFF) << 24) | (rgb & 0xFFFFFF);
-    }
 
     public static void drawRect(double left, double top, double right, double bottom, int color) {
         float f3 = (color >> 24 & 255) / 255.0F;
@@ -522,25 +511,6 @@ public class RenderUtils {
         mc.entityRenderer.enableLightmap();
     }
 
-    public static void drawArrow(float x, float y, int color, double width, double length) {
-        GL11.glPushMatrix();
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        RenderUtils.glColor(color);
-        GL11.glLineWidth((float) width);
-        float halfWidth = (float) (width / 2.0);
-        float xOffset = halfWidth / 2.0f;
-        float yOffset = halfWidth / 2.0f;
-        GL11.glBegin(GL11.GL_LINES);
-        GL11.glVertex2d(x - xOffset, y + yOffset);
-        GL11.glVertex2d(x + length - xOffset, y - length + yOffset);
-        GL11.glVertex2d(x + length - xOffset, y - length + yOffset);
-        GL11.glVertex2d(x + 2 * length - xOffset, y + yOffset);
-        GL11.glEnd();
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_LINE_SMOOTH);
-        GL11.glPopMatrix();
-    }
 
     public static void glColor(final int n) { // credit to the creator of raven b4
         GL11.glColor4f((float) (n >> 16 & 0xFF) / 255.0f, (float) (n >> 8 & 0xFF) / 255.0f, (float) (n & 0xFF) / 255.0f, (float) (n >> 24 & 0xFF) / 255.0f);
@@ -614,89 +584,6 @@ public class RenderUtils {
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-
-    public static void drawRoundedOutline(float startX, float startY, float endX, float endY, final float cornerRadius, final float outlineThickness, int color) {
-        float alpha = ((color >> 24) & 0xFF) / 255.0f;
-        float red = ((color >> 16) & 0xFF) / 255.0f;
-        float green = ((color >> 8) & 0xFF) / 255.0f;
-        float blue = (color & 0xFF) / 255.0f;
-
-        startX *= 2.0;
-        startY *= 2.0;
-        endX *= 2.0;
-        endY *= 2.0;
-
-        GL11.glPushAttrib(0);
-        GL11.glScaled(0.5, 0.5, 0.5);
-        GL11.glEnable(3042); // GL_BLEND
-        GL11.glDisable(3553); // GL_TEXTURE_2D
-        GL11.glEnable(2848); // GL_LINE_SMOOTH
-        GL11.glLineWidth(2.0f);
-
-        GL11.glBegin(1); // GL_LINES
-
-        // Set the color using the extracted RGBA components
-        GL11.glColor4f(red, green, blue, alpha);
-
-        // Draw rounded rectangle outline (same logic as before)
-        for (int i = 0; i <= 90; i += 3) {
-            final double angle = (i * 0.017453292f);
-            GL11.glVertex2d((startX + cornerRadius) + Math.sin(angle) * cornerRadius * -1.0,
-                    (startY + cornerRadius) + Math.cos(angle) * cornerRadius * -1.0);
-        }
-
-        for (int j = 90; j <= 180; j += 3) {
-            final double angle = (j * 0.017453292f);
-            GL11.glVertex2d((startX + cornerRadius) + Math.sin(angle) * cornerRadius * -1.0,
-                    (endY - cornerRadius) + Math.cos(angle) * cornerRadius * -1.0);
-        }
-
-        for (int k = 0; k <= 90; k += 3) {
-            final double angle = (k * 0.017453292f);
-            GL11.glVertex2d((endX - cornerRadius) + Math.sin(angle) * cornerRadius,
-                    (endY - cornerRadius) + Math.cos(angle) * cornerRadius);
-        }
-
-        for (int l = 90; l <= 180; l += 3) {
-            final double angle = (l * 0.017453292f);
-            GL11.glVertex2d((endX - cornerRadius) + Math.sin(angle) * cornerRadius,
-                    (startY + cornerRadius) + Math.cos(angle) * cornerRadius);
-        }
-
-        GL11.glVertex2d(startX, startY + cornerRadius);
-        GL11.glVertex2d(startX, endY - cornerRadius);
-        GL11.glVertex2d(endX, startY + cornerRadius);
-        GL11.glVertex2d(endX, endY - cornerRadius);
-        GL11.glVertex2d(startX + cornerRadius, startY);
-        GL11.glVertex2d(endX - cornerRadius, startY);
-        GL11.glVertex2d(startX + cornerRadius, endY);
-        GL11.glVertex2d(endX - cornerRadius, endY);
-
-        GL11.glEnd();
-
-        GL11.glEnable(3553); // GL_TEXTURE_2D
-        GL11.glDisable(3042); // GL_BLEND
-        GL11.glDisable(2848); // GL_LINE_SMOOTH
-        GL11.glScaled(2.0, 2.0, 2.0);
-        GL11.glPopAttrib();
-
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f); // Reset color to white
-    }
-
-    private static long lastFrameTime = System.nanoTime();
-
-    public static double getRenderDeltaTime() {
-        long currentTime = System.nanoTime();
-        long deltaTime = currentTime - lastFrameTime;
-        lastFrameTime = currentTime;
-
-        return deltaTime / 1_000_000.0;
-    }
-
-
-    public static double fpsMultiplier() {
-        return (getRenderDeltaTime() / 16.6667) * 1.5;
-    }
 
     public static int toARGBInt(Color color) {
         return (color.getAlpha() << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
@@ -838,6 +725,14 @@ public class RenderUtils {
         GlStateManager.alphaFunc(GL_GREATER, (float) (limit * .01));
     }
 
+    public static Color interpolateColorC(Color color1, Color color2, float amount) {
+        amount = Math.min(1, Math.max(0, amount));
+        return new Color(interpolateInt(color1.getRed(), color2.getRed(), amount),
+                interpolateInt(color1.getGreen(), color2.getGreen(), amount),
+                interpolateInt(color1.getBlue(), color2.getBlue(), amount),
+                interpolateInt(color1.getAlpha(), color2.getAlpha(), amount));
+    }
+
 
     public void enable(final int glTarget) {
         GL11.glEnable(glTarget);
@@ -866,10 +761,41 @@ public class RenderUtils {
         color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, color.getAlpha() / 255F);
     }
 
+
     public void color(Color color, final int alpha) {
         if (color == null)
             color = Color.white;
         color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 0.5);
+    }
+
+
+    public static void color(int color, float alpha) {
+        float r = (float) (color >> 16 & 255) / 255.0F;
+        float g = (float) (color >> 8 & 255) / 255.0F;
+        float b = (float) (color & 255) / 255.0F;
+        GlStateManager.color(r, g, b, alpha);
+    }
+
+
+    public static void color(int color) {
+        color(color, (float) (color >> 24 & 255) / 255.0F);
+    }
+
+    public static void drawUnfilledCircle(double x, double y, float radius, float lineWidth, int color) {
+        GLUtil.setup2DRendering();
+        color(color);
+        GL11.glLineWidth(lineWidth);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glBegin(GL11.GL_LINE_LOOP);
+
+        for (int i = 0; i <= 360; i++) {
+            double angle = Math.toRadians(i);
+            GL11.glVertex2d(x + Math.sin(angle) * radius, y + Math.cos(angle) * radius);
+        }
+
+        GL11.glEnd();
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        GLUtil.end2DRendering();
     }
 
     public static void renderItemIcon(final double x, final double y, final ItemStack itemStack) {

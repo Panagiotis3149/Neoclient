@@ -1,15 +1,13 @@
-package neo.clickgui;
+package neo.gui.click;
 
 import neo.Neo;
-import neo.clickgui.components.Component;
-import neo.clickgui.components.impl.BindComponent;
-import neo.clickgui.components.impl.CategoryComponent;
-import neo.clickgui.components.impl.ModuleComponent;
+import neo.gui.click.components.Component;
+import neo.gui.click.components.impl.BindComponent;
+import neo.gui.click.components.impl.CategoryComponent;
+import neo.gui.click.components.impl.ModuleComponent;
 import neo.module.Module;
 import neo.module.impl.client.Gui;
-import neo.util.render.RenderUtils;
 import neo.util.render.Theme;
-import neo.util.render.animation.Direction;
 import neo.util.render.animation.Timer;
 import neo.util.render.ClickCircle;
 import neo.util.shader.BlurUtils;

@@ -1,6 +1,9 @@
-package neo.clickgui.menu;
+package neo.gui.menu;
 
 
+import neo.NeoCloud;
+import neo.Variables;
+import neo.module.impl.client.Notifications;
 import neo.util.font.FontManager;
 import neo.util.font.impl.FontRenderer;
 import neo.util.shader.BlurUtils;
@@ -19,7 +22,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class MainMenu extends GuiScreen {
-
 
     public static final ResourceLocation CUSTOM_LOGO = new ResourceLocation("neo", "textures/gui/Logo.png");
     public static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/mainmenu.frag");
@@ -51,6 +53,7 @@ public class MainMenu extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        ScaledResolution sr = new ScaledResolution(mc);
 
         time += partialTicks * 0.05f;
 
@@ -64,12 +67,22 @@ public class MainMenu extends GuiScreen {
         int logoWidth = 312;
         int logoHeight = 312;
         int logoX = (this.width - logoWidth) / 2;
-       int logoY = (int) (this.height * SCALE_FACTOR) - 115;
+        int logoY = (int) (this.height * SCALE_FACTOR) - 115;
         drawModalRectWithCustomSizedTexture(logoX, logoY, 0, 0, logoWidth, logoHeight, logoWidth, logoHeight); // Draw logo
         for (GuiButton button : buttonList) {
             button.drawButton(mc, mouseX, mouseY);
         }
+
+        if (NeoCloud.onlineVersion != null && !NeoCloud.onlineVersion.isEmpty()) {
+            if (Variables.OUTDATED) {
+              FontRenderer font = FontManager.productSans20;
+              int x = (int) ((sr.getScaledWidth() / 2) - (font.width("Neo is outdated! Online version: " + NeoCloud.onlineVersion + ", update now!") / 2));
+              int y = 22;
+              font.drawString("Neo is outdated! Online version: " + NeoCloud.onlinePretty + ", update now!", x, y, 0xFFFFFFFF, false);
+            }
+        }
     }
+
 
     public void renderShaderBackground() {
         if (shaderProgram != 0) {

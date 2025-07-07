@@ -271,7 +271,7 @@ public class Module {
         minigames,
         other,
         client,
-        profiles,
+        config,
         scripts
     }
 }

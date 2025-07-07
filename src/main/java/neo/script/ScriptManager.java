@@ -1,8 +1,8 @@
 package neo.script;
 
 import neo.Neo;
-import neo.clickgui.ClickGui;
-import neo.clickgui.components.impl.CategoryComponent;
+import neo.gui.click.ClickGui;
+import neo.gui.click.components.impl.CategoryComponent;
 import neo.module.Module;
 import neo.script.classes.Entity;
 import net.minecraft.client.Minecraft;

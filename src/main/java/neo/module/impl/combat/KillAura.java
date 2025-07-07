@@ -165,7 +165,6 @@ public class KillAura extends Module {
 
             mc.thePlayer.rotationYaw = newYaw;
             mc.thePlayer.rotationPitch = newPitch;
-
         }
     }
 
@@ -378,7 +377,7 @@ public class KillAura extends Module {
         if (!Utils.isnull() || !blinking) {
             return;
         }
-        Packet packet = e.getPacket();
+        Packet packet = SendPacketEvent.getPacket();
         if (packet.getClass().getSimpleName().startsWith("S")) {
             return;
         }

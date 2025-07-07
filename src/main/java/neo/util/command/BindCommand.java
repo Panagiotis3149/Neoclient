@@ -18,13 +18,13 @@ public class BindCommand {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
-
-        if (!(event.getPacket() instanceof C01PacketChatMessage)) return;
-        C01PacketChatMessage chat = (C01PacketChatMessage) event.getPacket();
-        String msg = chat.getMessage().toLowerCase().trim();
+        if (!(event.getNonStaticPacket() instanceof C01PacketChatMessage)) return;
+        C01PacketChatMessage chat = (C01PacketChatMessage) event.getNonStaticPacket();
+        String msg = chat.getMessage().toLowerCase();
 
 
         if (msg.startsWith(".bind ")) {
+
             event.setCanceled(true);
             event.cancelEvent();
 
@@ -59,6 +59,8 @@ public class BindCommand {
 
             module.setBind(keyIndex);
             Utils.sendMessage("&aBound &b" + moduleName + " &ato &b" + keyName + " (code " + keyIndex + ")");
+        } else if (msg.startsWith(".bind")) {
+            Utils.sendMessage("&cUsage: .bind <module> <key>");
         }
     }
 }

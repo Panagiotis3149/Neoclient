@@ -1,14 +1,12 @@
-package neo.clickgui.components.impl;
+package neo.gui.click.components.impl;
 
 import neo.Neo;
-import neo.clickgui.components.Component;
+import neo.gui.click.components.Component;
 import neo.module.Module;
 import neo.module.setting.impl.ButtonSetting;
 import neo.util.font.FontManager;
-import neo.util.font.MinecraftFontRenderer;
 import neo.util.font.impl.FontRenderer;
-import neo.util.render.RenderUtils;
-import neo.util.profile.ProfileModule;
+import neo.util.config.ConfigModule;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -76,8 +74,8 @@ public class ButtonComponent extends Component {
             }
             this.buttonSetting.toggle();
             this.mod.guiButtonToggled(this.buttonSetting);
-            if (Neo.currentProfile != null) {
-                ((ProfileModule) Neo.currentProfile.getModule()).saved = false;
+            if (Neo.currentConfig != null) {
+                ((ConfigModule) Neo.currentConfig.getModule()).saved = false;
             }
         }
         return false;

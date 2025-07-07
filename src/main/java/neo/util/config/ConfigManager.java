@@ -1,9 +1,9 @@
-package neo.util.profile;
+package neo.util.config;
 
 import com.google.gson.*;
 import neo.Neo;
-import neo.clickgui.ClickGui;
-import neo.clickgui.components.impl.CategoryComponent;
+import neo.gui.click.ClickGui;
+import neo.gui.click.components.impl.CategoryComponent;
 import neo.module.Module;
 import neo.module.impl.render.BPSCounter;
 import neo.module.impl.render.FPSCounter;
@@ -22,28 +22,28 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ProfileManager {
+public class ConfigManager {
     public static Minecraft mc = Minecraft.getMinecraft();
     public File directory;
-    public List<Profile> profiles = new ArrayList<>();
+    public List<Config> configs = new ArrayList<>();
 
-    public ProfileManager() {
+    public ConfigManager() {
         directory = new File(mc.mcDataDir + File.separator + "neo", "conf");
         if (!directory.exists()) {
             boolean success = directory.mkdirs();
             if (!success) {
-                System.out.println("There was an issue creating profiles directory.");
+                System.out.println("There was an issue creating configs directory.");
                 return;
             }
         }
-        if (directory.listFiles().length == 0) { // if there's no profile in the folder upon launch, create new default profile
-            saveProfile(new Profile("default", 0));
+        if (directory.listFiles().length == 0) { // if there's no config in the folder upon launch, create new default config
+            saveConfig(new Config("default", 0));
         }
     }
 
-    public void saveProfile(Profile profile) {
+    public void saveConfig(Config config) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("keybind", profile.getModule().getKeycode());
+        jsonObject.addProperty("keybind", config.getModule().getKeycode());
         JsonArray jsonArray = new JsonArray();
         for (Module module : Neo.moduleManager.getModules()) {
             if (module.ignoreOnSave) {
@@ -62,11 +62,11 @@ public class ProfileManager {
             }
         }
         jsonObject.add("modules", jsonArray);
-        try (FileWriter fileWriter = new FileWriter(new File(directory, profile.getName() + ".json"))) {
+        try (FileWriter fileWriter = new FileWriter(new File(directory, config.getName() + ".json"))) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(jsonObject, fileWriter);
         } catch (Exception e) {
-            failedMessage("save", profile.getName());
+            failedMessage("save", config.getName());
             e.printStackTrace();
         }
     }
@@ -101,8 +101,8 @@ public class ProfileManager {
         return moduleInformation;
     }
 
-    public void loadProfile(String name) {
-        for (File file : getProfileFiles()) {
+    public void loadConfig(String name) {
+        for (File file : getConfigFiles()) {
             if (!file.exists()) {
                 failedMessage("load", name);
                 System.out.println("Failed to load " + name);
@@ -127,12 +127,12 @@ public class ProfileManager {
             }
             try (FileReader fileReader = new FileReader(file)) {
                 JsonParser jsonParser = new JsonParser();
-                JsonObject profileJson = jsonParser.parse(fileReader).getAsJsonObject();
-                if (profileJson == null) {
+                JsonObject configJson = jsonParser.parse(fileReader).getAsJsonObject();
+                if (configJson == null) {
                     failedMessage("load", name);
                     return;
                 }
-                JsonArray modules = profileJson.getAsJsonArray("modules");
+                JsonArray modules = configJson.getAsJsonArray("modules");
                 if (modules == null) {
                     failedMessage("load", name);
                     return;
@@ -209,10 +209,10 @@ public class ProfileManager {
                     }
 
                     for (Setting setting : module.getSettings()) {
-                        setting.loadProfile(moduleInformation);
+                        setting.loadConfig(moduleInformation);
                     }
 
-                    Neo.currentProfile = getProfile(name);
+                    Neo.currentConfig = getConfig(name);
                 }
             } catch (Exception e) {
                 failedMessage("load", name);
@@ -221,11 +221,11 @@ public class ProfileManager {
         }
     }
 
-    public void deleteProfile(String name) {
-        Iterator<Profile> iterator = profiles.iterator();
+    public void deleteConfig(String name) {
+        Iterator<Config> iterator = configs.iterator();
         while (iterator.hasNext()) {
-            Profile profile = iterator.next();
-            if (profile.getName().equals(name)) {
+            Config config = iterator.next();
+            if (config.getName().equals(name)) {
                 iterator.remove();
             }
         }
@@ -239,62 +239,62 @@ public class ProfileManager {
         }
     }
 
-    public void loadProfiles() {
-        profiles.clear();
+    public void loadConfigs() {
+        configs.clear();
         if (directory.exists()) {
             File[] files = directory.listFiles();
             for (File file : files) {
                 try (FileReader fileReader = new FileReader(file)) {
                     JsonParser jsonParser = new JsonParser();
-                    JsonObject profileJson = jsonParser.parse(fileReader).getAsJsonObject();
-                    String profileName = file.getName().replace(".json", "");
+                    JsonObject configJson = jsonParser.parse(fileReader).getAsJsonObject();
+                    String configName = file.getName().replace(".json", "");
 
-                    if (profileJson == null) {
-                        failedMessage("load", profileName);
+                    if (configJson == null) {
+                        failedMessage("load", configName);
                         return;
                     }
 
                     int keybind = 0;
 
-                    if (profileJson.has("keybind")) {
-                        keybind = profileJson.get("keybind").getAsInt();
+                    if (configJson.has("keybind")) {
+                        keybind = configJson.get("keybind").getAsInt();
                     }
 
-                    Profile profile = new Profile(profileName, keybind);
-                    profiles.add(profile);
+                    Config config = new Config(configName, keybind);
+                    configs.add(config);
                 } catch (Exception e) {
-                    Utils.sendMessage("&cFailed to load profiles.");
+                    Utils.sendMessage("&cFailed to load configs.");
                     e.printStackTrace();
                 }
             }
 
             for (CategoryComponent categoryComponent : ClickGui.categories) {
-                if (categoryComponent.categoryName == Module.category.profiles) {
+                if (categoryComponent.categoryName == Module.category.config) {
                     categoryComponent.reloadModules(true);
                 }
             }
-            Utils.sendMessage("&b" + Neo.profileManager.getProfileFiles().size() + " &7profiles loaded.");
+            Utils.sendMessage("&b" + Neo.configManager.getConfigFiles().size() + " &7configs loaded.");
         }
     }
 
-    public List<File> getProfileFiles() {
-        List<File> profileFiles = new ArrayList<>();
+    public List<File> getConfigFiles() {
+        List<File> configFiles = new ArrayList<>();
         if (directory.exists()) {
             File[] files = directory.listFiles();
             for (File file : files) {
                 if (!file.getName().endsWith(".json")) {
                     continue;
                 }
-                profileFiles.add(file);
+                configFiles.add(file);
             }
         }
-        return profileFiles;
+        return configFiles;
     }
 
-    public Profile getProfile(String name) {
-        for (Profile profile : profiles) {
-            if (profile.getName().equals(name)) {
-                return profile;
+    public Config getConfig(String name) {
+        for (Config config : configs) {
+            if (config.getName().equals(name)) {
+                return config;
             }
         }
         return null;

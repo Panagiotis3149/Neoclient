@@ -78,29 +78,17 @@ public class Watermark extends Module {
             font.drawString(textmodern, rectX + 5, rectY + 7, Theme.getGradient((int) theme.getInput(), 0.0), false);
             GL11.glPopMatrix();
         } else if (mode.getInput() == 3) {
-            int[] colors = getColors((int) Watermark.theme.getInput());
-            int firstColor = colors[0];
-            int secondColor = colors[1];
             FontRenderer font = FontManager.logoa;
-            font.drawString(Theme.mCCC("Neo", firstColor, secondColor,0), 4 * 2, 4 * 2, 0xFFFFFFFF, false);
+            font.drawString(Theme.mCCC("Neo", (int) Watermark.theme.getInput()), 4 * 2, 4 * 2, 0xFFFFFFFF, false);
         } else if (mode.getInput() == 4) {
-            int[] colors = getColors((int) Watermark.theme.getInput());
-            int firstColor = colors[0];
-            int secondColor = colors[1];
             FontRenderer font = FontManager.googleSansBold;
-            font.drawString(Theme.mCCC("Neoclient", firstColor, secondColor,0), 4 * 2, 4 * 2, 0xFFFFFFFF, false);
+            font.drawString(Theme.mCCC("Neoclient", (int) Watermark.theme.getInput()), 4 * 2, 4 * 2, 0xFFFFFFFF, false);
         } else if (mode.getInput() == 5) {
-            int[] colors = getColors((int) Watermark.theme.getInput());
-            int firstColor = colors[0];
-            int secondColor = colors[1];
             FontRenderer font = FontManager.productSansMedium36;
-            font.drawString(Theme.mCCC("Neo", firstColor, secondColor,0), 6, 6, 0xFFFFFFFF, false);
+            font.drawString(Theme.mCCC("Neo", (int) Watermark.theme.getInput()), 6, 6, 0xFFFFFFFF, false);
         } else if (mode.getInput() == 6) {
-            int[] colors = getColors((int) Watermark.theme.getInput());
-            int firstColor = colors[0];
-            int secondColor = colors[1];
             FontRenderer font = FontManager.productSansMedium36;
-            font.drawString(Theme.mCCC("Neoclient", firstColor, secondColor,0), 6, 6, 0xFFFFFFFF, false);
+            font.drawString(Theme.mCCC("Neoclient", (int) Watermark.theme.getInput()), 6, 6, 0xFFFFFFFF, false);
         } else if (mode.getInput() == 7) {
             String textmodern = clientName + " §7|§r " + mc.thePlayer.getName() + " §7|§r " + ScriptDefaults.client.getFPS();
             FontRenderer font = FontManager.productSansLight22;

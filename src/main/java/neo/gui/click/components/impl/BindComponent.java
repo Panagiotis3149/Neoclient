@@ -1,14 +1,13 @@
-package neo.clickgui.components.impl;
+package neo.gui.click.components.impl;
 
 import neo.Neo;
-import neo.clickgui.components.Component;
+import neo.gui.click.components.Component;
 import neo.module.Module;
 import neo.module.impl.client.Gui;
 import neo.util.font.FontManager;
-import neo.util.font.MinecraftFontRenderer;
 import neo.util.font.impl.FontRenderer;
 import neo.util.render.Theme;
-import neo.util.profile.ProfileModule;
+import neo.util.config.ConfigModule;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -47,17 +46,17 @@ public class BindComponent extends Component {
             if (b == 0) {
                 this.isBinding = !this.isBinding;
             }
-            else if (b == 1 && this.moduleComponent.mod.moduleCategory() != Module.category.profiles) {
+            else if (b == 1 && this.moduleComponent.mod.moduleCategory() != Module.category.config) {
                 this.moduleComponent.mod.setHidden(!this.moduleComponent.mod.isHidden());
-                if (Neo.currentProfile != null) {
-                    ((ProfileModule) Neo.currentProfile.getModule()).saved = false;
+                if (Neo.currentConfig != null) {
+                    ((ConfigModule) Neo.currentConfig.getModule()).saved = false;
                 }
             }
             else if (b > 1) {
                 if (this.isBinding) {
                     this.moduleComponent.mod.setBind(b + 1000);
-                    if (Neo.currentProfile != null) {
-                        ((ProfileModule) Neo.currentProfile.getModule()).saved = false;
+                    if (Neo.currentConfig != null) {
+                        ((ConfigModule) Neo.currentConfig.getModule()).saved = false;
                     }
                     this.isBinding = false;
                 }
@@ -74,13 +73,13 @@ public class BindComponent extends Component {
                 } else {
                     this.moduleComponent.mod.setBind(0);
                 }
-                if (Neo.currentProfile != null) {
-                    ((ProfileModule) Neo.currentProfile.getModule()).saved = false;
+                if (Neo.currentConfig != null) {
+                    ((ConfigModule) Neo.currentConfig.getModule()).saved = false;
                 }
             }
             else {
-                if (Neo.currentProfile != null) {
-                    ((ProfileModule) Neo.currentProfile.getModule()).saved = false;
+                if (Neo.currentConfig != null) {
+                    ((ConfigModule) Neo.currentConfig.getModule()).saved = false;
                 }
                 this.moduleComponent.mod.setBind(keybind);
             }

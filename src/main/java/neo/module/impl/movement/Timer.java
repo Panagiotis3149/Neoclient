@@ -1,6 +1,6 @@
 package neo.module.impl.movement;
 
-import neo.clickgui.ClickGui;
+import neo.gui.click.ClickGui;
 import neo.module.Module;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;

@@ -1,15 +1,14 @@
-package neo.clickgui.components.impl;
+package neo.gui.click.components.impl;
 
 import neo.Neo;
-import neo.clickgui.components.Component;
+import neo.gui.click.components.Component;
 import neo.module.ModuleManager;
 import neo.module.impl.client.Gui;
 import neo.module.setting.impl.SliderSetting;
-import neo.util.render.RenderUtils;
 import neo.util.Utils;
 import neo.util.font.FontManager;
 import neo.util.font.impl.FontRenderer;
-import neo.util.profile.ProfileModule;
+import neo.util.config.ConfigModule;
 import org.lwjgl.opengl.GL11;
 
 import java.math.BigDecimal;
@@ -121,8 +120,8 @@ public class SliderComponent extends Component {
                 }
                 this.sliderSetting.setValue(n);
             }
-            if (Neo.currentProfile != null) {
-                ((ProfileModule) Neo.currentProfile.getModule()).saved = false;
+            if (Neo.currentConfig != null) {
+                ((ConfigModule) Neo.currentConfig.getModule()).saved = false;
             }
         }
 

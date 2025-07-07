@@ -10,8 +10,7 @@ import neo.module.impl.render.*;
 import neo.util.font.FontManager;
 import neo.util.font.MinecraftFontRenderer;
 import neo.util.font.impl.FontRenderer;
-import neo.util.profile.Manager;
-import sun.text.resources.cldr.ps.FormatData_ps;
+import neo.util.config.Manager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +42,6 @@ public class ModuleManager {
     public static HUD hud;
     public static Module timer;
     public static Fly fly;
-    public static Disabler disabler;
     public static Module wTap;
     public static TargetHUD targetHUD;
     public static NoFall noFall;
@@ -69,7 +67,7 @@ public class ModuleManager {
         this.addModule(reach = new Reach());
         this.addModule(new Velocity());
         this.addModule(bHop = new BHop());
-        this.addModule(disabler = new Disabler());
+        this.addModule(new Transactions());
         this.addModule(new InvManager());
         this.addModule(scaffold = new Scaffold());
         this.addModule(new AutoTool());

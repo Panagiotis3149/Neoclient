@@ -99,7 +99,7 @@ public class SliderSetting extends Setting {
     }
 
     @Override
-    public void loadProfile(JsonObject data) {
+    public void loadConfig(JsonObject data) {
         if (data.has(getName()) && data.get(getName()).isJsonPrimitive()) {
             double newValue = data.getAsJsonPrimitive(getName()).getAsDouble();
             setValue(newValue);

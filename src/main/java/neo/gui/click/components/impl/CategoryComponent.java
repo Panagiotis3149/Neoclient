@@ -1,17 +1,13 @@
-package neo.clickgui.components.impl;
+package neo.gui.click.components.impl;
 
 import neo.Neo;
-import neo.clickgui.components.Component;
+import neo.gui.click.components.Component;
 import neo.module.Module;
-import neo.module.impl.client.Gui;
+import neo.util.config.Config;
 import neo.util.render.RenderUtils;
-import neo.util.render.Theme;
 import neo.util.render.animation.Timer;
 import neo.util.font.FontManager;
-import neo.util.profile.Manager;
-import neo.util.profile.Profile;
-import neo.util.shader.BlurUtils;
-import neo.util.shader.RoundedUtils;
+import neo.util.config.Manager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
@@ -63,7 +59,7 @@ public class CategoryComponent {
             case "minigames": return FontManager.STAR;
             case "other": return FontManager.INFO;
             case "client": return FontManager.SETTINGS;
-            case "profiles": return FontManager.SAVE;
+            case "configs": return FontManager.SAVE;
             case "scripts": return FontManager.SCRIPT;
             default: return FontManager.BUG; // Fallback.
         }
@@ -94,23 +90,23 @@ public class CategoryComponent {
         return this.modules;
     }
 
-    public void reloadModules(boolean isProfile) {
+    public void reloadModules(boolean isConfig) {
         this.modules.clear();
         this.titleHeight = 13;
         int moduleRenderY = this.titleHeight + 3;
 
-        if ((this.categoryName == Module.category.profiles && isProfile) || (this.categoryName == Module.category.scripts && !isProfile)) {
-            ModuleComponent manager = new ModuleComponent(isProfile ? new Manager() : new neo.script.Manager(), this, moduleRenderY);
+        if ((this.categoryName == Module.category.config && isConfig) || (this.categoryName == Module.category.scripts && !isConfig)) {
+            ModuleComponent manager = new ModuleComponent(isConfig ? new Manager() : new neo.script.Manager(), this, moduleRenderY);
             this.modules.add(manager);
 
-            if ((Neo.profileManager == null && isProfile) || (Neo.scriptManager == null && !isProfile)) {
+            if ((Neo.configManager == null && isConfig) || (Neo.scriptManager == null && !isConfig)) {
                 return;
             }
 
-            if (isProfile) {
-                for (Profile profile : Neo.profileManager.profiles) {
+            if (isConfig) {
+                for (Config config : Neo.configManager.configs) {
                     moduleRenderY += 16;
-                    ModuleComponent b = new ModuleComponent(profile.getModule(), this, moduleRenderY);
+                    ModuleComponent b = new ModuleComponent(config.getModule(), this, moduleRenderY);
                     this.modules.add(b);
                 }
             } else {

@@ -5,7 +5,7 @@ import neo.util.Utils;
 
 import java.awt.*;
 
-import static neo.util.render.RenderUtil.interpolateColorC;
+import static neo.util.render.RenderUtils.interpolateColorC;
 
 public enum Theme {
     Rainbow(null, null), // 0
@@ -266,53 +266,33 @@ public enum Theme {
         return new int[]{0, 0};
     }
 
-    public static String mCCC(String text, Color firstColor, Color secondColor,float speed) {
+    public static String wrap(String text) {
+        return "$NEOTHEME$" + text + "$NEOTHEME$";
+    }
+
+    public static String mCCC(String text, int themeIndex) {
         StringBuilder gradientText = new StringBuilder();
 
         for (int i = 0; i < text.length(); i++) {
+            double delay = i * Settings.timeMultiplier.getInput();
+            Color color;
 
-            float progress = (float) i / text.length();
-            Color color = interpolateColorC(firstColor, secondColor, progress);
-
-            if (speed > 0) {
-                int r = (int) (color.getRed() + (Math.sin((System.currentTimeMillis() + i * speed) / 1000) * 50));
-                int g = (int) (color.getGreen() + (Math.cos((System.currentTimeMillis() + i * speed) / 1000) * 50));
-                int b = color.getBlue();
-                color = new Color(Math.min(255, Math.max(0, r)), Math.min(255, Math.max(0, g)), b);
+            if (themeIndex > 0) {
+                Color firstColor = Theme.values()[themeIndex].firstGradient;
+                Color secondColor = Theme.values()[themeIndex].secondGradient;
+                double wave = (Math.sin(System.currentTimeMillis() / 1.0E8 * Settings.timeMultiplier.getInput() * 400000.0 + delay * Settings.offset.getInput()) + 1.0) * 0.5;
+                color = interpolateColorC(firstColor, secondColor, (float) wave);
+            } else {
+                color = new Color(Utils.getChroma(2, (long) delay));
             }
 
-
-            String colorCode = String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
-            gradientText.append("§").append(colorCode).append(text.charAt(i));
+            String colorCode = String.format("%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+            gradientText.append("§#").append(colorCode).append(text.charAt(i));
         }
 
         return gradientText.toString();
     }
 
-    public static String mCCC(String text, int firstColorInt, int secondColorInt, float speed) {
-
-    Color firstColor = new Color(firstColorInt);
-    Color secondColor = new Color(secondColorInt);
-
-    StringBuilder gradientText = new StringBuilder();
-
-        for (int i = 0; i < text.length(); i++) {
-        float progress = (float) i / text.length();
-        Color color = interpolateColorC(firstColor, secondColor, progress);
-
-        if (speed > 0) {
-            int r = (int) (color.getRed() + (Math.sin((System.currentTimeMillis() + i * speed) / 1000) * 50));
-            int g = (int) (color.getGreen() + (Math.cos((System.currentTimeMillis() + i * speed) / 1000) * 50));
-            int b = color.getBlue();
-            color = new Color(Math.min(255, Math.max(0, r)), Math.min(255, Math.max(0, g)), b);
-        }
-
-        String colorCode = String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
-        gradientText.append("§").append(colorCode).append(text.charAt(i));
-    }
-
-        return gradientText.toString();
-  }
 
 
 

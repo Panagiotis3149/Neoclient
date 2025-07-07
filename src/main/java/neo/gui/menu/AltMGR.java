@@ -1,4 +1,4 @@
-package neo.clickgui.menu;
+package neo.gui.menu;
 
 import net.minecraft.client.gui.GuiScreen;
 

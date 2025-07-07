@@ -7,13 +7,13 @@ import neo.util.Utils;
 import net.minecraft.client.network.NetworkPlayerInfo;
 
 public class NameHider extends Module {
-    public static DescriptionSetting a;
-    public static String n = "raven";
+    public static String n = "neouser";
     public static ButtonSetting hideAllNames;
+    private final DescriptionSetting ds;
 
     public NameHider() {
         super("NameHider", category.other);
-        this.registerSetting(a = new DescriptionSetting(Utils.uf("command") + ": cname [name]"));
+        this.registerSetting(ds = new DescriptionSetting("Use the .namehider command in chat."));
         this.registerSetting(hideAllNames = new ButtonSetting("Hide all names", false));
     }
 
@@ -34,5 +34,9 @@ public class NameHider extends Module {
             }
         }
         return s;
+    }
+
+    public static void setFakeName(String newName) {
+        n = newName;
     }
 }

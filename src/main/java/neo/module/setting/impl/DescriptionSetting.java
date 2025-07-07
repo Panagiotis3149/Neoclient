@@ -20,6 +20,6 @@ public class DescriptionSetting extends Setting {
     }
 
     @Override
-    public void loadProfile(JsonObject data) {
+    public void loadConfig(JsonObject data) {
     }
 }

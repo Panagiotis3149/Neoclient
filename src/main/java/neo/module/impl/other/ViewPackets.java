@@ -64,22 +64,22 @@ public class ViewPackets extends Module {
         if (!sent.isToggled()) {
             return;
         }
-        if (singlePlayer.isToggled() && mc.isSingleplayer() && e.getPacket().getClass().getSimpleName().charAt(0) == 'S') {
+        if (singlePlayer.isToggled() && mc.isSingleplayer() && e.getNonStaticPacket().getClass().getSimpleName().charAt(0) == 'S') {
             return;
         }
         if (e.isCanceled() && !includeCancelled.isToggled()) {
             return;
         }
-        if (ignoreC00.isToggled() && e.getPacket() instanceof C00PacketKeepAlive) {
+        if (ignoreC00.isToggled() && e.getNonStaticPacket() instanceof C00PacketKeepAlive) {
             return;
         }
-        if (ignoreC0F.isToggled() && e.getPacket() instanceof C0FPacketConfirmTransaction) {
+        if (ignoreC0F.isToggled() && e.getNonStaticPacket() instanceof C0FPacketConfirmTransaction) {
             return;
         }
-        if (e.getPacket() instanceof C03PacketPlayer && (ignoreC03.isToggled() || (compactC03.isToggled() && (packet == null || packet instanceof C03PacketPlayer)))) {
+        if (e.getNonStaticPacket() instanceof C03PacketPlayer && (ignoreC03.isToggled() || (compactC03.isToggled() && (packet == null || packet instanceof C03PacketPlayer)))) {
             return;
         }
-        sendMessage(packet = e.getPacket(), false);
+        sendMessage(packet = e.getNonStaticPacket(), false);
     }
 
     @SubscribeEvent
@@ -87,10 +87,10 @@ public class ViewPackets extends Module {
         if (!received.isToggled()) {
             return;
         }
-        if (singlePlayer.isToggled() && mc.isSingleplayer() && e.getPacket().getClass().getSimpleName().charAt(0) == 'C') {
+        if (singlePlayer.isToggled() && mc.isSingleplayer() && e.getNonStaticPacket().getClass().getSimpleName().charAt(0) == 'C') {
             return;
         }
-        sendMessage(e.getPacket(), true);
+        sendMessage(e.getNonStaticPacket(), true);
     }
 
     private String applyInfo(final Packet packet) {

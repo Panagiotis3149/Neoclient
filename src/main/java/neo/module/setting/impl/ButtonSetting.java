@@ -22,6 +22,7 @@ public class ButtonSetting extends Setting {
         this.isEnabled = false;
         this.isMethodButton = true;
         this.method = method;
+        this.setVisible(true);
     }
 
     public void runMethod() {
@@ -55,7 +56,7 @@ public class ButtonSetting extends Setting {
     }
 
     @Override
-    public void loadProfile(JsonObject data) {
+    public void loadConfig(JsonObject data) {
         if (data.has(getName()) && data.get(getName()).isJsonPrimitive() && !this.isMethodButton) {
             boolean booleanValue = data.getAsJsonPrimitive(getName()).getAsBoolean();
             setEnabled(booleanValue);

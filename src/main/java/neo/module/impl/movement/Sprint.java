@@ -44,8 +44,8 @@ public class Sprint extends Module {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent e) {
-        if (e.getPacket() instanceof C0BPacketEntityAction) {
-            C0BPacketEntityAction actionPacket = (C0BPacketEntityAction) e.getPacket();
+        if (e.getNonStaticPacket() instanceof C0BPacketEntityAction) {
+            C0BPacketEntityAction actionPacket = (C0BPacketEntityAction) e.getNonStaticPacket();
             if (actionPacket.getAction() == C0BPacketEntityAction.Action.STOP_SPRINTING) {
                 e.cancelEvent();
             }
