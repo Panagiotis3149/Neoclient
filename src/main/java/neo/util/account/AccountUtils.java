@@ -22,23 +22,19 @@ import java.util.regex.Pattern;
 
 public class AccountUtils {
 
-    private static MicrosoftAuthResult result;
+    public static String[] splitCreds(String input) {
+        return input.split(":", 2);
+    }
+
 
     public static MicrosoftAuthResult authenticateWithCredentials(String email, String password) throws MicrosoftAuthenticationException {
         MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
         return authenticator.loginWithCredentials(email, password);
     }
 
-    public static MicrosoftAuthResult authenticateWithWebView() {
-        new Thread(() -> {
-            MicrosoftAuthenticator auth = new MicrosoftAuthenticator();
-            try {
-                result = auth.loginWithWebview();
-            } catch (MicrosoftAuthenticationException e) {
-                e.printStackTrace();
-            }
-        }, "ThreadJFK").start();
-        return result;
+    public static MicrosoftAuthResult authenticateWithWebView() throws MicrosoftAuthenticationException {
+        MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
+        return authenticator.loginWithWebview();
     }
 
 

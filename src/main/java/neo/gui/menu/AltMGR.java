@@ -2,10 +2,10 @@ package neo.gui.menu;
 
 import neo.NeoCloud;
 import neo.Variables;
-import neo.gui.menu.altmgr.AccountComponent;
-import neo.gui.menu.altmgr.AddAccount;
-import neo.gui.menu.altmgr.AltFile;
-import neo.gui.menu.altmgr.AltManager;
+import neo.gui.altmgr.AccountComponent;
+import neo.gui.altmgr.AddAccount;
+import neo.gui.altmgr.AltFile;
+import neo.gui.altmgr.AltManager;
 import neo.gui.menu.other.CustomButton;
 import neo.util.font.FontManager;
 import neo.util.font.impl.FontRenderer;

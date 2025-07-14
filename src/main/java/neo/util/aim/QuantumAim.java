@@ -4,17 +4,20 @@ import com.google.common.base.Predicates;
 import neo.util.other.java.mixin.IRotationAccess;
 import neo.util.Utils;
 import neo.util.other.java.Reflection;
+import neo.util.world.block.BlockUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.util.*;
-
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.ToDoubleFunction;
 
 import static neo.Neo.mc;
 
-
+// This is... Mostly for legit rots, but not fully.
 public class QuantumAim {
     public static double ACCURATE_ROTATION_YAW_LEVEL;
     public static double ACCURATE_ROTATION_YAW_VL;
@@ -33,6 +36,60 @@ public class QuantumAim {
     private static double z;
     private static double lastAngle;
 
+
+    private static double getDistanceToBlockPos(final BlockPos blockPos) {
+        double distance = 1337.0;
+        for (float x = (float)blockPos.getX(); x <= blockPos.getX() + 1; x += (float)0.2) {
+            for (float y = (float)blockPos.getY(); y <= blockPos.getY() + 1; y += (float)0.2) {
+                for (float z = (float)blockPos.getZ(); z <= blockPos.getZ() + 1; z += (float)0.2) {
+                    final double d0 = mc.thePlayer.getDistance(x, y, z);
+                    if (d0 < distance) {
+                        distance = d0;
+                    }
+                }
+            }
+        }
+        return distance;
+    }
+
+    private static ArrayList<BlockPos> getBlockPos() {
+        final BlockPos playerPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.0, mc.thePlayer.posZ);
+        final ArrayList<BlockPos> blockPoses = new ArrayList<BlockPos>();
+        for (int x = playerPos.getX() - 2; x <= playerPos.getX() + 2; ++x) {
+            for (int y = playerPos.getY() - 1; y <= playerPos.getY(); ++y) {
+                for (int z = playerPos.getZ() - 2; z <= playerPos.getZ() + 2; ++z) {
+                    if (BlockUtils.isOkBlock(new BlockPos(x, y, z))) {
+                        blockPoses.add(new BlockPos(x, y, z));
+                    }
+                }
+            }
+        }
+        if (!blockPoses.isEmpty()) {
+            blockPoses.sort(Comparator.comparingDouble(blockPos -> mc.thePlayer.getDistance(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5)));
+        }
+        return blockPoses;
+    }
+    
+    
+    public static BlockPos getAimBlockPos() {
+        final BlockPos playerPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.0, mc.thePlayer.posZ);
+        if ((mc.gameSettings.keyBindJump.isKeyDown() || !mc.thePlayer.onGround) && mc.thePlayer.moveForward == 0.0f && mc.thePlayer.moveStrafing == 0.0f && BlockUtils.isOkBlock(playerPos.add(0, -1, 0))) {
+            return playerPos.add(0, -1, 0);
+        }
+        BlockPos blockPos = null;
+        final ArrayList<BlockPos> bp = getBlockPos();
+        final ArrayList<BlockPos> blockPositions = new ArrayList<BlockPos>();
+        if (bp.size() > 0) {
+            for (int i = 0; i < Math.min(bp.size(), 18); ++i) {
+                blockPositions.add(bp.get(i));
+            }
+            blockPositions.sort(Comparator.comparingDouble((ToDoubleFunction<? super BlockPos>)QuantumAim::getDistanceToBlockPos));
+            if (blockPositions.size() > 0) {
+                blockPos = blockPositions.get(0);
+            }
+        }
+        return blockPos;
+    }
 
     public static MovingObjectPosition customRayTrace(Entity entity, double reach, float partialTicks, float yaw, float pitch) {
         Vec3 eyes = entity.getPositionEyes(partialTicks);

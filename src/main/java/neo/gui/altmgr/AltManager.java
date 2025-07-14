@@ -1,4 +1,4 @@
-package neo.gui.menu.altmgr;
+package neo.gui.altmgr;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

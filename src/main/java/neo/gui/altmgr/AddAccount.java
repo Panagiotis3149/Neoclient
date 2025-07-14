@@ -1,4 +1,4 @@
-package neo.gui.menu.altmgr;
+package neo.gui.altmgr;
 
 import neo.gui.menu.other.CustomButton;
 import net.minecraft.client.gui.GuiButton;
@@ -25,7 +25,7 @@ public class AddAccount extends GuiScreen {
         int centerX = this.width / 2 - 100;
 
         this.buttonList.add(new CustomButton(1, centerX,  buttonY + 00, "Cracked Login"));
-        this.buttonList.add(new CustomButton(2, centerX,  buttonY + 24, "Password Login"));
+        this.buttonList.add(new CustomButton(2, centerX,  buttonY + 24, "Credentials Login"));
         this.buttonList.add(new CustomButton(3, centerX,  buttonY + 48, "Microsoft Login"));
         this.buttonList.add(new CustomButton(4, centerX,  buttonY + 72, "Cookie Login"));
         this.buttonList.add(new CustomButton(5, centerX,  buttonY + 96, "Token Login"));
@@ -57,7 +57,7 @@ public class AddAccount extends GuiScreen {
                 this.mc.displayGuiScreen(new CrackedLogin(this));
                 break;
             case 2:
- //               this.mc.displayGuiScreen(new PasswordLogin(this));
+                this.mc.displayGuiScreen(new CredentialLogin(this));
                 break;
             case 3:
                 this.mc.displayGuiScreen(new MicrosoftLogin(this));

@@ -1,4 +1,4 @@
-package neo.gui.menu.altmgr;
+package neo.gui.altmgr;
 
 import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
@@ -89,9 +89,20 @@ public class MicrosoftLogin extends GuiScreen {
                 }
                 break;
             case 3:
-                account = AccountUtils.authenticateWithWebView();
-                String name = (account != null && account.getProfile() != null) ? account.getProfile().getName() : "Unknown";
-                status = "Account: " + name;
+                try {
+                    try {
+                        account = AccountUtils.authenticateWithWebView();
+                    } catch (MicrosoftAuthenticationException e) {
+                        status = "MSAuthError";
+                    }
+                    String name = (account != null && account.getProfile() != null) ? account.getProfile().getName() : "Unknown";
+                    status = "Account: " + name;
+                } catch (NoClassDefFoundError e) {
+                    System.out.println("bro you need java fx");
+                    System.out.println("you need java fx bro no ms auth else" + e.getMessage());
+                    e.printStackTrace();
+                    status = "JavaFX Nonexistent.";
+                }
                 break;
             case 0:
                 this.mc.displayGuiScreen(parent);

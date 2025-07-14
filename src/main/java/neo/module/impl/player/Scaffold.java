@@ -66,7 +66,7 @@ public class Scaffold extends Module {
     private MovingObjectPosition placeBlock;
     private final ButtonSetting moveFix;
     private int lastSlot;
-    private final String[] rotationModes = new String[]{"None", "Simple", "Strict", "Precise"};
+    private final String[] rotationModes = new String[]{"None", "Simple", "Strict", "Precise", "Legit"};
     private final String[] fastScaffoldModes = new String[]{"Disabled", "Sprint", "Edge", "Jump A", "Jump B", "Jump C", "KeepY", "Verus", "VerusFast", "Legit (T)", "BMC"};
     private final String[] precisionModes = new String[]{"Very low", "Low", "Moderate", "High", "Very high"};
     private final String[] towerModes = new String[]{"None", "Vanilla", "NCP"};
@@ -85,6 +85,7 @@ public class Scaffold extends Module {
     private int add;
     private int towerTick;
     private boolean placedUp;
+    ButtonSetting shader ;
     private float[] previousRotation;
     private int blockSlot = -1;
     public int blocksPlaced;
@@ -126,6 +127,7 @@ public class Scaffold extends Module {
         this.registerSetting(highlightBlocks = new ButtonSetting("Highlight blocks", true));
         this.registerSetting(safeWalk = new ButtonSetting("Safewalk", true));
         this.registerSetting(showBlockCount = new ButtonSetting("Show block count", true));
+        this.registerSetting(shader = new ButtonSetting("Block Counter Shaders", true));
         this.registerSetting(silentSwing = new ButtonSetting("Silent swing", false));
         this.registerSetting(bypass = new ButtonSetting("Cancel Sprint Packet", false));
         this.registerSetting(moveFix = new ButtonSetting("MoveFix", false));
@@ -576,7 +578,7 @@ public class Scaffold extends Module {
     }
 
     private float[] getNearestRotation() {
-        PlaceData placeData = getBlockData(new BlockPos(mc.thePlayer.posX, keepYPosition() ? original - 1 : mc.thePlayer.posY - 1, mc.thePlayer.posZ));
+        BlockPos blockPos = QuantumAim.getAimBlockPos();
         objectPosition = null;
         final float[] floats = rots;
         final BlockPos b = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 0.5, mc.thePlayer.posZ);
@@ -599,17 +601,20 @@ public class Scaffold extends Module {
                 z += mc.thePlayer.posZ - xyz[2];
             }
             xyz = new double[] { mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ };
-            final double maX = placeData.blockPos.getX() + add1;
-            final double miX = placeData.blockPos.getX() - add2;
-            final double maZ = placeData.blockPos.getZ() + add1;
-            final double miZ =  - add2;
+            if (blockPos == null) {
+                blockPos = new BlockPos(b);
+            }
+            final double maX = blockPos.getX() + add1;
+            final double miX = blockPos.getX() - add2;
+            final double maZ = blockPos.getZ() + add1;
+            final double miZ = blockPos.getZ() - add2;
             if (x > maX || x < miX || z > maZ || z < miZ) {
                 final ArrayList<MovingObjectPosition> movingObjectPositions = new ArrayList<MovingObjectPosition>();
                 final ArrayList<Float> pitchs = new ArrayList<Float>();
                 for (float i = Math.max(rots[1] - 20.0f, -90.0f); i < Math.min(rots[1] + 20.0f, 90.0f); i += 0.05f) {
                     final float[] f = QuantumAim.mouseSens(yaww, i, rots[0], rots[1]);
                     final MovingObjectPosition m2 = QuantumAim.customRayTrace(mc.thePlayer, 4.5, 1.0f, yaww, f[1]);
-                    if (m2.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && BlockUtils.isOkBlock(m2.getBlockPos()) && !movingObjectPositions.contains(m2) && m2.getBlockPos().equals(placeData.blockPos) && m2.sideHit != EnumFacing.DOWN && m2.sideHit != EnumFacing.UP && m2.getBlockPos().getY() <= b.getY()) {
+                    if (m2.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && BlockUtils.isOkBlock(m2.getBlockPos()) && !movingObjectPositions.contains(m2) && m2.getBlockPos().equals(blockPos) && m2.sideHit != EnumFacing.DOWN && m2.sideHit != EnumFacing.UP && m2.getBlockPos().getY() <= b.getY()) {
                         movingObjectPositions.add(m2);
                         hashMap.put(f, m2);
                         pitchs.add(f[1]);
@@ -660,9 +665,13 @@ public class Scaffold extends Module {
             }
             FontRenderer font = FontManager.googleMedium20;
             int width = (int) Math.max(20, 14 + font.getStringWidth(color + blocks));
-            BlurUtils.prepareBlur();
-            RoundedUtils.drawRound((float) ((double) scaledResolution.getScaledWidth() / 2 - ((double) width / 2)), (float) ((double) scaledResolution.getScaledHeight() / 2 + 130), (float) width, 36, 6, Color.black);
-            BlurUtils.blurEnd(2, 1F);
+            if (shader.isToggled()) {
+                BlurUtils.prepareBlur();
+                RoundedUtils.drawRound((float) ((double) scaledResolution.getScaledWidth() / 2 - ((double) width / 2)), (float) ((double) scaledResolution.getScaledHeight() / 2 + 130), (float) width, 36, 6, Color.black);
+                BlurUtils.blurEnd(2, 1F);
+            } else {
+                RoundedUtils.drawRound((float) ((double) scaledResolution.getScaledWidth() / 2 - ((double) width / 2)), (float) ((double) scaledResolution.getScaledHeight() / 2 + 130), (float) width, 36, 6, new Color (0, 0, 0, 108));
+            }
             RenderUtils.renderItemIcon((double) scaledResolution.getScaledWidth() / 2 - 8, (double) scaledResolution.getScaledHeight() / 2 + 132, mc.thePlayer.getHeldItem());
             font.drawString(color + blocks, (double) scaledResolution.getScaledWidth() / 2 - (font.getStringWidth(color + blocks) / 2), (double) scaledResolution.getScaledHeight() / 2 + 130 + 26, -1, false);
         }

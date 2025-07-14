@@ -1,4 +1,4 @@
-package neo.gui.menu.altmgr;
+package neo.gui.altmgr;
 
 import java.util.List;
 

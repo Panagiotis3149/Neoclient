@@ -189,7 +189,7 @@ public class CustomTextField extends Gui {
 
                 int selXStart = (int) (x + 4 + font.getStringWidth(visibleText.substring(0, visSelStart)));
                 int selXEnd = (int) (x + 4 + font.getStringWidth(visibleText.substring(0, visSelEnd)));
-                drawRect(selXStart, y, selXEnd, y + height, 0x8833B5E5);
+                drawRect(selXStart, y - 20, selXEnd, y + height, 0x8833B5E5);
             }
         }
 

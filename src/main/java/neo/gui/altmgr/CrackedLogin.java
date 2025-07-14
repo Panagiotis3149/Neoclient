@@ -1,4 +1,4 @@
-package neo.gui.menu.altmgr;
+package neo.gui.altmgr;
 
 import neo.gui.menu.AltMGR;
 import neo.gui.menu.other.CustomButton;

@@ -1,6 +1,7 @@
-package neo.gui.menu.altmgr;
+package neo.gui.altmgr;
 
 
+import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
 import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
 import neo.gui.menu.AltMGR;
 import neo.util.account.AccountUtils;
@@ -38,10 +39,16 @@ public class AccountComponent {
                 if (Objects.equals(type, "Cracked")) {
                     AccountUtils.crackedLogin(name);
                 } else {
+                    MicrosoftAuthResult auth;
                     try {
-                        AccountUtils.authenticateWithRefreshToken(AltMGR.altManager.getRefreshTokenByUUID(uuid));
+                        auth = AccountUtils.authenticateWithRefreshToken(AltMGR.altManager.getRefreshTokenByUUID(uuid));
                     } catch (MicrosoftAuthenticationException e) {
                         throw new RuntimeException(e);
+                    }
+                    if (auth != null) {
+                        AccountUtils.loginWithMicrosoftAuthResult(auth);
+                    } else {
+                        System.out.println("Failed to login, MicrosoftAuthResult was null.");
                     }
                 }
             }
@@ -50,8 +57,8 @@ public class AccountComponent {
         this.onDelete = () -> {
             if (AltMGR.altManager.deleteAccountByUUID(uuid)) {
                 System.out.println("Deleted alt: " + name);
-                parentGui.accounts.removeIf(acc -> acc.uuid.equals(uuid)); // remove from UI list
-                parentGui.refreshGui(); // refresh UI to update positions etc
+                parentGui.accounts.removeIf(acc -> acc.uuid.equals(uuid));
+                parentGui.refreshGui();
             } else {
                 System.out.println("Failed to delete alt: " + name);
             }
