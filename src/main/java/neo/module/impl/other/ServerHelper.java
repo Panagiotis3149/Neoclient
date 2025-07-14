@@ -1,6 +1,6 @@
 package neo.module.impl.other;
 
-import org.joml.Vector3d;
+import neo.util.other.Vector3d;
 import neo.event.*;
 import neo.module.Module;
 import neo.module.setting.impl.SliderSetting;

@@ -34,7 +34,6 @@ public class ModuleManager {
     public static Sprint sprint;
     public static Module noSlow;
     public static Notifications notifications;
-    public static KillAura killAura;
     public static Module autoClicker;
     public static Module hitBox;
     public static Module reach;
@@ -54,6 +53,9 @@ public class ModuleManager {
     public static Scaffold scaffold;
     public static Watermark watermark;
     public static TargetESP targetESP;
+    public static Velocity velocity;
+    public static KillAura killAura;
+    public static Strafe strafe;
 
     public void register() {
         this.addModule(autoClicker = new AutoClicker());
@@ -62,10 +64,11 @@ public class ModuleManager {
         this.addModule(new Blink());
         this.addModule(new ClickAssist());
         this.addModule(new DelayRemover());
+        this.addModule(killAura = new KillAura());
         this.addModule(hitBox = new HitBox());
         this.addModule(new Settings());
         this.addModule(reach = new Reach());
-        this.addModule(new Velocity());
+        this.addModule(velocity = new Velocity());
         this.addModule(bHop = new BHop());
         this.addModule(new Transactions());
         this.addModule(new InvManager());
@@ -73,7 +76,7 @@ public class ModuleManager {
         this.addModule(new AutoTool());
         this.addModule(fly = new Fly());
         this.addModule(new InvMove());
-        this.addModule(new Enabler());
+        this.addModule(new Disabler());
         this.addModule(targetStrafe = new TargetStrafe());
         this.addModule(new AutoSwap());
         this.addModule(keepSprint = new KeepSprint());
@@ -103,7 +106,6 @@ public class ModuleManager {
         this.addModule(murderMystery = new MurderMystery());
         this.addModule(new neo.script.Manager());
         this.addModule(new ClientTheme());
-        this.addModule(killAura = new KillAura());
         this.addModule(watermark = new Watermark());
         this.addModule(animations = new  Animations());
         this.addModule(itemPhysics = new ItemPhysics());
@@ -121,7 +123,7 @@ public class ModuleManager {
         this.addModule(new Gui());
         this.addModule(new ServerHelper());
         this.addModule(new Step());
-        this.addModule(new Strafe());
+        this.addModule(strafe = new Strafe());
         this.addModule(new AntiVoid());
         this.addModule(interfacemod = new Interface());
         this.addModule(notifications = new Notifications());

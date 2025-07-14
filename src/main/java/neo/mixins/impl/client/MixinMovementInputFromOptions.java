@@ -1,5 +1,6 @@
 package neo.mixins.impl.client;
 
+import neo.event.MoveInputEvent;
 import neo.event.PostPlayerInputEvent;
 import neo.event.PrePlayerInputEvent;
 import net.minecraft.client.settings.GameSettings;
@@ -41,11 +42,13 @@ public class MixinMovementInputFromOptions extends MovementInput {
         this.jump = this.gameSettings.keyBindJump.isKeyDown();
         this.sneak = this.gameSettings.keyBindSneak.isKeyDown();
 
-        PrePlayerInputEvent moveInputEvent = new PrePlayerInputEvent(moveForward, moveStrafe, jump, sneak, 0.3D);
+        MoveInputEvent moveInputEvent = new MoveInputEvent(moveForward, moveStrafe, jump, sneak, 0.3D);
+        PrePlayerInputEvent prePlayerInputEvent = new PrePlayerInputEvent(moveForward, moveStrafe, jump, sneak, 0.3D);
 
         MinecraftForge.EVENT_BUS.post(moveInputEvent);
+        MinecraftForge.EVENT_BUS.post(prePlayerInputEvent);
 
-        double sneakMultiplier = moveInputEvent.getSneakSlowDownMultiplier();
+        double sneakMultiplier = moveInputEvent.getSneakSlowDown();
         this.moveForward = moveInputEvent.getForward();
         this.moveStrafe = moveInputEvent.getStrafe();
         this.jump = moveInputEvent.isJump();

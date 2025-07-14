@@ -34,4 +34,17 @@
     "sounds": [
       "neo:toggle/quickmacro/disable"
     ]
-  }}
+  },
+  "toggle.shein.enable": {
+    "category": "player",
+    "sounds": [
+      "neo:toggle/shein/enable"
+    ]
+  },
+  "toggle.shein.disable": {
+    "category": "player",
+    "sounds": [
+      "neo:toggle/shein/disable"
+    ]
+  }
+}

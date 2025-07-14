@@ -36,6 +36,68 @@ public class FontRenderer extends CharRenderer implements IFont {
         return this.font;
     }
 
+    public String trimStringToWidth(String text, int width, boolean reverse)
+    {
+        StringBuilder stringbuilder = new StringBuilder();
+        int i = 0;
+        int j = reverse ? text.length() - 1 : 0;
+        int k = reverse ? -1 : 1;
+        boolean flag = false;
+        boolean flag1 = false;
+
+        for (int l = j; l >= 0 && l < text.length() && i < width; l += k)
+        {
+            char c0 = text.charAt(l);
+            int i1 = this.charData[l].width;
+
+            if (flag)
+            {
+                flag = false;
+
+                if (c0 != 108 && c0 != 76)
+                {
+                    if (c0 == 114 || c0 == 82)
+                    {
+                        flag1 = false;
+                    }
+                }
+                else
+                {
+                    flag1 = true;
+                }
+            }
+            else if (i1 < 0)
+            {
+                flag = true;
+            }
+            else
+            {
+                i += i1;
+
+                if (flag1)
+                {
+                    ++i;
+                }
+            }
+
+            if (i > width)
+            {
+                break;
+            }
+
+            if (reverse)
+            {
+                stringbuilder.insert(0, (char)c0);
+            }
+            else
+            {
+                stringbuilder.append(c0);
+            }
+        }
+
+        return stringbuilder.toString();
+    }
+
     public double drawString(String text, double x, double y, @NotNull CenterMode centerMode, boolean shadow, int color) {
         switch (centerMode) {
             case X:

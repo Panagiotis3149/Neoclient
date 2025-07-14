@@ -5,365 +5,210 @@ import neo.event.*;
 import neo.module.Module;
 import neo.module.ModuleManager;
 import neo.module.impl.other.RotationHandler;
-import neo.util.other.java.Reflection;
-import neo.util.packet.PacketUtils;
-import neo.util.player.move.RotationUtils;
-import neo.util.world.block.BlockUtils;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.entity.Entity;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
-import neo.util.*;
+import neo.util.Utils;
+import neo.util.aim.QuantumAim;
+import neo.util.aim.RandomUtil;
+import neo.util.aim.Vec2;
+import neo.util.aim.YawPitchHelper;
+import neo.util.other.MathUtil;
+import neo.util.other.java.Reflection;
+import neo.util.packet.PacketUtils;
+import neo.util.player.move.RotationAt;
+import neo.util.player.move.RotationUtils;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.util.*;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Mouse;
+
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
 
-import static net.minecraft.util.EnumFacing.DOWN;
 
 public class KillAura extends Module {
+    // target
     public static EntityLivingBase target;
 
+    // strings
+    private final String[] autoBlockModes = new String[]{"Manual", "Vanilla", "Post", "Swap", "Interact A", "Interact B", "Fake", "Partial", "Test"};
+    private final String[] rotationModes = {"None", "Normal", "Legit", "Lock View", "Modulo1", "Test" ,"Autistic Anticheat"};
+    private final String[] clickerModes = {"Basic", "Normal", "Legit"};
+    private final String[] sortModes = {"Health", "HurtTime", "Distance", "Yaw"};
+
+    // settings
+    // sliders
     private final SliderSetting aps;
-    public SliderSetting autoBlockMode;
+    private final SliderSetting clickerMode;
     private final SliderSetting fov;
-    private final SliderSetting attackRange;
-    private final SliderSetting swingRange;
-    private final SliderSetting blockRange;
-    private final SliderSetting rotationMode;
+    private final SliderSetting reach;
     private final SliderSetting sortMode;
     private final SliderSetting switchDelay;
     private final SliderSetting targets;
+    private final SliderSetting rotationMode;
+    private final SliderSetting moveFixMode;
+    public final SliderSetting autoBlockMode;
+    // buttons
     private final ButtonSetting targetInvis;
     private final ButtonSetting disableInInventory;
     private final ButtonSetting disableWhileBlocking;
     private final ButtonSetting disableWhileMining;
-    private final ButtonSetting hitThroughBlocks;
     private final ButtonSetting ignoreTeammates;
-    public ButtonSetting manualBlock;
-    private final SliderSetting moveFixMode;
-    private final ButtonSetting prioritizeEnemies;
     private final ButtonSetting requireMouseDown;
-    private final ButtonSetting silentSwing;
     private final ButtonSetting weaponOnly;
-    private final ButtonSetting badPacketsCheck;
-  ///  private final ButtonSetting mBX;
-    private final String[] autoBlockModes = new String[]{"Manual", "Vanilla", "Post", "Swap", "Interact A", "Interact B", "Fake", "Partial", "Test"};
-    private final String[] rotationModes = new String[]{"None", "Silent", "Lock view"};
-    private final String[] sortModes = new String[]{"Health", "Hurttime", "Distance", "Yaw"};
+    private final ButtonSetting silentSwing;
+    public ButtonSetting manualBlock;
+
+
+    // attacking and shit
     private List<EntityLivingBase> availableTargets = new ArrayList<>();
-    public AtomicBoolean block = new AtomicBoolean();
     private long lastSwitched = System.currentTimeMillis();
-    private boolean switchTargets;
     private byte entityIndex;
     public boolean swing;
-    // autoclicker vars
-    private long i;
-    private long j;
-    private long k;
-    private long l;
-    private double m;
-    private boolean n;
-    private Random rand;
-    private final double lastCps = 0;
-    private long recalculateTime = 0;
-    private final long DCPSRecalculateTickDelay = 200;
-    // autoclicker vars end
     private boolean attack;
+
+    // clicker
+    private long nextClick = 0L;
+    private long midClick = 0L;
+    private long condition = 0L;
+    private long reset = 0L;
+    private double mult = 0;
+    private boolean multActive = false;
+    private final Random rand = new Random();
+    private long nextClickTimeBasic = 0L;
+
+    // rots
+    private Vec2 lastRotation = new Vec2(0, 0);
+    public float[] rots;
+    public float[] lastRots;
+    private boolean backRotate;
+
+    // blocking
+    private final ConcurrentLinkedQueue<Packet> blinkedPackets = new ConcurrentLinkedQueue<>();
+    public AtomicBoolean block = new AtomicBoolean();
     private boolean blocking;
-    public boolean blinking;
-    public boolean lag;
+    private boolean lag;
     private boolean swapped;
     public boolean rmbDown;
-    private float[] prevRotations;
-    private boolean startSmoothing;
-    private final ConcurrentLinkedQueue<Packet> blinkedPackets = new ConcurrentLinkedQueue<>();
+    public boolean blinking;
+    private boolean switchTargets;
 
 
     public KillAura() {
-        super("Aura", category.combat, 19);
+        super("KillAura", category.combat, 19);
         this.registerSetting(aps = new SliderSetting("CPS", 12.0, 1.0, 20.0, 0.5));
+        this.registerSetting(clickerMode = new SliderSetting("Clicker Mode", clickerModes, 1));
+        this.registerSetting(fov = new SliderSetting("FOV", 360.0, 30.0, 360.0, 4.0));
+        this.registerSetting(reach = new SliderSetting("Reach", 3.0, 3.0, 6.0, 0.05));
         this.registerSetting(autoBlockMode = new SliderSetting("Autoblock", autoBlockModes, 0));
-        this.registerSetting(fov = new SliderSetting("Field of view", 360.0, 30.0, 360.0, 4.0));
-        this.registerSetting(attackRange = new SliderSetting("Range (attack)", 3.0, 3.0, 6.0, 0.05));
-        this.registerSetting(swingRange = new SliderSetting("Range (swing)", 3.3, 3.0, 8.0, 0.05));
-        this.registerSetting(blockRange = new SliderSetting("Range (block)", 6.0, 3.0, 12.0, 0.05));
-        this.registerSetting(rotationMode = new SliderSetting("Rotations", rotationModes, 0));
-        this.registerSetting(moveFixMode = new SliderSetting("Move fix", RotationHandler.MoveFix.MODES, 0));
-        this.registerSetting(sortMode = new SliderSetting("Target sorting modes", sortModes, 3.0));
-        this.registerSetting(switchDelay = new SliderSetting("Delay (switch)", 200.0, 50.0, 1000.0, 25.0, "ms"));
+        this.registerSetting(manualBlock = new ButtonSetting("Right Click Only", false));
+        this.registerSetting(sortMode = new SliderSetting("Sorting", sortModes, 3));
+        this.registerSetting(switchDelay = new SliderSetting("Switch Delay", 200.0, 50.0, 1000.0, 25.0, "ms"));
+        this.registerSetting(rotationMode = new SliderSetting("Rotation Mode", rotationModes, 1));
         this.registerSetting(targets = new SliderSetting("Targets", 3.0, 1.0, 10.0, 1.0));
+        this.registerSetting(moveFixMode = new SliderSetting("Move fix", RotationHandler.MoveFix.MODES, 0));
         this.registerSetting(targetInvis = new ButtonSetting("Target invis", true));
         this.registerSetting(disableInInventory = new ButtonSetting("Disable in inventory", true));
         this.registerSetting(disableWhileBlocking = new ButtonSetting("Disable while blocking", false));
         this.registerSetting(disableWhileMining = new ButtonSetting("Disable while mining", false));
-        this.registerSetting(hitThroughBlocks = new ButtonSetting("Hit through blocks", true));
         this.registerSetting(ignoreTeammates = new ButtonSetting("Ignore teammates", true));
-        this.registerSetting(manualBlock = new ButtonSetting("No AB", false));
-        this.registerSetting(prioritizeEnemies = new ButtonSetting("Prioritize enemies", false));
         this.registerSetting(requireMouseDown = new ButtonSetting("Require mouse down", false));
-        this.registerSetting(silentSwing = new ButtonSetting("Silent swing while blocking", false));
         this.registerSetting(weaponOnly = new ButtonSetting("Weapon only", false));
-        this.registerSetting(badPacketsCheck = new ButtonSetting("BadPacketsCheck", true));
-   //     this.registerSetting(mBX = new ButtonSetting("Miniblox", false));
+        this.registerSetting(silentSwing = new ButtonSetting("Silent swing", false));
     }
 
+    // events
+    @Override
     public void onEnable() {
-        this.rand = new Random();
+        resetTimers();
+        if (mc.thePlayer != null) {
+            this.rots = new float[] { mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch };
+            this.lastRots = new float[] { mc.thePlayer.prevRotationYaw, mc.thePlayer.prevRotationPitch };
+        }
     }
 
+    @Override
     public void onDisable() {
         reset();
-
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onRotation(@NotNull RotationEvent event) {
-            event.setMoveFix(RotationHandler.MoveFix.values()[(int) moveFixMode.getInput()]);
+        event.setMoveFix(RotationHandler.MoveFix.values()[(int) moveFixMode.getInput()]);
     }
 
     @SubscribeEvent
-    public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (!Utils.isnull()) {
-            return;
+    public void onSendPacket(SendPacketEvent event) {
+        if (event.getNonStaticPacket() instanceof C03PacketPlayer) {
+            C03PacketPlayer packet = (C03PacketPlayer) event.getNonStaticPacket();
+
+            if (packet.getRotating()) {
+                this.lastRotation = new Vec2(packet.getYaw(), packet.getPitch());
+            }
         }
-        if (ev.phase != TickEvent.Phase.START) {
-            return;
-        }
-        if (canAttack()) {
-            attack = true;
-        }
-        if (target != null && rotationMode.getInput() == 2) {
-            float[] rotations = RotationUtils.getRotations(target, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
-            if (rotations == null) return;
-
-            float currentYaw = mc.thePlayer.rotationYaw;
-            float currentPitch = mc.thePlayer.rotationPitch;
-            float yawDiff = MathHelper.wrapAngleTo180_float(rotations[0] - currentYaw);
-            float pitchDiff = rotations[1] - currentPitch;
-
-            float accFactor = (float) (100 / 200.0);
-
-            float yawStep = Math.abs(yawDiff) * accFactor;
-            float pitchStep = Math.abs(pitchDiff) * accFactor;
-
-            float newYaw = currentYaw + (yawDiff > 0 ? yawStep : -yawStep);
-            float newPitch = currentPitch + (pitchDiff > 0 ? pitchStep : -pitchStep);
-            newPitch = MathHelper.clamp_float(newPitch, -90, 90);
-
-            mc.thePlayer.rotationYaw = newYaw;
-            mc.thePlayer.rotationPitch = newPitch;
-        }
-    }
+    };
 
     @SubscribeEvent
     public void onPreUpdate(PreUpdateEvent e) {
-        if (!basicCondition() || !settingCondition()) {
+        if (!canRun()) {
             reset();
             return;
         }
+
+        findTargets();
+
+        if (target == null) {
+            resetBlinkState(true);
+            return;
+        }
+
+        if (canAttack()) attack = true;
 
         block();
 
-        if (ModuleManager.bedAura != null && ModuleManager.bedAura.isEnabled() && !ModuleManager.bedAura.allowAura.isToggled() && ModuleManager.bedAura.currentBlock != null) {
-            resetBlinkState(true);
-            return;
-        }
-        if ((mc.thePlayer.isBlocking() || block.get()) && disableWhileBlocking.isToggled()) {
-            resetBlinkState(true);
-            return;
-        }
-        boolean swingWhileBlocking = !silentSwing.isToggled() || !block.get();
-        if (swing && attack) {
-            if (swingWhileBlocking) {
-                mc.thePlayer.swingItem();
-            } else {
-                mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());
-            }
-        }
-        if (block.get() && (autoBlockMode.getInput() == 3 || autoBlockMode.getInput() == 4 || autoBlockMode.getInput() == 5 || autoBlockMode.getInput() == 8)  && Utils.holdingSword()) {
-            setBlockState(block.get(), false, false);
-            if (ModuleManager.bedAura.stopAutoblock) {
-                resetBlinkState(false);
-                ModuleManager.bedAura.stopAutoblock = false;
-                return;
-            }
-            if (target != null) {
-                switch ((int) autoBlockMode.getInput()) {
-                    case 3:
-                        if (lag) {
-                            blinking = true;
-                            if (Neo.badPacketsHandler.playerSlot != mc.thePlayer.inventory.currentItem % 8 + 1) {
-                                mc.thePlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(Neo.badPacketsHandler.playerSlot = mc.thePlayer.inventory.currentItem % 8 + 1));
-                                swapped = true;
-                            }
-                            lag = false;
-                        } else {
-                            if (Neo.badPacketsHandler.delayAttack) {
-                                return;
-                            }
-                            if (Neo.badPacketsHandler.playerSlot != mc.thePlayer.inventory.currentItem) {
-                                mc.thePlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(Neo.badPacketsHandler.playerSlot = mc.thePlayer.inventory.currentItem));
-                                swapped = false;
-                            }
-                            attackAndInteract(target, swingWhileBlocking, false);
-                            sendBlock();
-                            releasePackets();
-                            lag = true;
-                        }
-                        break;
-                    case 4:
-                    case 5:
-                        if (lag) {
-                            blinking = true;
-                            unBlock();
-                            lag = false;
-                        } else {
-                            attackAndInteract(target, swingWhileBlocking, autoBlockMode.getInput() == 5); // attack while blinked
-                            releasePackets(); // release
-                            sendBlock(); // block after releasing unblock
-                            lag = true;
-                        }
-                        break;
-                    case 9:
-                        if (lag) {
-                            blinking = true;
-                            unBlock();
-                            lag = false;
-                        }
-                }
-                return;
-            }
-        } else if (blinking || lag) {
-            resetBlinkState(true);
-        }
-        if (target == null) {
-            return;
-        }
         if (attack) {
-            resetBlinkState(true);
             attack = false;
-            if (!aimingEntity()) {
-                return;
-            }
-            switchTargets = true;
-            Utils.attackEntity(target, swingWhileBlocking, !swingWhileBlocking);
+            swing = true;
+            attackTarget(target);
         }
     }
 
-
-    // tank sotanorsu/enorsu/norsu for da methode! (https://github.com/enorsu/LiquidBouncePlusPlus/)
-  //  @SubscribeEvent
-//    public void onStrafe(PrePlayerInputEvent e) {
- //       if (mBX.isToggled()) {
-    //        Utils.startBlink(new C0CPacketInput(), new C03PacketPlayer(false));
-//
-//
-   //         //e.setCanceled(true);
-//
-   //         Utils.stopBlink();
-   //     }
-   // }
-
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onPreMotion(PreMotionEvent e) {
-        if (!basicCondition() || !settingCondition()) {
+        if (!OldAura.basicCondition() || !settingCondition()) {
             reset();
             return;
         }
-        setTarget(new float[]{e.getYaw(), e.getPitch()});
-        if (target != null && rotationMode.getInput() == 1) {
+        doRotation(e);
 
-            prevRotations = new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch,
-                    mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch};
-
-            float[] rotations = new float[0];
-            if (target != null) {
-                rotations = RotationUtils.getRotations(target, e.getYaw(), e.getPitch());
-            }
-
-            if (prevRotations == null || prevRotations.length < 2) {
-                throw new IllegalArgumentException("prevRotations must not be null and must have at least 2 elements.");
-            }
-            float[] controlPoint1 = {prevRotations[0], prevRotations[1]};
-
-            if (rotations == null) {
-                throw new IllegalArgumentException("rotations must not be null.");
-            }
-
-            float[] controlPoint2 = {(rotations[0] + prevRotations[0]) / 2, (rotations[1] + prevRotations[1]) / 2};
-
-            float t = (float) 0.7;
-            float bezierX = (1 - t) * (1 - t) * controlPoint1[0] + 2 * (1 - t) * t * controlPoint2[0] + t * t * rotations[0];
-            float bezierY = (1 - t) * (1 - t) * controlPoint1[1] + 2 * (1 - t) * t * controlPoint2[1] + t * t * rotations[1];
-
-                if (!startSmoothing) {
-                    prevRotations = new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch};
-                    startSmoothing = true;
-
-                float yawDiff = bezierX - prevRotations[0];
-                float pitchDiff = bezierY - prevRotations[1];
-
-                double yawStep = Utils.GCD(Math.abs(yawDiff), 1);
-                double pitchStep = Utils.GCD(Math.abs(pitchDiff),1);
-
-
-                float[] speed = new float[]{
-                        (float) (yawDiff > 0 ? yawStep : -yawStep),
-                        (float) (pitchDiff > 0 ? pitchStep : -pitchStep)
-                };
-
-                prevRotations[0] += speed[0];
-                prevRotations[1] += speed[1];
-
-                prevRotations[0] = MathHelper.wrapAngleTo180_float(prevRotations[0]);
-                prevRotations[1] = MathHelper.wrapAngleTo180_float(prevRotations[1]);
-
-                if (prevRotations[1] > 90) {
-                    prevRotations[1] = 90;
-                } else if (prevRotations[1] < -90) {
-                    prevRotations[1] = -90;
-                }
-
-                e.setYaw(prevRotations[0]);
-                e.setPitch(prevRotations[1]);
-            } else {
-                e.setYaw(rotations[0]);
-                e.setPitch(rotations[1]);
-            }
-        }
- else {
-            startSmoothing = false;
-        }
         if (autoBlockMode.getInput() == 2 && block.get() && Utils.holdingSword()) {
             mc.thePlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1));
             mc.thePlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
         }
 
-        if (rotationMode.getInput() == 1 && prevRotations != null && prevRotations.length > 0 && target != null) {
+        if (isSilent((int) rotationMode.getInput()) && target != null) {
             mc.thePlayer.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(
                     mc.thePlayer.posX,
                     mc.thePlayer.posY,
                     mc.thePlayer.posZ,
-                    prevRotations[0],
-                    prevRotations[1],
+                    e.getYaw(),
+                    e.getPitch(),
                     mc.thePlayer.onGround
             ));
         }
-
     }
+
 
     @SubscribeEvent
     public void onPostMotion(PostMotionEvent e) {
@@ -372,114 +217,494 @@ public class KillAura extends Module {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    public void onSendPacket(SendPacketEvent e) {
-        if (!Utils.isnull() || !blinking) {
-            return;
+    @SubscribeEvent
+    public void onMouse(MouseEvent e) {
+        if (e.button == 0 && e.buttonstate && (target != null || swing)) {
+            e.setCanceled(true);
         }
-        Packet packet = SendPacketEvent.getPacket();
-        if (packet.getClass().getSimpleName().startsWith("S")) {
-            return;
-        }
-        if (packet instanceof C00PacketKeepAlive) {
-            return;
-        }
-        blinkedPackets.add(SendPacketEvent.getPacket());
-        e.setCanceled(true);
+    }
+
+    // funcs and shit
+    private boolean canRun() {
+        if (!Utils.isnull()) return false;
+        if (mc.thePlayer.isDead) return false;
+        if (!Mouse.isButtonDown(0) && requireMouseDown.isToggled()) return false;
+        if (!Utils.holdingWeapon() && weaponOnly.isToggled()) return false;
+        if (isMining() && disableWhileMining.isToggled()) return false;
+        if (mc.currentScreen != null && disableInInventory.isToggled()) return false;
+        if ((mc.thePlayer.isBlocking() || block.get()) && disableWhileBlocking.isToggled()) return false;
+        return true;
+    }
+
+    private boolean isMining() {
+        return Mouse.isButtonDown(0) && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK;
     }
 
 
-    @SubscribeEvent
-    public void onMouse(final MouseEvent mouseEvent) {
-        if (mouseEvent.button == 0 && mouseEvent.buttonstate) {
-            if (target != null || swing) {
-                mouseEvent.setCanceled(true);
-            }
-        } else if (mouseEvent.button == 1) {
-            rmbDown = mouseEvent.buttonstate;
-            if (autoBlockMode.getInput() >= 1 && Utils.holdingSword() && block.get()) {
-                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
-                if (target == null && mc.objectMouseOver != null) {
-                    if (mc.objectMouseOver.entityHit != null && AntiBot.isBot(mc.objectMouseOver.entityHit)) {
+    private void doRotation(PreMotionEvent e) {
+        if (target == null) return;
+
+        RotationAt rotationAt = RotationAt.values()[RandomUtil.nextInt(0, RotationAt.values().length - 1)];
+
+        Vec2 newRotation = RotationUtils.getRotations(target, rotationAt);
+
+        float sensitivity = mc.gameSettings.mouseSensitivity;
+        float f = sensitivity * 0.6F + 0.2F;
+        float f1 = f * f * f * 1.2F;
+
+
+        float deltaYaw = MathHelper.wrapAngleTo180_float(newRotation.getX() - lastRotation.getX());
+        float deltaPitch = newRotation.getY() - lastRotation.getY();
+
+
+
+        switch ((int) rotationMode.getInput()) {
+            case 0:
+                // yes
+                break;
+            case 1:
+                newRotation.setX(newRotation.getX() - (deltaYaw % f1));
+                newRotation.setY(newRotation.getY() - (deltaPitch % f1));
+                newRotation.setX(newRotation.getX() + RandomUtil.nextFloat(-1, 1));
+                newRotation.setY(newRotation.getY() + RandomUtil.nextFloat(-0.5f, 0.5f));
+                e.setYaw(newRotation.getX());
+                e.setPitch(newRotation.getY());
+                break;
+            case 2:
+                // uh oh...
+                final SecureRandom secureRandom = new SecureRandom();
+                float dY = RandomUtil.nextFloat((float) (11.091247 - 0.0010000000474974513), 24.17819923F) / 2.0f + secureRandom.nextFloat() + RandomUtil.nextFloat((float) (11.0912478 - 0.0010000000474974513), 24.12378123F) / 2.0f;
+                float dP = RandomUtil.nextFloat((float) (12.1283044 - 0.0010000000474974513), 23.123802F) / 2.0f + secureRandom.nextFloat() + RandomUtil.nextFloat((float) (12.1283044 - 0.0010000000474974513), 23.123802F) / 2.0f;
+                Vec3 best = QuantumAim.getBestHitVec(target, Utils.getTimer().renderPartialTicks);
+                if (target != null) {
+                    backRotate = true;
+                    final double distance = mc.thePlayer.getDistanceToEntity(target);
+                    if (distance < 0.4) {
+                        dP = RandomUtil.nextFloat(0.0f, 4.0f) / 2.0f + RandomUtil.nextFloat(0.0f, 4.0f) / 2.0f;
+                        dY = RandomUtil.nextFloat(0.0f, 4.0f) / 2.0f + RandomUtil.nextFloat(0.0f, 4.0f) / 2.0f;
+                    }
+                    if (this.rots == null || this.rots.length < 2) {
+                        if (this.lastRots == null || this.lastRots.length < 2) {
+                            this.rots = new float[] {0f, 0f};
+                        } else {
+                            this.rots = this.lastRots;
+                        }
+                    }
+                    final float[] floats = QuantumAim.faceEntityCustom(target, dY, dP, this.rots[0], this.rots[1], "Doubled", true, true, false, (float)1.9712f, best, false, true, true, true, true);
+                    if (floats == null) {
+                        this.rots = this.lastRots;
+                        if (!ModuleManager.scaffold.isEnabled()) {
+                            e.setYaw(this.rots[0]);
+                            e.setPitch(this.rots[1]);
+                        }
+                        else {
+                            this.resetRotation();
+                        }
+                        this.lastRots = this.rots;
+                        target = null;
                         return;
                     }
-                    final BlockPos getBlockPos = mc.objectMouseOver.getBlockPos();
-                    if (getBlockPos != null && (BlockUtils.check(getBlockPos, Blocks.chest) || BlockUtils.check(getBlockPos, Blocks.ender_chest))) {
-                        return;
+                    this.lastRots = this.rots;
+                    this.rots = floats;
+                    if (!ModuleManager.scaffold.isEnabled()) {
+                        e.setYaw(this.rots[0]);
+                        e.setPitch(this.rots[1]);
+                    }
+                    else {
+                        this.resetRotation();
+                    }
+                } else {
+                    if (this.backRotate) {
+                        if (this.rots[0] % 360.0f <= YawPitchHelper.realYaw % 360.0f + 20.0f && this.rots[0] % 360.0f > YawPitchHelper.realYaw % 360.0f - 20.0f && this.rots[1] % 360.0f <= YawPitchHelper.realPitch % 360.0f + 20.0f && this.rots[1] % 360.0f > YawPitchHelper.realPitch % 360.0f - 20.0f) {
+                            this.backRotate = false;
+                            this.resetRotation();
+                        }
+                        else {
+                            final float[] fa = QuantumAim.backRotate(dY, dP, this.rots[0], this.rots[1], YawPitchHelper.realYaw, YawPitchHelper.realPitch);
+                            this.lastRots = this.rots;
+                            this.rots = fa;
+                            if (!ModuleManager.scaffold.isEnabled()) {
+                                e.setYaw(this.rots[0]);
+                                e.setPitch(this.rots[1]);
+
+                            }
+                            else {
+                                this.resetRotation();
+                            }
+                        }
+                    }
+                    else {
+                        this.resetRotation();
                     }
                 }
-                mouseEvent.setCanceled(true);
+                break;
+            case 3:
+                float[] rotations = RotationUtils.getRotations(target, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
+                if (rotations == null) return;
+
+                float currentYaw = mc.thePlayer.rotationYaw;
+                float currentPitch = mc.thePlayer.rotationPitch;
+                float yawDiff = MathHelper.wrapAngleTo180_float(rotations[0] - currentYaw);
+                float pitchDiff = rotations[1] - currentPitch;
+
+                float accFactor = (float) (100 / 200.0);
+
+                float yawStep = Math.abs(yawDiff) * accFactor;
+                float pitchStep = Math.abs(pitchDiff) * accFactor;
+
+                float newYaw = currentYaw + (yawDiff > 0 ? yawStep : -yawStep);
+                float newPitch = currentPitch + (pitchDiff > 0 ? pitchStep : -pitchStep);
+                newPitch = MathHelper.clamp_float(newPitch, -90, 90);
+
+                mc.thePlayer.rotationYaw = newYaw;
+                mc.thePlayer.rotationPitch = newPitch;
+                break;
+            case 4:
+                newRotation.setX(newRotation.getX() - ((newRotation.getX() % f1) - f));
+                newRotation.setY(newRotation.getY() - ((newRotation.getY() % f1) - f));
+                e.setYaw(newRotation.getX());
+                e.setPitch(newRotation.getY());
+                break;
+            case 5:
+                if (target == null) break;
+
+                int deltaX = Math.round(deltaYaw / f1);
+                int deltaY = Math.round(deltaPitch / f1);
+
+                float smoothedF2 = (deltaX * f1) / 3f;
+                float smoothedF3 = (deltaY * f1) / 3f;
+
+                newRotation.setX((this.lastRotation.getX() + smoothedF2) + f1);
+                newRotation.setY((this.lastRotation.getY() + smoothedF3) + f1);
+
+
+                float[] rts = RotationUtils.getRotations(target, e.getYaw(), e.getPitch());
+                if (rts == null) break;
+
+                float t = 0.45f;
+
+                float controlX = (rts[0] + newRotation.getX()) / 2f;
+                float controlY = (rts[1] + newRotation.getY()) / 2f;
+
+                float bzX = (1 - t) * (1 - t) * newRotation.getX() + 2 * (1 - t) * t * controlX + t * t * rts[0];
+                float bzY = (1 - t) * (1 - t) * newRotation.getY() + 2 * (1 - t) * t * controlY + t * t * rts[1];
+
+                float yawDif = bzY - newRotation.getX();
+                float pitchDif = bzX - newRotation.getY();
+
+                double yS = Utils.GCD(Math.abs(yawDif), 1);
+                double pS = Utils.GCD(Math.abs(pitchDif), 1);
+
+                float speedX = (float) (yawDif > 0 ? yS : -yS);
+                float speedY = (float) (pitchDif > 0 ? pS : -pS);
+
+                float newY = newRotation.getX() + speedX;
+                float newP = newRotation.getY() + speedY;
+
+                newYaw = MathHelper.wrapAngleTo180_float(newY);
+                newPitch = MathHelper.clamp_float(newP, -90f, 90f);
+
+                newRotation.setX(newYaw);
+                newRotation.setY(newPitch);
+
+                newRotation.setX(newRotation.getX() +
+                        (float)(Math.sin(2f * Math.PI * 1f * ((System.currentTimeMillis() % 10000L) / 1000f) + 0f)
+                                * (3f * Math.exp(-0.05f * ((System.currentTimeMillis() % 10000L) / 1000f))) + 0f)
+                );
+
+                newRotation.setY(newRotation.getY() +
+                        (float)(Math.sin(2f * Math.PI * 1.5f * ((System.currentTimeMillis() % 10000L) / 1000f) + 1f)
+                                * (1.5f * Math.exp(-0.05f * ((System.currentTimeMillis() % 10000L) / 1000f))) + 0f)
+                );
+
+                newRotation.setX((float) MathUtil.atanh(newRotation.getX()));
+                newRotation.setY((float) MathUtil.atanh(newRotation.getY()));
+
+                e.setYaw(newYaw);
+                e.setPitch(newPitch);
+                break;
+            case 6:
+                newRotation.setX((float) (newRotation.getX() * Math.random() + RandomUtil.nextFloat(-180f, 180f)));
+                newRotation.setY((float) (newRotation.getY() * Math.random() + RandomUtil.nextFloat(-90f, 90f)));
+                e.setYaw(newRotation.getX());
+                e.setPitch(newRotation.getY());
+                break;
+        }
+    }
+
+
+    private void findTargets() {
+        availableTargets.clear();
+        block.set(false);
+        swing = false;
+
+        for (Entity entity : mc.theWorld.loadedEntityList) {
+            if (availableTargets.size() >= targets.getInput()) break;
+            if (!(entity instanceof EntityLivingBase)) continue;
+            if (entity == mc.thePlayer) continue;
+            if (entity.isInvisible() && !targetInvis.isToggled()) continue;
+
+            if (entity instanceof EntityPlayer) {
+                EntityPlayer p = (EntityPlayer) entity;
+                if (Utils.isFriended(p)) continue;
+                if (p.deathTime != 0) continue;
+                if (Utils.isTeamMate(p) && ignoreTeammates.isToggled()) continue;
+                if (AntiBot.isBot(entity)) continue;
+            } else continue;
+
+            double dist = mc.thePlayer.getDistanceSqToEntity(entity);
+
+
+            float n = (float) fov.getInput();
+            if (n != 360.0f && !Utils.inFov(n, entity)) continue;
+
+            if (dist <= reach.getInput() * reach.getInput() && autoBlockMode.getInput() > 0 && Utils.holdingSword()) {
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
+                block.set(true);
             }
 
+            if (dist <= reach.getInput() * reach.getInput()) {
+                swing = true;
+            }
+
+            if (dist > reach.getInput() * reach.getInput()) continue;
+
+            availableTargets.add((EntityLivingBase) entity);
+        }
+
+        if (availableTargets.isEmpty()) {
+            target = null;
+            return;
+        }
+
+        if (Math.abs(System.currentTimeMillis() - lastSwitched) > switchDelay.getInput() && switchTargets) {
+            switchTargets = false;
+            if (entityIndex < availableTargets.size() - 1) {
+                entityIndex++;
+            } else {
+                entityIndex = 0;
+            }
+            lastSwitched = System.currentTimeMillis();
+        }
+
+        if (!availableTargets.isEmpty()) {
+            target = availableTargets.get(entityIndex);
+        } else {
+            target = null;
         }
     }
 
-    @Override
-    public String getInfo() {
-        return rotationModes[(int) rotationMode.getInput()];
+
+    private boolean canAttack() {
+        switch ((int) clickerMode.getInput()) {
+            case 0:
+                return canAttackBasic();
+            case 1:
+                return canAttackNormal();
+            case 2:
+            default:
+                return false;
+        }
     }
 
-    private boolean aimingEntity() {
-        if (rotationMode.getInput() > 0) {
-            Object[] raycast = Reach.getEntity(attackRange.getInput(), 0, rotationMode.getInput() == 1 ? prevRotations : null);
-            return raycast != null && raycast[0] == target;
-        }
+
+        private boolean canAttackBasic() {
+        if (System.currentTimeMillis() < nextClickTimeBasic) return false;
+        double cps = aps.getInput();
+        double min = Math.max(1, cps - 2);
+        double max = cps + 1;
+        double randomCps = min + (rand.nextDouble() * (max - min));
+        long delay = (long) (1000.0 / randomCps);
+        delay += rand.nextInt(50);
+        nextClickTimeBasic = System.currentTimeMillis() + delay;
         return true;
+    }
+
+        private boolean canAttackNormal() {
+        if (nextClick > 0L && midClick > 0L) {
+            if (System.currentTimeMillis() > nextClick) {
+                normalClick();
+                return true;
+            } else if (System.currentTimeMillis() > midClick) {
+                return false;
+            }
+        } else {
+            normalClick();
+        }
+        return false;
+    }
+
+
+    private void normalClick() {
+        double apsValue = aps.getInput();
+        double minCps = Math.max(1, apsValue - 2);
+        double maxCps = apsValue + 1;
+
+        double randomCps = minCps + (rand.nextDouble() * (maxCps - minCps));
+        long targetDelay = (long) (1000.0D / randomCps);
+
+        long currentTime = System.currentTimeMillis();
+
+        if (currentTime > condition) {
+            if (!multActive && rand.nextInt(100) >= 85) {
+                multActive = true;
+                mult = 1.1D;
+            } else {
+                multActive = false;
+            }
+            condition = currentTime + 500L + rand.nextInt(1500);
+        }
+
+        if (multActive) {
+            targetDelay = (long) (targetDelay * mult);
+        }
+
+        if (currentTime > reset) {
+            if (rand.nextInt(100) >= 80) {
+                targetDelay += 20L + rand.nextInt(50);
+            }
+            reset = currentTime + 500L + rand.nextInt(1500);
+        }
+
+        midClick = currentTime + targetDelay / 2L - rand.nextInt(5);
+        nextClick = currentTime + targetDelay;
+    }
+
+    private void attackTarget(EntityLivingBase t) {
+        if (t == null) return;
+
+        Utils.attackEntity(t, !silentSwing.isToggled(), silentSwing.isToggled());
+        if (!silentSwing.isToggled()) mc.thePlayer.swingItem();
+        else mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());
+    }
+
+    private void attackTargetBlock(EntityLivingBase target, boolean swingWhileBlocking) {
+        if (target == null) return;
+
+        Utils.attackEntity(target, !swing && swingWhileBlocking, !swingWhileBlocking);
+
+        if (!silentSwing.isToggled()) {
+            mc.thePlayer.swingItem();
+        } else {
+            mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());
+        }
+
+        mc.thePlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(target, C02PacketUseEntity.Action.INTERACT));
+    }
+
+
+    private void resetTimers() {
+        nextClick = 0L;
+        midClick = 0L;
+        condition = 0L;
+        reset = 0L;
+        multActive = false;
+        nextClickTimeBasic = 0L;
     }
 
     private void reset() {
         target = null;
         availableTargets.clear();
         block.set(false);
-        startSmoothing = false;
         swing = false;
         rmbDown = false;
         attack = false;
-        this.i = 0L;
-        this.j = 0L;
+        nextClick = 0L;
+        midClick = 0L;
+        nextClickTimeBasic = 0L;
         block();
         resetBlinkState(true);
         swapped = false;
     }
 
+
+    private boolean settingCondition() {
+        if (!Mouse.isButtonDown(0) && requireMouseDown.isToggled()) {
+            return false;
+        } else if (!Utils.holdingWeapon() && weaponOnly.isToggled()) {
+            return false;
+        } else if (isMining() && disableWhileMining.isToggled()) {
+            return false;
+        } else return mc.currentScreen == null || !disableInInventory.isToggled();
+    }
+
+
+    private void resetRotation() {
+        (this.rots = this.lastRots)[0] = YawPitchHelper.realYaw;
+        this.rots[1] = YawPitchHelper.realPitch;
+        this.lastRots[0] = YawPitchHelper.realLastYaw;
+        this.lastRots[1] = YawPitchHelper.realLastPitch;
+    }
+
+    private boolean isSilent(int mode) {;
+        boolean inputValid = IntStream.of(1, 2, 4, 5, 6).anyMatch(i -> i == mode);
+
+
+        return this.isEnabled() && Utils.keysDown() && inputValid;
+    }
+
+    // BLOCKING TIME.
     private void block() {
         if (!block.get() && !blocking) {
+            resetBlinkState(true);
             return;
         }
+
         if (manualBlock.isToggled() && !rmbDown) {
             block.set(false);
+            resetBlinkState(true);
+            return;
         }
+
         if (!Utils.holdingSword()) {
             block.set(false);
+            resetBlinkState(true);
+            return;
         }
+
         switch ((int) autoBlockMode.getInput()) {
             case 0:
                 setBlockState(false, false, true);
                 break;
-            case 1: // vanilla
+            case 1:
                 setBlockState(block.get(), true, true);
                 break;
-            case 2: // post
+            case 2:
                 setBlockState(block.get(), false, true);
                 break;
-            case 3: // interact
+            case 3:
             case 4:
             case 5:
+            case 8:
+                if (target != null) {
+                    if (lag) {
+                        blinking = true;
+                        unBlock();
+                        lag = false;
+                    } else {
+                        attackTargetBlock(target, false);
+                        sendBlock();
+                        releasePackets();
+                        lag = true;
+                    }
+                }
                 setBlockState(block.get(), false, false);
                 break;
-            case 6: // fake
+            case 6:
                 setBlockState(block.get(), false, false);
                 break;
-            case 7: // partial
+            case 7:
                 boolean down = (target == null || target.hurtTime >= 5) && block.get();
                 KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), down);
                 Reflection.setButton(1, down);
                 blocking = down;
-            case 8: // test
+                break;
+            default:
                 setBlockState(block.get(), false, false);
                 break;
         }
     }
+
 
     private void setBlockState(boolean state, boolean sendBlock, boolean sendUnBlock) {
         if (Utils.holdingSword()) {
@@ -492,244 +717,13 @@ public class KillAura extends Module {
         blocking = Reflection.setBlocking(state);
     }
 
-    private void setTarget(float[] rotations) {
-        availableTargets.clear();
-        block.set(false);
-        swing = false;
-        for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (availableTargets.size() > targets.getInput()) {
-                continue;
-            }
-            if (entity == null) {
-                continue;
-            }
-            if (entity == mc.thePlayer) {
-                continue;
-            }
-            if (!(entity instanceof EntityLivingBase)) {
-                continue;
-            }
-            if (entity instanceof EntityPlayer) {
-                if (Utils.isFriended((EntityPlayer) entity)) {
-                    continue;
-                }
-                if (((EntityPlayer) entity).deathTime != 0) {
-                    continue;
-                }
-                if (AntiBot.isBot(entity) || (Utils.isTeamMate(entity) && ignoreTeammates.isToggled())) {
-                    continue;
-                }
-            } else {
-                continue;
-            }
-            if (entity.isInvisible() && !targetInvis.isToggled()) {
-                continue;
-            }
-            if (!hitThroughBlocks.isToggled() && behindBlocks(rotations)) {
-                continue;
-            }
-            final float n = (float) fov.getInput();
-            if (n != 360.0f && !Utils.inFov(n, entity)) {
-                continue;
-            }
-            double distance = mc.thePlayer.getDistanceSqToEntity(entity); // need a more accurate distance check
-            if (distance <= blockRange.getInput() * blockRange.getInput() && autoBlockMode.getInput() > 0 && Utils.holdingSword()) {
-                KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
-                block.set(true);
-            }
-            if (distance <= swingRange.getInput() * swingRange.getInput()) {
-                swing = true;
-            }
-            if (distance > attackRange.getInput() * attackRange.getInput()) {
-                continue;
-            }
-            availableTargets.add((EntityLivingBase) entity);
-        }
-        if (Math.abs(System.currentTimeMillis() - lastSwitched) > switchDelay.getInput() && switchTargets) {
-            switchTargets = false;
-            if (entityIndex < availableTargets.size() - 1) {
-                entityIndex++;
-            } else {
-                entityIndex = 0;
-            }
-            lastSwitched = System.currentTimeMillis();
-        }
-        if (!availableTargets.isEmpty()) {
-            List<EntityLivingBase> enemies = new ArrayList<>();
-            if (prioritizeEnemies.isToggled()) {
-                for (EntityLivingBase entity : availableTargets) {
-                    if (Utils.isEnemy((EntityPlayer) entity)) {
-                        enemies.add(entity);
-                    }
-                }
-                if (!enemies.isEmpty()) {
-                    availableTargets = enemies;
-                }
-            }
-            Comparator<EntityLivingBase> comparator = null;
-            switch ((int) sortMode.getInput()) {
-                case 0:
-                    comparator = Comparator.comparingDouble(entityPlayer -> (double) entityPlayer.getHealth());
-                    break;
-                case 1:
-                    comparator = Comparator.comparingDouble(entityPlayer2 -> (double) entityPlayer2.hurtTime);
-                    break;
-                case 2:
-                    comparator = Comparator.comparingDouble(entity -> mc.thePlayer.getDistanceSqToEntity(entity));
-                    break;
-                case 3:
-                    comparator = Comparator.comparingDouble(entity2 -> RotationUtils.distanceFromYaw(entity2, false));
-                    break;
-            }
-            Collections.sort(availableTargets, comparator);
-            if (entityIndex > availableTargets.size() - 1) {
-                entityIndex = 0;
-            }
-            target = availableTargets.get(entityIndex);
-        } else {
-            target = null;
-        }
-    }
-
-    private boolean basicCondition() {
-        if (!Utils.isnull()) {
-            return false;
-        }
-        return !mc.thePlayer.isDead;
-    }
-
-    private boolean settingCondition() {
-        if (!Mouse.isButtonDown(0) && requireMouseDown.isToggled()) {
-            return false;
-        } else if (!Utils.holdingWeapon() && weaponOnly.isToggled()) {
-            return false;
-        } else if (isMining() && disableWhileMining.isToggled()) {
-            return false;
-        } else return mc.currentScreen == null || !disableInInventory.isToggled();
-    }
-
-    private void attackAndInteract(EntityLivingBase target, boolean swingWhileBlocking, boolean predict) {
-        if (target != null && attack) {
-            attack = false;
-            if (!aimingEntity()) {
-                return;
-            }
-            if (predict && target.hurtResistantTime > 16) {
-                return;
-            }
-            switchTargets = true;
-            if (target != null) {
-                if (rotationMode.getInput() == 1) {
-                    // Broken as of: 11/20/2024
-                    // Fixed: No. Not yet.
-                    Utils.attackEntityV2(target, false, prevRotations[0], prevRotations[1], silentSwing.isToggled());
-                } else {
-                    Utils.attackEntity(target, !swing && swingWhileBlocking, !swingWhileBlocking);
-                }
-                mc.thePlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(target, C02PacketUseEntity.Action.INTERACT));
-            }
-        } else if (ModuleManager.antiFireball != null && ModuleManager.antiFireball.isEnabled() && ModuleManager.antiFireball.fireball != null && ModuleManager.antiFireball.attack) {
-            Utils.attackEntity(ModuleManager.antiFireball.fireball, !ModuleManager.antiFireball.silentSwing.isToggled(), ModuleManager.antiFireball.silentSwing.isToggled());
-            mc.thePlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(ModuleManager.antiFireball.fireball, C02PacketUseEntity.Action.INTERACT));
-        }
-    }
-
-    private boolean isMining() {
-        return Mouse.isButtonDown(0) && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK;
-    }
-
-    private boolean canAttack() {
-        if (this.j > 0L && this.i > 0L) {
-            if (System.currentTimeMillis() > this.j) {
-                this.cookie();
-                return true;
-            } else if (System.currentTimeMillis() > this.i) {
-                return false;
-            }
-        } else {
-            this.cookie();
-        }
-        return false;
-    }
-
-    private long outlierStartTime;
-    private boolean isOutlierActive;
-    private long outlierDuration;
-    private double previousCps;
-    private final List<Double> lastCpsValues = new ArrayList<>();
-    private static final int HISTORY_SIZE = 32;
-
-    public void cookie() {
-        double apsValue = aps.getInput();
-        double minCps = Math.max(1, apsValue - 2);
-        double maxCps = apsValue + 1;
-
-        double randomCps = minCps + (Math.random() * (maxCps - minCps));
-        long targetDelay = (long) (1000.0D / randomCps);
-
-
-        if (System.currentTimeMillis() > this.recalculateTime) {
-            while (lastCpsValues.contains(randomCps) || Math.abs(randomCps - previousCps) < 0.01) {
-                randomCps = minCps + (Math.random() * (maxCps - minCps));
-            }
-
-            if (lastCpsValues.size() >= HISTORY_SIZE) {
-                lastCpsValues.remove(0);
-            }
-            lastCpsValues.add(randomCps);
-            previousCps = randomCps;
-            this.recalculateTime = System.currentTimeMillis() + DCPSRecalculateTickDelay;
-        } else {
-            randomCps = previousCps;
-        }
-
-        long variability = (long) (Math.random() * 50);
-        targetDelay += variability;
-
-        if (System.currentTimeMillis() > this.k) {
-            if (!this.n && this.rand.nextInt(100) >= 85) {
-                this.n = true;
-                this.m = 1.1D;
-            } else {
-                this.n = false;
-            }
-            this.k = System.currentTimeMillis() + 500L + this.rand.nextInt(1500);
-        }
-
-        if (this.n) {
-            targetDelay = (long) ((double) targetDelay * this.m);
-        }
-
-        if (System.currentTimeMillis() > this.l) {
-            if (this.rand.nextInt(100) >= 80) {
-                targetDelay += 20L + this.rand.nextInt(50);
-            }
-            this.l = System.currentTimeMillis() + 500L + this.rand.nextInt(1500);
-        }
-
-        if (!isOutlierActive && this.rand.nextInt(100) < 5) {
-            outlierStartTime = System.currentTimeMillis();
-            outlierDuration = 2000 + this.rand.nextInt(500);
-            targetDelay = (long) (targetDelay * 1.05);
-            isOutlierActive = true;
-        }
-
-        if (isOutlierActive && System.currentTimeMillis() > outlierStartTime + outlierDuration) {
-            isOutlierActive = false;
-        }
-
-        long currentDelay = this.j - System.currentTimeMillis();
-        long d = Math.max(targetDelay, currentDelay);
-
-        this.j = System.currentTimeMillis() + d;
-        this.i = System.currentTimeMillis() + d / 2L - this.rand.nextInt(5);
+    private void sendBlock() {
+        mc.getNetHandler().addToSendQueue(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
     }
 
     private void unBlock() {
-        if (!Utils.holdingSword()) {
-            return;
-        }
-        mc.thePlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, DOWN));
+        if (!Utils.holdingSword()) return;
+        mc.thePlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
     }
 
     public void resetBlinkState(boolean unblock) {
@@ -740,9 +734,7 @@ public class KillAura extends Module {
             Neo.badPacketsHandler.playerSlot = mc.thePlayer.inventory.currentItem;
             swapped = false;
         }
-        if (lag && unblock) {
-            unBlock();
-        }
+        if (lag && unblock) unBlock();
         lag = false;
     }
 
@@ -764,24 +756,5 @@ public class KillAura extends Module {
         blinking = false;
     }
 
-    private boolean behindBlocks(float[] rotations) {
-        switch ((int) rotationMode.getInput()) {
-            case 0:
-            case 2:
-                if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                    BlockPos p = mc.objectMouseOver.getBlockPos();
-                    if (p != null && mc.theWorld.getBlockState(p).getBlock() != Blocks.air) {
-                        return true;
-                    }
-                }
-                break;
-            case 1:
-                    return RotationUtils.rayCast(attackRange.getInput(), prevRotations != null ? prevRotations[0] : mc.thePlayer.rotationYaw, prevRotations != null ? prevRotations[1] : mc.thePlayer.rotationPitch) != null;
-        }
-        return false;
-    }
-
-    private void sendBlock() {
-        mc.getNetHandler().addToSendQueue(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
-    }
+    // END BLOCKING TIME.
 }

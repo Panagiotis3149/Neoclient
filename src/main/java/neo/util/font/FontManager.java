@@ -21,7 +21,7 @@ public class FontManager {
             poppinsBold20,
             productSans16, productSans20, productSansLight16, productSansLight22, productSansLight18, productSansMedium, productSansMedium36, productSansLight40, productSansMedium18,
             google, googleMedium, googleRegular20, googleMedium20,
-            googleSansMedium, googleSansBold, googleSansRegular16, googleSansRegular20, googleSansMedium40;
+            googleSansMedium, googleSansBold, googleSansRegular16, googleSansRegular20, googleSansMedium40, productSansMedium24;
 
     public final static String
             BUG = "a",
@@ -105,6 +105,7 @@ public class FontManager {
             productSansMedium = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_medium.ttf", 22));
             productSansMedium36 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_medium.ttf", 36));
             productSansMedium18 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_medium.ttf", 18));
+            productSansMedium24 = new FontRenderer(FontUtil.getResource(locationMap, "product_sans_medium.ttf", 24));
         }
     }
     public static MinecraftFontRenderer getMinecraft() {

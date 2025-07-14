@@ -7,6 +7,8 @@ import neo.module.impl.other.SlotHandler;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.*;
+import neo.util.aim.QuantumAim;
+import neo.util.aim.YawPitchHelper;
 import neo.util.other.MathUtil;
 import neo.util.packet.PacketUtils;
 import neo.util.player.move.RotationUtils;
@@ -41,6 +43,7 @@ import org.lwjgl.input.Mouse;
 
 import java.awt.*;
 import java.util.*;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.IntStream;
 
 public class Scaffold extends Module {
@@ -101,6 +104,12 @@ public class Scaffold extends Module {
     private int floatTick;
     private boolean ground;
     private int onGroundTicks;
+    double original = startPos;
+    private boolean start = true;
+    private MovingObjectPosition objectPosition;
+    private float[] rots = new float[] { 0.0f, 0.0f };
+    private double[] xyz = new double[3];
+    private final HashMap<float[], MovingObjectPosition> hashMap = new HashMap<float[], MovingObjectPosition>();;
 
     public Scaffold() {
         super("Scaffold", category.player);
@@ -172,6 +181,7 @@ public class Scaffold extends Module {
 
     public void onUpdate() {
         posa = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1, mc.thePlayer.posZ);
+        start = ((mc.thePlayer.motionX == 0.0 && mc.thePlayer.motionZ == 0.0));
         if (mc.thePlayer.onGround) {
             lastGroundY = (int) Math.floor(mc.thePlayer.posY);
         }
@@ -246,6 +256,11 @@ public class Scaffold extends Module {
         }
 
         if (rotation.getInput() > 0) {
+            if (rotation.getInput() == 4) {
+                float[] floats = getNearestRotation();
+                event.setYaw(floats[0]);
+                event.setPitch(floats[1]);
+            }
             if (((rotation.getInput() == 2 && forceStrict) || rotation.getInput() == 3) && placeYaw != 2000) {
                 event.setYaw(placeYaw);
                 event.setPitch(placePitch);
@@ -407,7 +422,7 @@ public class Scaffold extends Module {
                 placedUp = false;
             }
         }
-        double original = startPos;
+        original = startPos;
         if (fastScaffold.getInput() == 3) {
             if (groundDistance() >= 2 && add == 0) {
                 original++;
@@ -452,6 +467,8 @@ public class Scaffold extends Module {
 
             mc.thePlayer.inventory.currentItem = slot;
         }
+
+
 
 
 
@@ -547,6 +564,77 @@ public class Scaffold extends Module {
             }
             previousBlock = placeData.blockPos.offset(placeData.getEnumFacing());
         }
+    }
+
+    private double distanceToLastPitch(final float pitch) {
+        return Math.abs(pitch - this.rots[1]);
+    }
+
+    private boolean buildForward() {
+        final float realYaw = MathHelper.wrapAngleTo180_float(YawPitchHelper.realYaw);
+        return (realYaw > 77.5 && realYaw < 102.5) || (realYaw > 167.5 || realYaw < -167.0f) || (realYaw < -77.5 && realYaw > -102.5) || (realYaw > -12.5 && realYaw < 12.5);
+    }
+
+    private float[] getNearestRotation() {
+        PlaceData placeData = getBlockData(new BlockPos(mc.thePlayer.posX, keepYPosition() ? original - 1 : mc.thePlayer.posY - 1, mc.thePlayer.posZ));
+        objectPosition = null;
+        final float[] floats = rots;
+        final BlockPos b = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 0.5, mc.thePlayer.posZ);
+        hashMap.clear();
+        if (start) {
+            final float yaw = QuantumAim.rotateToYaw((float)11.091247, rots[0], YawPitchHelper.realYaw - 180.0f);
+            QuantumAim.mouseSens(yaw, 80.34f, rots[0], rots[1]);
+            floats[1] = 80.34f;
+            floats[0] = yaw;
+        }
+        else {
+            final float yaww = YawPitchHelper.realYaw - 180.0f;
+            floats[0] = yaww;
+            double x = mc.thePlayer.posX;
+            double z = mc.thePlayer.posZ;
+            final double add1 = 1.288;
+            final double add2 = 0.288;
+            if (!buildForward()) {
+                x += mc.thePlayer.posX - xyz[0];
+                z += mc.thePlayer.posZ - xyz[2];
+            }
+            xyz = new double[] { mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ };
+            final double maX = placeData.blockPos.getX() + add1;
+            final double miX = placeData.blockPos.getX() - add2;
+            final double maZ = placeData.blockPos.getZ() + add1;
+            final double miZ =  - add2;
+            if (x > maX || x < miX || z > maZ || z < miZ) {
+                final ArrayList<MovingObjectPosition> movingObjectPositions = new ArrayList<MovingObjectPosition>();
+                final ArrayList<Float> pitchs = new ArrayList<Float>();
+                for (float i = Math.max(rots[1] - 20.0f, -90.0f); i < Math.min(rots[1] + 20.0f, 90.0f); i += 0.05f) {
+                    final float[] f = QuantumAim.mouseSens(yaww, i, rots[0], rots[1]);
+                    final MovingObjectPosition m2 = QuantumAim.customRayTrace(mc.thePlayer, 4.5, 1.0f, yaww, f[1]);
+                    if (m2.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && BlockUtils.isOkBlock(m2.getBlockPos()) && !movingObjectPositions.contains(m2) && m2.getBlockPos().equals(placeData.blockPos) && m2.sideHit != EnumFacing.DOWN && m2.sideHit != EnumFacing.UP && m2.getBlockPos().getY() <= b.getY()) {
+                        movingObjectPositions.add(m2);
+                        hashMap.put(f, m2);
+                        pitchs.add(f[1]);
+                    }
+                }
+                movingObjectPositions.sort(Comparator.comparingDouble(m -> mc.thePlayer.getDistanceSq(m.getBlockPos().add(0.5, 0.5, 0.5))));
+                MovingObjectPosition mm = null;
+                if (movingObjectPositions.size() > 0) {
+                    mm = movingObjectPositions.get(0);
+                }
+                if (mm != null) {
+                    floats[0] = yaww;
+                    pitchs.sort(Comparator.comparingDouble((ToDoubleFunction<? super Float>)this::distanceToLastPitch));
+                    if (!pitchs.isEmpty()) {
+                        floats[1] = pitchs.get(0);
+                        objectPosition = hashMap.get(floats);
+                    }
+                    return floats;
+                }
+            }
+            else {
+                floats[1] = rots[1];
+            }
+        }
+        return floats;
     }
 
     @SubscribeEvent

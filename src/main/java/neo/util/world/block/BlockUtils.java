@@ -32,6 +32,11 @@ public class BlockUtils {
         return block instanceof BlockFurnace || block instanceof BlockFenceGate || block instanceof BlockChest || block instanceof BlockEnderChest || block instanceof BlockEnchantmentTable || block instanceof BlockBrewingStand || block instanceof BlockBed || block instanceof BlockDropper || block instanceof BlockDispenser || block instanceof BlockHopper || block instanceof BlockAnvil || block == Blocks.crafting_table;
     }
 
+    public static boolean isOkBlock(final BlockPos blockPos) {
+        final Block block = mc.theWorld.getBlockState(blockPos).getBlock();
+        return !(block instanceof BlockLiquid) && !(block instanceof BlockAir) && !(block instanceof BlockChest) && !(block instanceof BlockFurnace);
+    }
+
     public static float getBlockHardness(final Block block, final ItemStack itemStack, boolean ignoreSlow, boolean ignoreGround) {
         final float getBlockHardness = block.getBlockHardness(mc.theWorld, null);
         if (getBlockHardness < 0.0f) {

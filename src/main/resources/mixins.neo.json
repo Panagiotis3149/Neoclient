@@ -21,6 +21,15 @@
     "network.MixinModList",
     "client.PlayerControllerMPAccessor",
     "client.MixinMovementInputFromOptions",
-    "client.MixinMinecraft"
+    "client.MixinMinecraft",
+    "client.MinecraftAccessor",
+    "performance.MixinEnumFacing",
+    "performance.MixinTextureManager",
+    "performance.MixinMathHelper",
+    "performance.MixinChunk",
+    "performance.MixinRenderGlobal",
+    "performance.MixinItemStack",
+    "performance.MixinOBJModel",
+    "performance.MixinWorld"
   ]
 }

@@ -4,13 +4,19 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
+
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.client.stream.IStream;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -24,6 +30,34 @@ import static neo.util.render.RenderUtils.drawImage;
 public class MixinMinecraft {
 
     private static final ResourceLocation CUSTOM_IMAGE = new ResourceLocation("neo", "textures/gui/image.png");
+
+    @Shadow public WorldClient theWorld;
+
+    @Shadow public EntityRenderer entityRenderer;
+
+    @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At("HEAD"))
+    private void clearLoadedMaps(WorldClient worldClientIn, String loadingMessage, CallbackInfo ci) {
+        if (worldClientIn != this.theWorld) {
+            this.entityRenderer.getMapItemRenderer().clearLoadedMaps();
+        }
+    }
+
+    @Redirect(
+            method = "runGameLoop",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/stream/IStream;func_152935_j()V")
+    )
+    private void skipTwitchCode1(IStream instance) {
+        // No-op
+    }
+
+    @Redirect(
+            method = "runGameLoop",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/stream/IStream;func_152922_k()V")
+    )
+    private void skipTwitchCode2(IStream instance) {
+        // No-op
+    }
+
 
     @Inject(method = "drawSplashScreen", at = @At("HEAD"), cancellable = true)
     private void drawSplashScreen(TextureManager texMgr, CallbackInfo ci) throws LWJGLException {

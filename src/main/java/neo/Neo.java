@@ -10,6 +10,8 @@ import neo.script.ScriptManager;
 import neo.util.*;
 import neo.util.config.Config;
 import neo.util.other.DebugInfoRenderer;
+import neo.util.other.GuiDetectionHandler;
+import neo.util.other.ParticleDistanceHandler;
 import neo.util.other.java.Reflection;
 import neo.util.packet.BadPacketsHandler;
 import neo.util.player.CPSCalculator;
@@ -46,6 +48,7 @@ import java.util.concurrent.ScheduledExecutorService;
 )
 
 public class Neo {
+    public static boolean recommendedChanges = false;
     public static boolean debugger = false;
     public static Minecraft mc = Minecraft.getMinecraft();
     private static final ScheduledExecutorService ex = Executors.newScheduledThreadPool(2);
@@ -55,6 +58,7 @@ public class Neo {
     public static ScriptManager scriptManager;
     public static Config currentConfig;
     public static BadPacketsHandler badPacketsHandler;
+    public static File NeoDirectory = new File(mc.mcDataDir + File.separator + "neo");
 
     public Neo() {
         moduleManager = new ModuleManager();
@@ -86,21 +90,25 @@ public class Neo {
     public void preInit(FMLPreInitializationEvent e) {
         Display.setTitle(Variables.clientName + " " + Variables.clientVersion);
 
-        ByteBuffer[] icons = new ByteBuffer[2];
-        try (InputStream inputstream = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico.png"));
-             InputStream inputstream1 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico2.png"))) {
+        ByteBuffer[] icons = new ByteBuffer[4];
+        try (
+                InputStream icon16 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico1.png"));
+                InputStream icon32 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico2.png"));
+                InputStream icon128 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico3.png"));
+                InputStream icon256 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico4.png"))
+        ) {
+            icons[0] = readImageToBuffer(icon16);   // 16x16
+            icons[1] = readImageToBuffer(icon32);   // 32x32
+            icons[2] = readImageToBuffer(icon128);  // 128x128
+            icons[3] = readImageToBuffer(icon256);  // 256x256
 
-            // Read both images into ByteBuffers
-            icons[0] = readImageToBuffer(inputstream);
-            icons[1] = readImageToBuffer(inputstream1);
-
-            // Set the display icon
             Display.setIcon(icons);
-        } catch (IOException exc) {
-            System.err.println("Ewwor loading icons: " + exc.getMessage());
-            exc.printStackTrace(); // Print stack trace for debugging
+        } catch (IOException err) {
+            System.err.println("icon loading ewwor: " + err.getMessage());
+            err.printStackTrace();
         }
     }
+
 
 
     @EventHandler
@@ -110,6 +118,8 @@ public class Neo {
         FMLCommonHandler.instance().bus().register(new DebugInfoRenderer());
         FMLCommonHandler.instance().bus().register(new CPSCalculator());
         FMLCommonHandler.instance().bus().register(badPacketsHandler = new BadPacketsHandler());
+        FMLCommonHandler.instance().bus().register(new GuiDetectionHandler());
+        FMLCommonHandler.instance().bus().register(new ParticleDistanceHandler());
 
         // COMMANDS
         FMLCommonHandler.instance().bus().register(new BindCommand(moduleManager));
@@ -136,7 +146,16 @@ public class Neo {
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
-        System.out.println("Neo PostInit");
+        String flag = System.getProperty("recommendedChanges");
+        recommendedChanges = Boolean.parseBoolean(flag);
+        System.out.println("Neo PostInit - recommendedChanges: " + recommendedChanges);
+        if (recommendedChanges) {
+            Utils.patchOptifineSettings();
+            mc.gameSettings.fancyGraphics = false;
+            mc.gameSettings.ambientOcclusion = 0;
+            mc.gameSettings.useNativeTransport = true;
+            mc.gameSettings.particleSetting = 2;
+        }
     }
 
     @SubscribeEvent

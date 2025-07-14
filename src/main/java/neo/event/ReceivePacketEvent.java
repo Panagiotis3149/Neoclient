@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 @Cancelable
 public class ReceivePacketEvent extends Event {
     private static Packet<?> staticPacket;
-    private final Packet<?> packet;
+    private Packet<?> packet;
 
     private boolean cancelPacket;
 
@@ -22,6 +22,10 @@ public class ReceivePacketEvent extends Event {
 
     public Packet<?> getNonStaticPacket() {
         return packet;
+    }
+
+    public void setPacket(Packet<?> newPacket) {
+        this.packet = newPacket;
     }
 
     public boolean isCanceled() {

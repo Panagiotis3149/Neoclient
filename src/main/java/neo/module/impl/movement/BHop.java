@@ -2,16 +2,14 @@ package neo.module.impl.movement;
 
 import neo.event.*;
 import neo.module.Module;
-import neo.module.impl.movement.mode.speed.BMCSpeed;
-import neo.module.impl.movement.mode.speed.KarhuSpeed;
-import neo.module.impl.movement.mode.speed.MospixelSpeed;
-import neo.module.impl.movement.mode.speed.MatrixSpeed;
+import neo.module.impl.movement.mode.speed.*;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.player.move.MoveUtil;
 import neo.util.Utils;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.potion.Potion;
@@ -161,17 +159,6 @@ public class BHop extends Module {
                 }
                 break;
             case 5:
-                if (!MoveUtil.isMoving()) return;
-                if (offGroundTicks == 0) {
-                    if (!Utils.jumpDown()) {
-                        mc.thePlayer.jump();
-                        if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                            MoveUtil.strafe(0.6, mc.thePlayer);
-                        } else {
-                            MoveUtil.strafe(0.485, mc.thePlayer);
-                        }
-                    }
-                }
                 break;
             case 6:
                 if (!MoveUtil.isMoving()) return;
@@ -247,9 +234,19 @@ public class BHop extends Module {
     }
 
     @SubscribeEvent
+    public void onTick(TickEvent e) {
+        if (mode.getInput() == 5) {
+            VulcanSpeed.onTick(e);
+        }
+    }
+
+    @SubscribeEvent
     public void onStrafe(StrafeEvent e) {
         if (mode.getInput() == 13) {
                 MatrixSpeed.MatrixSpeed(e);
+        }
+        if (mode.getInput() == 5) {
+            VulcanSpeed.VulcanSpeed(e);
         }
     }
 }

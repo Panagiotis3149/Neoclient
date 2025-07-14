@@ -85,4 +85,20 @@ public class Vec2 {
     public Vec2 negated() {
         return new Vec2(-this.x, -this.y);
     }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setX(float xv) {
+        x = xv;
+    }
+
+    public void setY(float yv) {
+        y = yv;
+    }
 }

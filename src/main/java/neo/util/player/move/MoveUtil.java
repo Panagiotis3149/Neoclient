@@ -2,30 +2,26 @@ package neo.util.player.move;
 
 
 import neo.event.MoveEvent;
-import neo.event.MoveInputEvent;
 import neo.mixins.impl.entity.EntityAccessor;
 import neo.module.impl.movement.TargetStrafe;
 import neo.script.classes.Vec3;
 import neo.util.world.block.BlockUtils;
-import neo.util.other.MathUtil;
 import neo.util.Utils;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovementInput;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static neo.Neo.mc;
-import static neo.module.impl.movement.BHop.autoJump;
-import static neo.module.impl.movement.BHop.speed;
 
 
 public class MoveUtil {
@@ -51,6 +47,8 @@ public class MoveUtil {
             1.0F / MOD_SWIM,
     };
 
+    public static final List<Double> WATER_VALUES = new ArrayList<>();
+
     public static final double UNLOADED_CHUNK_MOTION = -0.09800000190735147;
     public static final double HEAD_HITTER_MOTION = -0.0784000015258789;
 
@@ -61,6 +59,30 @@ public class MoveUtil {
 
     public static void strafe(final double speed) {
         strafe(speed, mc.thePlayer);
+    }
+    
+    public static List<Double> getWaterValues() {
+        WATER_VALUES.add(0.05999999821185753);
+        WATER_VALUES.add(0.051999998867515274);
+        WATER_VALUES.add(0.06159999881982969);
+        WATER_VALUES.add(0.06927999889612124);
+        WATER_VALUES.add(0.07542399904870933);
+        WATER_VALUES.add(0.08033919924402255);
+        WATER_VALUES.add(0.08427135945886732);
+        WATER_VALUES.add(0.0874170876776148);
+        WATER_VALUES.add(0.08993367029011523);
+        WATER_VALUES.add(0.0519469373041872);
+        WATER_VALUES.add(-0.05647059355944606);
+        WATER_VALUES.add(0.03812980539822064);
+        WATER_VALUES.add(-0.035014067535591664);
+        WATER_VALUES.add(-0.04453032983624894);
+        WATER_VALUES.add(0.019999999105927202);
+        WATER_VALUES.add(-0.07159953051526458);
+        WATER_VALUES.add(0.020820931761605266);
+        WATER_VALUES.add(0.0010261658043049238);
+        WATER_VALUES.add(-0.023717291273619878);
+        WATER_VALUES.add(-0.010724939925282229);
+        return WATER_VALUES;
     }
 
     public static double defaultSpeed() {

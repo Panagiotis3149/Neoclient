@@ -3,6 +3,7 @@ package neo.util.player.move;
 import neo.event.PreMotionEvent;
 import neo.module.impl.client.Settings;
 import neo.util.Utils;
+import neo.util.aim.Vec2;
 import neo.util.world.block.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -193,6 +194,39 @@ public class RotationUtils {
         return yaw;
     }
 
+    public static Vec2 getRotations(EntityLivingBase theEntity, RotationAt rotationAt) {
+        if (theEntity == null || rotationAt == null || mc.thePlayer == null) return new Vec2(0, 0);
+
+        float rotationTypeValue = 3;
+
+        double xDistance;
+        double zDistance;
+        double yDistance;
+
+        float yaw, pitch;
+        if (rotationAt.equals(RotationAt.HEAD))
+            rotationTypeValue = 1.314f;
+        if (rotationAt.equals(RotationAt.LEGS))
+            rotationTypeValue = 9.7236f;
+        if (rotationAt.equals(RotationAt.FEET))
+            rotationTypeValue = 194.472f;
+
+        xDistance = theEntity.posX - mc.thePlayer.posX;
+        zDistance = theEntity.posZ - mc.thePlayer.posZ;
+        yDistance = theEntity.posY + (theEntity.getEyeHeight() - 0.1D) / rotationTypeValue - mc.thePlayer.posY - mc.thePlayer.getEyeHeight() / 1.4D;
+        double angleHelper = MathHelper.sqrt_double(xDistance * xDistance + zDistance * zDistance);
+        yaw = (float) Math.toDegrees(-Math.atan(xDistance / zDistance));
+        pitch = (float) -Math.toDegrees(Math.atan(yDistance / angleHelper));
+        double v = Math.toDegrees(Math.atan(zDistance / xDistance));
+        if ((zDistance < 0.0D) && (xDistance < 0.0D)) {
+            yaw = (float) (90.0D + v);
+        } else if ((zDistance < 0.0D) && (xDistance > 0.0D)) {
+            yaw = (float) (-90.0D + v);
+        }
+
+        return new Vec2(yaw, pitch >= 90 ? 90 : pitch <= -90 ? -90 : pitch);
+    }
+
     @Contract("_, _ -> new")
     public static @NotNull neo.script.classes.Vec3 getNearestPoint(@NotNull AxisAlignedBB from, @NotNull neo.script.classes.Vec3 to) {
         double pointX, pointY, pointZ;
@@ -210,3 +244,4 @@ public class RotationUtils {
     }
 
 }
+

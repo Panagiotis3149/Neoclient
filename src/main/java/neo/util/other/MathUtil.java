@@ -20,6 +20,14 @@ public final class MathUtil {
     public static final DecimalFormat DF_2 = new DecimalFormat("0.00");
     public static final DecimalFormat DF_1D = new DecimalFormat("0.#");
     public static final DecimalFormat DF_2D = new DecimalFormat("0.##");
+    private static final double F_1_3 = 1d / 3d;
+    private static final double F_1_5 = 1d / 5d;
+    private static final double F_1_7 = 1d / 7d;
+    private static final double F_1_9 = 1d / 9d;
+    private static final double F_1_11 = 1d / 11d;
+    private static final double F_1_13 = 1d / 13d;
+    private static final double F_1_15 = 1d / 15d;
+    private static final double F_1_17 = 1d / 17d;
 
 
     public static float inverseFloat(float val, float min, float max) {
@@ -28,6 +36,32 @@ public final class MathUtil {
 
     public static boolean isInAnyOffsetRange(int n, int base, int range) {
         return n >= (n / base) * base && n < (n / base) * base + range || n >= ((n / base) - 1) * base && n < ((n / base) - 1) * base + range;
+    }
+
+    public static double atanh(double a) {
+        boolean negative = false;
+        if (a < 0) {
+            negative = true;
+            a = -a;
+        }
+
+        double absAtanh;
+        if (a > 0.15) {
+            absAtanh = 0.5 * Math.log((1 + a) / (1 - a));
+        } else {
+            final double a2 = a * a;
+            if (a > 0.087) {
+                absAtanh = a * (1 + a2 * (F_1_3 + a2 * (F_1_5 + a2 * (F_1_7 + a2 * (F_1_9 + a2 * (F_1_11 + a2 * (F_1_13 + a2 * (F_1_15 + a2 * F_1_17))))))));
+            } else if (a > 0.031) {
+                absAtanh = a * (1 + a2 * (F_1_3 + a2 * (F_1_5 + a2 * (F_1_7 + a2 * (F_1_9 + a2 * (F_1_11 + a2 * F_1_13))))));
+            } else if (a > 0.003) {
+                absAtanh = a * (1 + a2 * (F_1_3 + a2 * (F_1_5 + a2 * (F_1_7 + a2 * F_1_9))));
+            } else {
+                absAtanh = a * (1 + a2 * (F_1_3 + a2 * F_1_5));
+            }
+        }
+
+        return negative ? -absAtanh : absAtanh;
     }
 
 
@@ -225,5 +259,10 @@ public final class MathUtil {
 
     public double getCps(final Collection<? extends Number> data) {
         return 20.0D * getAverage(data);
+    }
+
+    public float calculateGaussianOffset(float x, float sigma) {
+        double output = 1.0 / Math.sqrt(2.0 * Math.PI * (sigma * sigma));
+        return (float) (output * Math.exp(-(x * x) / (2.0 * (sigma * sigma))));
     }
 }

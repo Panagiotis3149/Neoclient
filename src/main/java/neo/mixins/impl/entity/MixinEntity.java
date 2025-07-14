@@ -4,13 +4,13 @@ import neo.event.MoveEvent;
 import neo.event.StrafeEvent;
 import neo.module.ModuleManager;
 import neo.module.impl.player.SafeWalk;
+import neo.util.other.java.mixin.IRotationAccess;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
@@ -18,9 +18,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.Random;
@@ -28,7 +33,7 @@ import java.util.Random;
 import static net.minecraftforge.common.MinecraftForge.EVENT_BUS;
 
 @Mixin(Entity.class)
-public abstract class MixinEntity {
+public abstract class MixinEntity implements IRotationAccess {
     @Shadow
     public boolean noClip;
 
@@ -126,6 +131,21 @@ public abstract class MixinEntity {
 
     @Shadow
     public float rotationYaw;
+
+    @Overwrite
+    protected final Vec3 getVectorForRotation(float pitch, float yaw)
+    {
+        float f = MathHelper.cos(-yaw * 0.017453292F - (float)Math.PI);
+        float f1 = MathHelper.sin(-yaw * 0.017453292F - (float)Math.PI);
+        float f2 = -MathHelper.cos(-pitch * 0.017453292F);
+        float f3 = MathHelper.sin(-pitch * 0.017453292F);
+        return new Vec3((double)(f1 * f2), (double)f3, (double)(f * f2));
+    }
+
+    @Override
+    public Vec3 callGetVectorForRotation(float pitch, float yaw) {
+        return this.getVectorForRotation(pitch, yaw);
+    }
 
     @Overwrite
     public void moveFlying(float strafe, float forward, float friction) {

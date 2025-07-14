@@ -13,7 +13,6 @@ import neo.util.player.move.PlayerRotation;
 import neo.util.world.block.BlockUtils;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.MathHelper;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -22,56 +21,65 @@ import static neo.module.ModuleManager.*;
 public class TargetStrafe extends Module {
     private final SliderSetting range = new SliderSetting("Range", 1, 0.2, 6, 0.1);
     private final ButtonSetting speed = new ButtonSetting("Allow speed", true);
-    private final ButtonSetting fly = new ButtonSetting("Allow fly", false);
+    private final ButtonSetting flight = new ButtonSetting("Allow fly", false);
     private final ButtonSetting manual = new ButtonSetting("Allow manual", false);
     private final ButtonSetting strafe = new ButtonSetting("Strafe around", true);
+    private final ButtonSetting jumpOnly = new ButtonSetting("Jump Only", false);
+
 
     private static float yaw;
     private static EntityLivingBase target = null;
     private boolean left, colliding;
-    private static boolean active = false;
 
     public TargetStrafe() {
         super("TargetStrafe", category.movement);
-        this.registerSetting(range);
-        this.registerSetting(speed);
-        this.registerSetting(fly);
-        this.registerSetting(manual);
-        this.registerSetting(strafe);
-        MinecraftForge.EVENT_BUS.register(this);
+        this.registerSetting(range, speed, flight, manual, strafe, jumpOnly);
     }
 
     public static float getMovementYaw() {
-        if (active && target != null) return yaw;
+        if (target != null) return yaw;
         return mc.thePlayer.rotationYaw;
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onJump(JumpEvent event) {
-        if (target != null && active) {
+        if (target != null) {
             event.setYaw(yaw);
         }
     }
 
-
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPreUpdate(PrePlayerInputEvent event) {
-        if (scaffold == null || scaffold.isEnabled() || killAura == null || !killAura.isEnabled()) {
-            active = false;
+        if (scaffold == null || scaffold.isEnabled()) {
             return;
         }
 
-        active = true;
 
-        if (target != null && active) {
+        if (target != null) {
             event.setYaw(yaw);
         }
 
-        if ((!speed.isToggled() && bHop.isEnabled())
-                || (!fly.isToggled() && ModuleManager.fly.isEnabled())
-                || (!manual.isToggled() && !bHop.isEnabled() && !ModuleManager.fly.isEnabled())) {
+        if (speed.isToggled() && !bHop.isEnabled()) {
             target = null;
             return;
+        }
+
+        if (flight.isToggled() && !fly.isEnabled()) {
+            target = null;
+            return;
+        }
+
+
+        if (jumpOnly.isToggled() && !mc.gameSettings.keyBindJump.isKeyDown()) {
+            target = null;
+            return;
+        }
+
+         if (!manual.isToggled()) {
+            if (!speed.isToggled() && !flight.isToggled()) {
+                target = null;
+                return;
+            }
         }
 
         if (KillAura.target == null) {
@@ -83,8 +91,8 @@ public class TargetStrafe extends Module {
 
         if (mc.thePlayer.isCollidedHorizontally || !BlockUtils.isBlockUnder(5)) {
             if (!colliding) {
-                if (strafe.isToggled()) {
-                    MoveUtil.strafe(MoveUtil.getSpeed()); // Always call strafe if module is enabled
+                if (ModuleManager.strafe.isEnabled() || strafe.isToggled()) {
+                    MoveUtil.strafe(MoveUtil.getSpeed());
                 }
                 left = !left;
             }
@@ -103,13 +111,10 @@ public class TargetStrafe extends Module {
             yaw = PlayerRotation.getYaw(new Vec3(posX, target.posY, posZ));
 
             TargetStrafe.yaw = yaw;
+
+            if (target != null && (ModuleManager.strafe.isEnabled() || strafe.isToggled())) {
+                MoveUtil.strafe(MoveUtil.getSpeed());
+            }
         }
-    }
-
-
-    @Override
-    public void onDisable() {
-        MinecraftForge.EVENT_BUS.unregister(this);
-        active = false;
     }
 }

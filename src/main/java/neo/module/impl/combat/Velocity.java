@@ -6,11 +6,17 @@ import neo.module.ModuleManager;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.Utils;
+import neo.util.packet.PacketUtils;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import net.minecraft.network.play.server.S27PacketExplosion;
+import net.minecraft.network.play.server.S32PacketConfirmTransaction;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
+
 
 public class Velocity extends Module {
     public static SliderSetting mode;
@@ -20,8 +26,9 @@ public class Velocity extends Module {
     private final ButtonSetting onlyWhileTargeting;
     private final ButtonSetting disableS;
     private final ButtonSetting onlyInAir;
+    private boolean transaction = false;
 
-    private static final String[] modes = {"Custom", "CancelPacket"};
+    private static final String[] modes = {"Custom", "CancelPacket", "Vulcan"};
 
     public Velocity() {
         super("Velocity", category.combat, 0);
@@ -55,6 +62,58 @@ public class Velocity extends Module {
                     event.cancelEvent();
                 }
                 break;
+            case 2:
+                Packet<?> p = ReceivePacketEvent.getPacket();
+                if (p instanceof S12PacketEntityVelocity) {
+                    S12PacketEntityVelocity original = (S12PacketEntityVelocity) p;
+
+                    int id = original.getEntityID();
+                    int motionX = original.getMotionX();
+                    int motionY = original.getMotionY();
+                    int motionZ = original.getMotionZ();
+
+                    if (id == mc.thePlayer.getEntityId()) {
+                        motionX *= 1.9;
+                        motionY *= 1.0;
+                        motionZ *= 1.9;
+                    } else {
+                        motionX *= 1.0;
+                        motionY *= 1.0;
+                        motionZ *= 1.0;
+                    }
+
+                    S12PacketEntityVelocity modified = new S12PacketEntityVelocity(id, motionX, motionY, motionZ);
+                    event.setPacket(modified);
+                } else if (p instanceof S27PacketExplosion) {
+                    S27PacketExplosion original = (S27PacketExplosion) p;
+
+                    float x = original.func_149149_c() * (1f / 100f);
+                    float y = original.func_149144_d() * (1f / 100f);
+                    float z = original.func_149147_e() * (1f / 100f);
+
+                    Vec3 newVelocity = new Vec3(x, y, z);
+
+                    S27PacketExplosion modified = new S27PacketExplosion(
+                            original.getX(), original.getY(), original.getZ(),
+                            original.getStrength(),
+                            original.getAffectedBlockPositions(),
+                            newVelocity
+                    );
+
+                    event.setPacket(modified);
+                }
+
+                if (p instanceof S32PacketConfirmTransaction && mc.thePlayer.hurtTime == 10) {
+                    event.cancelEvent();
+                    event.setCanceled(true);
+                    PacketUtils.sendPacket(new C0FPacketConfirmTransaction(
+                            (short) (transaction ? 1 : -1),
+                            (short) (transaction ? -1 : 1),
+                            transaction
+                    ));
+                    transaction = !transaction;
+                }
+                break;
         }
     }
 
@@ -84,7 +143,6 @@ public class Velocity extends Module {
                     mc.thePlayer.motionY *= vertical.getInput() / 100;
                 }
                 break;
-            // future modes go here
         }
     }
 }

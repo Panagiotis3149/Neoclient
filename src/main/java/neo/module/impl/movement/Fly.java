@@ -1,8 +1,12 @@
 package neo.module.impl.movement;
 
+import neo.event.BlockAABBEvent;
+import neo.event.MoveInputEvent;
 import neo.event.PreMotionEvent;
+import neo.event.ReceivePacketEvent;
 import neo.module.Module;
 import neo.module.ModuleManager;
+import neo.module.impl.client.Notifications;
 import neo.module.impl.other.SlotHandler;
 import neo.module.impl.render.BPSCounter;
 import neo.module.setting.impl.ButtonSetting;
@@ -14,9 +18,12 @@ import neo.util.player.move.MoveUtil;
 import neo.util.player.move.RotationUtils;
 import neo.util.render.RenderUtils;
 import neo.util.world.block.BlockUtils;
+import net.minecraft.block.BlockAir;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
@@ -37,9 +44,11 @@ public class Fly extends Module {
     public static int offGroundTicks;
     private int i;
     private double floatPos;
-    private final String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus1", "Mospixel", "BMC"};
+    private final String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus", "Mospixel", "BMC", "Test"};
     private double jumpGround = 0.0;
     private boolean wE;
+    private double sP;
+    private double phase = 1;
 
     public Fly() {
         super("Fly", category.movement);
@@ -52,15 +61,12 @@ public class Fly extends Module {
 
     public void onEnable() {
         d = mc.thePlayer.capabilities.isFlying;
-
+        sP = mc.thePlayer.posY;
         moveSpeed = 0;
         stage = mc.thePlayer.onGround ? 0 : -1;
         ticks = 0;
         i = 0;
         floatPos = mc.thePlayer.posY;
-        if (mode.getInput() == 9) {
-            DamageUtil.oldNCPTestSelfDamage();
-        }
         wE = ModuleManager.bpsCounter.isEnabled();
         if (!wE && showBPS.isToggled()) {
             ModuleManager.bpsCounter.toggle();
@@ -246,13 +252,59 @@ public class Fly extends Module {
                 }
                 MoveUtil.strafec(MoveUtil.getSpeed());
                 break;
+            case 9:
+                double lastY = mc.thePlayer.prevPosY;
+                double targetDY = 0.05999999821185753;
+                Utils.getTimer().timerSpeed = 0.9f;
+                if (phase == 1) {
+                    mc.thePlayer.motionZ = 0;
+                    mc.thePlayer.motionX = 0;
+                    for (double val : MoveUtil.getWaterValues()) {
+                        if (Math.abs((mc.thePlayer.posY - lastY) - val) < 1.0E-6) {
+                            targetDY = val;
+                            break;
+                        }
+                    }
+
+                    double newY = Utils.bypass(lastY + targetDY);
+                    mc.thePlayer.setPosition(mc.thePlayer.lastTickPosX, newY, mc.thePlayer.lastTickPosZ);
+                    if (mc.thePlayer.posY > sP + 0.95) {
+                        phase = 2;
+                    }
+                }
+
+                if (phase == 2) {
+                    mc.thePlayer.motionY = 0.0010261658043049238;
+                    if (mc.thePlayer.ticksExisted % 2 == 0 || !Utils.isBypass(mc.thePlayer.posY)) {
+                        mc.thePlayer.setPosition(mc.thePlayer.posX, Utils.bypass(mc.thePlayer.posY), mc.thePlayer.posZ);
+                    }
+                }
+
+                break;
+            case 10:
+
                 }
         }
+
+        @SubscribeEvent
+        public void onBlockAABB(BlockAABBEvent event) {
+        if (mode.getInput() == 9 && phase == 2) {
+            if (event.getBlock() instanceof BlockAir && !mc.thePlayer.isSneaking()) {
+                final double x = event.getBlockPos().getX(), y = event.getBlockPos().getY(), z = event.getBlockPos().getZ();
+
+                if (y < mc.thePlayer.posY) {
+                    event.setBoundingBox(AxisAlignedBB.fromBounds(-15, -1, -15, 15, 1, 15).offset(x, y, z));
+                }
+            }
+        }
+    }
 
 
     public void onDisable() {
         Utils.stopBlink();
         Utils.resetTimer();
+        phase = 1;
+        sP = Double.NaN;
         if (mc.thePlayer.capabilities.allowFlying) {
             mc.thePlayer.capabilities.isFlying = d;
         }

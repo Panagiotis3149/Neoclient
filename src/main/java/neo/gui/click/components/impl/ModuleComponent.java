@@ -209,6 +209,7 @@ public class ModuleComponent extends Component {
         font.drawString(this.mod.getName(), textX, this.categoryComponent.getY() + this.o + 4,  0xFFFFFFFF);
         GlStateManager.resetColor();
         GL11.glPopMatrix();
+        GL11.glPopMatrix(); // FIXED I THINK
     }
 
 

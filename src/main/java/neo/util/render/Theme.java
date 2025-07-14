@@ -61,7 +61,7 @@ public enum Theme {
 
     private final Color firstGradient;
     private final Color secondGradient;
-    public static Color[] descriptor = new Color[]{new Color(95, 235, 255), new Color(68, 102, 250)};
+    public static Color[] descriptor = new Color[]{new Color(136, 136, 136), new Color(46, 46, 46)};
     public static Color[] hiddenBind = new Color[]{new Color(245, 33, 33), new Color(229, 21, 98)};
 
     Theme(Color firstGradient, Color secondGradient) {

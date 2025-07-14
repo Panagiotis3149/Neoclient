@@ -2,7 +2,7 @@ package neo.module.impl.movement;
 
 import neo.module.Module;
 import neo.module.ModuleManager;
-import neo.module.impl.combat.KillAura;
+import neo.module.impl.combat.OldAura;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.DescriptionSetting;
 import neo.module.setting.impl.SliderSetting;
@@ -30,8 +30,8 @@ public class KeepSprint extends Module {
         else if (reduceReachHits.isToggled() && !mc.thePlayer.capabilities.isCreativeMode) {
             double n = -1.0;
             final Vec3 getPositionEyes = mc.thePlayer.getPositionEyes(1.0f);
-            if (ModuleManager.killAura != null && ModuleManager.killAura.isEnabled() && KillAura.target != null) {
-                n = getPositionEyes.distanceTo(KillAura.target.getPositionEyes(1.0f));
+            if (ModuleManager.killAura != null && ModuleManager.killAura.isEnabled() && OldAura.target != null) {
+                n = getPositionEyes.distanceTo(OldAura.target.getPositionEyes(1.0f));
             }
             else if (ModuleManager.reach != null && ModuleManager.reach.isEnabled()) {
                 n = getPositionEyes.distanceTo(mc.objectMouseOver.hitVec);

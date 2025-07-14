@@ -53,9 +53,9 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -70,6 +70,15 @@ public class Utils {
     public static HashSet<String> enemies = new HashSet<>();
     public static final Logger log = LogManager.getLogger();
 
+    public static String readStream(InputStream is) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) {
+            sb.append(line).append('\n');
+        }
+        return sb.toString();
+    }
 
     public static String readInputStream(InputStream inputStream) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -392,6 +401,11 @@ public class Utils {
     public static int merge(int n, int n2) {
         return (n & 0xFFFFFF) | n2 << 24;
     }
+
+    public static int merg(int rgb, int alpha) {
+        return (rgb & 0xFFFFFF) | ((alpha & 0xFF) << 24);
+    }
+
 
     public static int clamp(int n) {
         if (n > 255) {
@@ -817,6 +831,48 @@ public class Utils {
         long rm = Math.round(nm);
         return rm * multiple;
     }
+
+    public static boolean isBypass(double number) {
+        double multiple = 0.015625;
+        double nm = number / multiple;
+        long rm = Math.round(nm);
+        double snapped = rm * multiple;
+        return number == snapped;
+    }
+
+
+    public static void patchOptifineSettings() {
+        File file = new File(Minecraft.getMinecraft().mcDataDir, "optionsof.txt");
+        if (!file.exists()) return;
+
+        try {
+            List<String> lines = Files.readAllLines(file.toPath());
+            boolean foundGlErrors = false, foundFastMath = false, foundFastRender = false;
+
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i);
+
+                if (line.startsWith("ofShowGlErrors:")) {
+                    lines.set(i, "ofShowGlErrors:false");
+                    foundGlErrors = true;
+                } else if (line.startsWith("ofFastMath:")) {
+                    lines.set(i, "ofFastMath:false");
+                    foundFastMath = true;
+                } else if (line.startsWith("ofFastRender:")) {
+                    lines.set(i, "ofFastRender:false");
+                    foundFastRender = true;
+                }
+            }
+
+            if (!foundGlErrors) lines.add("ofShowGlErrors:false");
+            if (!foundFastMath) lines.add("ofFastMath:false");
+            if (!foundFastRender) lines.add("ofFastRender:false");
+
+            Files.write(file.toPath(), lines);
+        } catch (IOException ignored) {
+        }
+    }
+
 
     public static double bypassValue = 0.015625;
 

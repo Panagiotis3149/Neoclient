@@ -6,7 +6,6 @@ import neo.util.player.move.MoveUtil;
 import neo.util.player.move.PlayerRotation;
 import neo.util.player.move.RotationUtils;
 import neo.util.Utils;
-import lombok.Getter;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.AxisAlignedBB;
 import org.jetbrains.annotations.NotNull;
@@ -49,8 +48,12 @@ public class AimSimulator {
     private final double offsetY = 0;
     private final boolean offsetPre = true;
 
-    @Getter
-    private Vec3 hitPos = Vec3.ZERO;
+
+    private static Vec3 hitPos = Vec3.ZERO;
+
+    public static Vec3 getHitPos() {
+        return hitPos;
+    }
 
 
     public @NotNull Pair<Float, Float> getRotation(@NotNull EntityLivingBase target) {

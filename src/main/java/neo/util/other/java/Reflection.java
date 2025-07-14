@@ -63,6 +63,7 @@ public class Reflection {
     private static Field lastReportedPosZ;
     private static Field lastReportedYaw;
     private static Field lastReportedPitch;
+    static boolean flag3 = false;
 
     public static HashMap<Class, Field> containerInventoryPlayer = new HashMap<>();
     private static final List<Class> containerClasses = Arrays.asList(GuiFurnace.class, GuiBrewingStand.class, GuiEnchantment.class, ContainerHopper.class, GuiDispenser.class, ContainerWorkbench.class, ContainerMerchant.class, ContainerHorseInventory.class);
@@ -250,6 +251,42 @@ public class Reflection {
             }
         }
     }
+
+    public static boolean canRiderInteractExists(Entity entity) {
+        try {
+            Method method = entity.getClass().getMethod("canRiderInteract");
+            return method != null;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    public static boolean callCanRiderInteract(Entity entity) {
+        try {
+            Method method = entity.getClass().getMethod("canRiderInteract");
+            return (boolean) method.invoke(entity);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean callBoolean(Object instance, String methodName, Object... params) {
+        try {
+            Class<?> clazz = instance.getClass();
+            Class<?>[] paramTypes = new Class<?>[params.length];
+            for (int i = 0; i < params.length; i++) {
+                paramTypes[i] = params[i].getClass();
+            }
+            Method method = clazz.getDeclaredMethod(methodName, paramTypes);
+            method.setAccessible(true);
+            return (boolean) method.invoke(instance, params);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 
     private static void addToMap(Class clazz, Field field) {
         if (field == null || field.getType() != IInventory.class) {

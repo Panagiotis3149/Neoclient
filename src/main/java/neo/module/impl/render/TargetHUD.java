@@ -1,6 +1,7 @@
 package neo.module.impl.render;
 
 import neo.module.Module;
+import neo.module.ModuleManager;
 import neo.module.impl.combat.KillAura;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.DescriptionSetting;
@@ -51,6 +52,7 @@ public class TargetHUD extends Module {
     public static int current$maxY;
     private final Animation healthBarAnimation = new Animation(Easing.LINEAR, 250);
     private EntityLivingBase lastTarget;
+    private Object aura;
 
 
     public TargetHUD() {

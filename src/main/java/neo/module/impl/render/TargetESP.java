@@ -1,6 +1,7 @@
 package neo.module.impl.render;
 
 import neo.module.Module;
+import neo.module.ModuleManager;
 import neo.module.impl.combat.KillAura;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
@@ -32,6 +33,7 @@ public class TargetESP extends Module {
     public Color color;
     private final ResourceLocation glowCircle = new ResourceLocation("neo", "textures/glow_circle.png");
     private final long lastTime = System.currentTimeMillis();
+    private Object aura;
 
     public TargetESP() {
         super("TargetESP", category.render);
@@ -41,6 +43,7 @@ public class TargetESP extends Module {
         this.registerSetting(alpha = new SliderSetting("Alpha", 200, 0, 255, 5));
         this.registerSetting(white = new ButtonSetting("White", false));
     }
+
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {

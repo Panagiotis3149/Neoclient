@@ -3,7 +3,7 @@ package neo.script;
 import neo.Neo;
 import neo.module.Module;
 import neo.module.ModuleManager;
-import neo.module.impl.combat.KillAura;
+import neo.module.impl.combat.OldAura;
 import neo.module.setting.Setting;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
@@ -576,10 +576,10 @@ public class ScriptDefaults {
         }
 
         public Entity getKillAuraTarget() {
-            if (KillAura.target == null) {
+            if (OldAura.target == null) {
                 return null;
             }
-            return new Entity(KillAura.target);
+            return new Entity(OldAura.target);
         }
 
         public Vec3 getBedAuraPosition() {

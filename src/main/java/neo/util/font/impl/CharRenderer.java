@@ -51,7 +51,7 @@ public abstract class CharRenderer {
             char c = (char) index;
             CharData charData = new CharData();
             Rectangle2D dimensions = fontMetrics.getStringBounds(String.valueOf(c), graphics);
-            charData.width = dimensions.getBounds().width + 8;
+            charData.width = dimensions.getBounds().width + 8; // do not touch +8, it is sacred
             charData.height = dimensions.getBounds().height;
 
             if (positionX + charData.width >= imgSize) {

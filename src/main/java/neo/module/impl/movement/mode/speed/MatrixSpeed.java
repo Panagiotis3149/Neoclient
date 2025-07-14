@@ -14,12 +14,12 @@ public class MatrixSpeed {
         Utils.getTimer().timerSpeed = 1.0025f;
 
         if (!mc.thePlayer.onGround) {
-            RotationHandler.setMoveFix(RotationHandler.MoveFix.Silent);
+            RotationHandler.setMoveFix(RotationHandler.MoveFix.Strict);
             e.setYaw(mc.thePlayer.rotationYaw + 45);
-        } else if (mc.thePlayer.onGround && e.getFriction() + 0.003 <= 1.0) {
-            e.setFriction((float) (e.getFriction() + 0.003));
+        } else if (mc.thePlayer.onGround && e.getFriction() + 0.0003 <= 1.0) {
+            e.setFriction((float) (e.getFriction() + 0.0003));
         }
 
-        MoveUtil.moveFlying(0.000399);
+        MoveUtil.moveFlying(0.000299);
     }
 }

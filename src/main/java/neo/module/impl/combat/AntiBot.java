@@ -5,6 +5,7 @@ import neo.module.ModuleManager;
 import neo.module.impl.player.Freecam;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
+import neo.script.classes.Vec3;
 import neo.util.Utils;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
@@ -12,16 +13,17 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class AntiBot extends Module {
     private static final HashMap<EntityPlayer, Long> entities = new HashMap();
+    private static final Set<EntityPlayer> filteredBot = new HashSet<>();
+    private final Map<String, EntityPlayer> lastPlayers = new HashMap<>();
     private static ButtonSetting entitySpawnDelay;
     private final SliderSetting delay;
     private static ButtonSetting pitSpawn;
     private static ButtonSetting tablist;
+    private static ButtonSetting matrix;
 
     public AntiBot() {
         super("AntiBot", category.combat, 0);
@@ -29,6 +31,7 @@ public class AntiBot extends Module {
         this.registerSetting(delay = new SliderSetting("Delay", 7.0, 0.5, 15.0, 0.5, " second"));
         this.registerSetting(pitSpawn = new ButtonSetting("Pit spawn", false));
         this.registerSetting(tablist = new ButtonSetting("Tab list", false));
+        this.registerSetting(matrix = new ButtonSetting("MatrixTest", false));
     }
 
     @SubscribeEvent
@@ -42,11 +45,33 @@ public class AntiBot extends Module {
         if (entitySpawnDelay.isToggled() && !entities.isEmpty()) {
             entities.values().removeIf(n -> n < System.currentTimeMillis() - delay.getInput());
         }
+        lastPlayers.clear();
+        for (EntityPlayer p : mc.theWorld.playerEntities) {
+            if (filteredBot.contains(p)) continue;
+
+            String name = p.getName();
+            if (lastPlayers.containsKey(name)) {
+
+                EntityPlayer exists = lastPlayers.get(name);
+                Vec3 thePlayer = new Vec3(mc.thePlayer);
+                double existsDistance = thePlayer.distanceTo(exists);
+                double curDistance = thePlayer.distanceTo(p);
+
+                if (existsDistance > curDistance) {
+                    filteredBot.add(p);
+                } else {
+                    filteredBot.add(exists);
+                }
+                break;
+            }
+            lastPlayers.put(name, p);
+        }
     }
 
     public void onDisable() {
         entities.clear();
     }
+
 
     public static boolean isBot(Entity entity) {
         if (!ModuleManager.antiBot.isEnabled()) {
@@ -60,6 +85,9 @@ public class AntiBot extends Module {
         }
         final EntityPlayer entityPlayer = (EntityPlayer) entity;
         if (entitySpawnDelay.isToggled() && !entities.isEmpty() && entities.containsKey(entityPlayer)) {
+            return true;
+        }
+        if (matrix.isToggled() && filteredBot.contains(entityPlayer)) {
             return true;
         }
         if (entityPlayer.isDead) {

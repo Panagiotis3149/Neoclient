@@ -28,7 +28,7 @@ public class ConfigManager {
     public List<Config> configs = new ArrayList<>();
 
     public ConfigManager() {
-        directory = new File(mc.mcDataDir + File.separator + "neo", "conf");
+        directory = new File(Neo.NeoDirectory, "conf");
         if (!directory.exists()) {
             boolean success = directory.mkdirs();
             if (!success) {
