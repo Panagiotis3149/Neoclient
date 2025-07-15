@@ -95,7 +95,7 @@ public class AltMGR extends GuiScreen {
         if (NeoCloud.onlineVersion != null && !NeoCloud.onlineVersion.isEmpty() && Variables.OUTDATED) {
             FontRenderer font = FontManager.productSans20;
             int x = (int) (((double) this.width / 2) - (font.width("Neo is outdated! Update now: " + NeoCloud.onlineVersion) / 2));
-            font.drawString("Neo is outdated! Update now: " + NeoCloud.onlineVersion, x, 10, 0xFFFFFFFF, false);
+            font.drawString("Neo is outdated! Online version: " + NeoCloud.onlinePretty + ", update now!", x, 10, 0xFFFFFFFF, false);
         }
 
 
