@@ -63,10 +63,10 @@ public class AddAccount extends GuiScreen {
                 this.mc.displayGuiScreen(new MicrosoftLogin(this));
                 break;
             case 4:
- //               this.mc.displayGuiScreen(new CookieLogin(this));
+                this.mc.displayGuiScreen(new CookieLogin(this));
                 break;
             case 5:
- //               this.mc.displayGuiScreen(new TokenLogin(this));
+                this.mc.displayGuiScreen(new TokenLogin(this));
                 break;
             case 0:
                 this.mc.displayGuiScreen(parent);

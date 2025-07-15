@@ -11,16 +11,21 @@ import neo.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Session;
 import javax.net.ssl.HttpsURLConnection;
+import javax.swing.*;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+
 public class AccountUtils {
+    private static final MicrosoftAuthenticator auth = new MicrosoftAuthenticator();
 
     public static String[] splitCreds(String input) {
         return input.split(":", 2);
@@ -28,15 +33,33 @@ public class AccountUtils {
 
 
     public static MicrosoftAuthResult authenticateWithCredentials(String email, String password) throws MicrosoftAuthenticationException {
-        MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
-        return authenticator.loginWithCredentials(email, password);
-    }
+            MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
+            return authenticator.loginWithCredentials(email, password);
+    };
 
     public static MicrosoftAuthResult authenticateWithWebView() throws MicrosoftAuthenticationException {
-        MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
-        return authenticator.loginWithWebview();
-    }
+            MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
+            return authenticator.loginWithWebview();
+    };
 
+
+
+    public static void cookieLogin(Consumer<MicrosoftAuthResult> callback, Consumer<String> errorCallback) {
+        SwingUtilities.invokeLater(() -> {
+            JFileChooser chooser = new JFileChooser();
+            int result = chooser.showOpenDialog(null);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                try {
+                    List<String> lines = Files.readAllLines(chooser.getSelectedFile().toPath());
+                    loginWithCookieAsync(lines.toArray(new String[0]), callback, errorCallback);
+                } catch (Exception e) {
+                    errorCallback.accept("Failed to read cookie file: " + e.getMessage());
+                }
+            } else {
+                errorCallback.accept("File selection cancelled");
+            }
+        });
+    }
 
     public static void loginWithCookieAsync(String[] cookieLines, Consumer<MicrosoftAuthResult> callback, Consumer<String> errorCallback) {
         new Thread(() -> {
@@ -48,7 +71,6 @@ public class AccountUtils {
             }
         }, "Cookie Login Thread").start();
     }
-
 
     public static MicrosoftAuthResult loginWithCookie(String[] cookieLines) throws Exception {
         if (cookieLines == null || cookieLines.length == 0)
@@ -148,6 +170,22 @@ public class AccountUtils {
             AuthTokens tokens = new AuthTokens(mcRes.access_token, null);
             return authenticator.loginWithTokens(tokens);
         }
+    }
+
+    public static AuthTokens getTokens(String token) throws MicrosoftAuthenticationException {
+        if (looksLikeRefresh(token)) {
+            MicrosoftAuthResult result = auth.loginWithRefreshToken(token);
+            return new AuthTokens(result.getAccessToken(), result.getRefreshToken());
+        }
+        throw new IllegalArgumentException("Only refresh tokens supported, access tokens alone don't work.");
+    }
+
+    public static boolean looksLikeJwt(String token) {
+        return token.split("\\.").length == 3;
+    }
+
+    public static boolean looksLikeRefresh(String token) {
+        return !looksLikeJwt(token) && token.length() > 200;
     }
 
     public static MicrosoftAuthResult authenticateWithRefreshToken(String refreshToken) throws MicrosoftAuthenticationException {
