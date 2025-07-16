@@ -155,6 +155,7 @@ public class Neo {
             mc.gameSettings.ambientOcclusion = 0;
             mc.gameSettings.useNativeTransport = true;
             mc.gameSettings.particleSetting = 2;
+            mc.gameSettings.guiScale = 2;
         }
     }
 

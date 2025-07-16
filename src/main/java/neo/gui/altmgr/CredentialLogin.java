@@ -17,6 +17,7 @@ import neo.util.font.impl.FontRenderer;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
+import java.nio.BufferOverflowException;
 
 public class CredentialLogin extends GuiScreen {
 
@@ -106,6 +107,10 @@ public class CredentialLogin extends GuiScreen {
                 if (!cred.isEmpty()) {
                     MicrosoftAuthResult authResult;
                     String[] credentials = AccountUtils.splitCreds(cred);
+                    if (credentials.length < 2) {
+                        status = "Invalid Credentials!";
+                        return;
+                    }
                     try {
                         authResult = AccountUtils.authenticateWithCredentials(credentials[0], credentials[1]);
                     } catch (MicrosoftAuthenticationException e) {
