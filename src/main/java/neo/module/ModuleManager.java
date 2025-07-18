@@ -83,6 +83,7 @@ public class ModuleManager {
         this.addModule(bedAura = new BedAura());
         this.addModule(noSlow = new NoSlow());
         this.addModule(sprint = new Sprint());
+        this.addModule(new Nametags());
         this.addModule(timer = new Timer());
         this.addModule(new AutoPlace());
         this.addModule(fastPlace = new FastPlace());

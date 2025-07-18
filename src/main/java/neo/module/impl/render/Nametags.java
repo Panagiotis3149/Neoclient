@@ -39,6 +39,7 @@ public class Nametags extends Module {
     private final int backGroundColor = new Color(0, 0, 0, 65).getRGB();
     private final int friendColor = new Color(0, 255, 0, 255).getRGB();
     private final int enemyColor = new Color(255, 0, 0, 255).getRGB();
+
     public Nametags() {
         super("Nametags", category.render, 0);
         registerSetting(mode = new SliderSetting("Mode", modes, 0));
