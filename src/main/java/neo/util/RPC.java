@@ -1,6 +1,8 @@
 package neo.util;
 
+import neo.gui.altmgr.*;
 import neo.gui.click.ClickGui;
+import neo.gui.menu.AltMGR;
 import neo.gui.menu.MainMenu;
 import neo.script.ScriptDefaults;
 import net.arikia.dev.drpc.DiscordEventHandlers;
@@ -61,8 +63,19 @@ public class RPC {
                 p.setDetails("I need to change my video settings, I'm lagging.");
             } else if (mc.currentScreen instanceof GuiConnecting || mc.currentScreen instanceof GuiDownloadTerrain) {
                 p.setDetails("I found a server to cheat on...");
-            } else {
-                p.setDetails("Likely idle. (In Menu)");
+            } else if (mc.currentScreen instanceof AltMGR
+                    || mc.currentScreen instanceof AddAccount
+                    || mc.currentScreen instanceof CrackedLogin
+                    || mc.currentScreen instanceof MicrosoftLogin
+                    || mc.currentScreen instanceof CredentialLogin
+                    || mc.currentScreen instanceof CookieLogin
+                    || mc.currentScreen instanceof TokenLogin
+            ) {
+              p.setDetails("Adding Alts...");
+            } else if (mc.currentScreen instanceof GuiYesNo) {
+                p.setDetails("Questioning life choices (GuiY/N)");
+            }  else {
+                p.setDetails("Other GUIs");
             }
         } else {
             if (mc.currentScreen instanceof ClickGui) {
