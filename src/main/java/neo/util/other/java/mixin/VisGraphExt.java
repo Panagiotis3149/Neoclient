@@ -1,4 +1,4 @@
-package neo.mixins.impl.performance;
+package neo.util.other.java.mixin;
 
 public interface VisGraphExt {
     void setLimitScan(boolean limitScan);

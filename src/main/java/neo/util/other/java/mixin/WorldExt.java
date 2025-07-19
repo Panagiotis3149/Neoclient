@@ -1,4 +1,4 @@
-package neo.mixins.impl.performance;
+package neo.util.other.java.mixin;
 
 
 import net.minecraft.world.chunk.Chunk;
