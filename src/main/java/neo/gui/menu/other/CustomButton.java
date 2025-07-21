@@ -27,7 +27,7 @@ import java.awt.*;
                 if (this.hovered) {
                     hoverAnimation = Math.min(hoverAnimation + 0.1F, 1.0F);
                 } else {
-                    hoverAnimation = Math.max(hoverAnimation - 0.1F, 0.0F); // Ease out
+                    hoverAnimation = Math.max(hoverAnimation - 0.1F, 0.0F);
                 }
 
 

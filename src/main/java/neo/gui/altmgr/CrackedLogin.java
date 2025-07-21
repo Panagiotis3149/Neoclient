@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public class CrackedLogin extends GuiScreen {
 
-    private static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/mainmenu.frag");
+    private static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/background.frag");
     private BackgroundShader bgShader;
     private CustomTextField usernameField;
     private final GuiScreen parent;

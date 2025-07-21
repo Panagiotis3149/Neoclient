@@ -23,7 +23,6 @@ import neo.util.shader.RoundedUtils;
 import neo.util.world.block.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemBlock;
@@ -345,7 +344,7 @@ public class Scaffold extends Module {
         }
 
         if (fastScaffold.getInput() == 10) {
-            if (!(unlticks > 30) && MathUtil.isInAnyOffsetRange(ticks, 2, 6)) {
+            if (!(unlticks > 30) && MathUtil.goofA(ticks, 2, 6)) {
                 Utils.getTimer().timerSpeed = 1.2f;
             } else {
                 Utils.resetTimer();

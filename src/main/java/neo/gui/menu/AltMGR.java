@@ -22,7 +22,7 @@ public class AltMGR extends GuiScreen {
     private int scrollY = 0;
     private int maxScrollY = 0;
     public final ArrayList<AccountComponent> accounts = new ArrayList<>();
-    private static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/mainmenu.frag");
+    private static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/background.frag");
     private final GuiScreen parentScreen;
     private BackgroundShader shader;
     public static AltManager altManager = new AltManager();

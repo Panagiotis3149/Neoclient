@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public class TokenLogin extends GuiScreen {
 
-    private static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/mainmenu.frag");
+    private static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/background.frag");
     private BackgroundShader bgShader;
     private CustomTextField TokenField;
     private final GuiScreen parent;

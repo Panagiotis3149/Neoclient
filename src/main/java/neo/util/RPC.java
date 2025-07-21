@@ -4,6 +4,7 @@ import neo.gui.altmgr.*;
 import neo.gui.click.ClickGui;
 import neo.gui.menu.AltMGR;
 import neo.gui.menu.MainMenu;
+import neo.gui.screen.DisconnectedGui;
 import neo.script.ScriptDefaults;
 import net.arikia.dev.drpc.DiscordEventHandlers;
 import net.arikia.dev.drpc.DiscordRPC;
@@ -57,7 +58,7 @@ public class RPC {
                 p.setDetails("Configuring Modules... (ClickGUI)");
             } else if (mc.currentScreen instanceof GuiChat) {
                 p.setDetails("Talking... (Chat)");
-            } else if (mc.currentScreen instanceof GuiDisconnected) {
+            } else if (mc.currentScreen instanceof DisconnectedGui) {
                 p.setDetails("Most likely bad config. (Disconnected)");
             } else if (mc.currentScreen instanceof GuiVideoSettings) {
                 p.setDetails("I need to change my video settings, I'm lagging.");

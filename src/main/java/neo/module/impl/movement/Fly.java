@@ -1,34 +1,26 @@
 package neo.module.impl.movement;
 
-import neo.event.BlockAABBEvent;
-import neo.event.MoveInputEvent;
-import neo.event.PreMotionEvent;
-import neo.event.ReceivePacketEvent;
+import neo.event.*;
 import neo.module.Module;
 import neo.module.ModuleManager;
-import neo.module.impl.client.Notifications;
 import neo.module.impl.other.SlotHandler;
-import neo.module.impl.render.BPSCounter;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.*;
+import neo.util.other.MathUtil;
 import neo.util.packet.PacketUtils;
-import neo.util.player.DamageUtil;
 import neo.util.player.move.MoveUtil;
 import neo.util.player.move.RotationUtils;
-import neo.util.render.RenderUtils;
 import neo.util.world.block.BlockUtils;
 import net.minecraft.block.BlockAir;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.play.client.C03PacketPlayer;
-import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.lang3.RandomUtils;
 import org.lwjgl.input.Keyboard;
 
@@ -44,11 +36,14 @@ public class Fly extends Module {
     public static int offGroundTicks;
     private int i;
     private double floatPos;
-    private final String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus", "Mospixel", "BMC", "Test"};
+    private final String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus", "Mospixel", "BMC", "Test", "Test2"};
     private double jumpGround = 0.0;
     private boolean wE;
     private double sP;
     private double phase = 1;
+    int phasse = -1;
+    int sType = 0;
+    boolean time = true;
 
     public Fly() {
         super("Fly", category.movement);
@@ -147,7 +142,7 @@ public class Fly extends Module {
                 if (mc.thePlayer.isSneaking() || !Utils.isMoving()) return;
                 if (MoveUtil.canSprint(true)) mc.thePlayer.setSprinting(true);
                 if (mc.thePlayer.isAirBorne) mc.thePlayer.motionY = -0.08;
-                Utils.setSpeed(0.7);
+                Utils.setSpeed(0.6);
                 mc.thePlayer.setJumping(false);
                 mc.thePlayer.onGround = true;
                 break;
@@ -169,17 +164,15 @@ public class Fly extends Module {
                 }
 
 
-                if (ticksl == 125) {
+                if (ticksl == 135) {
                     stage = -1;
                     ticks = 0;
                     PacketUtils.sendPacketNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX + 5, mc.thePlayer.posY + 1, mc.thePlayer.posZ + 5, true));
-                    // return;
                     ticksl = 0;
                 }
 
                 switch (stage) {
                     case -1:
-                        mc.thePlayer.motionY = 0;
                         mc.thePlayer.motionY = (-0.00001);
                         return;
                     case 0:
@@ -196,14 +189,12 @@ public class Fly extends Module {
                         break;
                     default:
                         moveSpeed -= moveSpeed / 109;
-                        mc.thePlayer.motionY = 0;
                         mc.thePlayer.motionY = (-0.00001);
                         break;
                 }
 
                 mc.thePlayer.jumpMovementFactor = 0F;
                 MoveUtil.strafe4(Math.max(moveSpeed, MoveUtil.getAllowedHorizontalDistance()));
-                // MoveUtil.setSpeedMTest(Math.max(moveSpeed, MoveUtil.getAllowedHorizontalDistance()));
                 stage++;
                 break;
             case 8:
@@ -281,9 +272,41 @@ public class Fly extends Module {
                 }
 
                 break;
-            case 10:
-
                 }
+        }
+
+        @SubscribeEvent
+        public void onMove(MoveEvent e) {
+        if (mode.getInput() == 10) {
+            if (phasse == -1) {
+                if (mc.thePlayer.onGround) {
+                    mc.thePlayer.motionY = 0.3999;
+                } else {
+                    if (mc.thePlayer.motionY < 0) {
+                        phasse = 1;
+                    }
+                }
+                sType = 0;
+            } if (phasse == 1) {
+                if (time) {
+                    e.y += .05;
+                    time = false;
+                    sType = 0;
+                }
+                mc.thePlayer.motionY = -0.00000001;
+                e.setY(mc.thePlayer.ticksExisted % 2 == 0 ? 1E-9 : -1E-9);
+                if (!time) {
+                    sType = 1;
+                }
+            } if (sType == 1) {
+                MoveUtil.strafe5(MoveUtil.getAllowedHorizontalDistance() + .01);
+            } if (sType == 0) {
+                MoveUtil.strafe5(MoveUtil.getAllowedHorizontalDistance() + (Utils.getHorizontalSpeed() / 109));
+            }
+            if (MathUtil.goofB(mc.thePlayer.ticksExisted, 40, 1) && sType == 1) {
+                MoveUtil.strafe5(1);
+            }
+         }
         }
 
         @SubscribeEvent
@@ -304,6 +327,9 @@ public class Fly extends Module {
         Utils.stopBlink();
         Utils.resetTimer();
         phase = 1;
+        phasse = -1;
+        sType = 0;
+        time = true;
         sP = Double.NaN;
         if (mc.thePlayer.capabilities.allowFlying) {
             mc.thePlayer.capabilities.isFlying = d;

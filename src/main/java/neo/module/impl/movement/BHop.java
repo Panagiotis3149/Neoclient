@@ -148,15 +148,15 @@ public class BHop extends Module {
             case 9: KarhuSpeed.KarhuSpeed(); break;
             case 10:
                 Utils.resetTimer();
-                float xd = 2.5f;
+                float mSp = 2.5f;
                 if (!MoveUtil.isMoving()) return;
                 if (Utils.isMoving() && mc.thePlayer.onGround && autoJump.isToggled()) MoveUtil.jump(0.46f);
-                if (Utils.getHorizontalSpeed() <= xd) Utils.setSpeed(Utils.getHorizontalSpeed() + 0.08);
+                if (Utils.getHorizontalSpeed() <= mSp) Utils.setSpeed(Utils.getHorizontalSpeed() + 0.08);
                 Utils.getTimer().timerSpeed = 1.05f;
                 break;
             case 11: MospixelSpeed.MospixelSpeed(); break;
             case 12: BMCSpeed.BMCSpeed(); break;
-            case 13: /* see onStrafe */break;
+            case 13: /* see onStrafe */ break;
         }
     }
 

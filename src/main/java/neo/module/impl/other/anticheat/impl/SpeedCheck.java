@@ -13,7 +13,7 @@ public class SpeedCheck implements AnticheatComponent {
         if (!anticheat.speed.isToggled()) return;
 
         if (player.isSwingInProgress && player.getFoodStats().getFoodLevel() <= 6) {
-            anticheat.alert(player, anticheat.speed, "Low Hunger");
+            anticheat.alert(player, anticheat.speed, "Hunger");
         }
 
         if (data.deltaX == 0 && data.deltaZ == 0) return;
@@ -25,7 +25,7 @@ public class SpeedCheck implements AnticheatComponent {
         double sqAccel = accel * 100;
 
         if (deltaYaw > 1.5F && deltaXZ > .15D && sqAccel < 1.0E-5) {
-            anticheat.alert(player, anticheat.speed, "Invalid Strafe");
+            anticheat.alert(player, anticheat.speed, "Strafe");
         }
 
         lastDeltaXZ = deltaXZ;

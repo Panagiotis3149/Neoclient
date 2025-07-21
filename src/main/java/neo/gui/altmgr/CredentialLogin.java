@@ -21,7 +21,7 @@ import java.nio.BufferOverflowException;
 
 public class CredentialLogin extends GuiScreen {
 
-    private static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/mainmenu.frag");
+    private static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/background.frag");
     private BackgroundShader bgShader;
     private CustomTextField credentialField;
     private final GuiScreen parent;

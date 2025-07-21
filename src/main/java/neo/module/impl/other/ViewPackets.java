@@ -14,158 +14,153 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class ViewPackets extends Module {
-    private final ButtonSetting includeCancelled;
-    private final ButtonSetting singlePlayer;
-    private final ButtonSetting sent;
-    private final ButtonSetting ignoreC00;
-    private final ButtonSetting ignoreC03;
-    private final ButtonSetting compactC03;
-    private final ButtonSetting ignoreC0F;
-    private final ButtonSetting received;
-    private Packet packet;
+    private final ButtonSetting includeCancelled = new ButtonSetting("Include cancelled", true);
+    private final ButtonSetting singlePlayer = new ButtonSetting("Singleplayer", false);
+    private final ButtonSetting sent = new ButtonSetting("Sent", false);
+    private final ButtonSetting ignoreC00 = new ButtonSetting("Ignore C00", false);
+    private final ButtonSetting ignoreC03 = new ButtonSetting("Ignore C03", false);
+    private final ButtonSetting compactC03 = new ButtonSetting("Compact C03", false);
+    private final ButtonSetting ignoreC0F = new ButtonSetting("Ignore C0F", false);
+    private final ButtonSetting received = new ButtonSetting("Received", false);
+
+    private Packet<?> lastPacket;
     private long tick;
+
+    private static final String ITEM = "&7Item: &b";
+    private static final String POS = "&7Position: &b";
+    private static final String DIR = "&7Direction: &b";
+    private static final String OFF = "&7Offset: &b";
+    private static final String ACT = "\n&7Action: &b";
+    private static final String SEP = "&7, &b";
+    private static final String MC = "minecraft:";
 
     public ViewPackets() {
         super("PacketViewer", category.other);
-        this.registerSetting(includeCancelled = new ButtonSetting("Include cancelled", true));
-        this.registerSetting(singlePlayer = new ButtonSetting("Singleplayer", false));
-        this.registerSetting(sent = new ButtonSetting("Sent", false));
-        this.registerSetting(ignoreC00 = new ButtonSetting("Ignore C00", false));
-        this.registerSetting(ignoreC03 = new ButtonSetting("Ignore C03", false));
-        this.registerSetting(compactC03 = new ButtonSetting("Compact C03", false));
-        this.registerSetting(ignoreC0F = new ButtonSetting("Ignore C0F", false));
-        this.registerSetting(received = new ButtonSetting("Received", false));
+        registerSetting(includeCancelled, singlePlayer, sent, ignoreC0F, ignoreC03, ignoreC00, received, compactC03);
     }
 
     public void onDisable() {
-        packet = null;
+        lastPacket = null;
         tick = 0;
     }
 
-    private static String formatBoolean(final boolean b) {
+    private static String boolColor(boolean b) {
         return b ? "&atrue" : "&cfalse";
     }
 
-    private void sendMessage(final Packet packet, final boolean b) {
-        if (!Utils.isnull()) {
-            return;
-        }
-        final String s = b ? ("&a" + packet.getClass().getSimpleName()) : applyInfo(packet);
-        final String string = ((compactC03.isToggled() && packet instanceof C03PacketPlayer) ? "&6" : "&d") + packet.getClass().getSimpleName();
-        final ChatComponentText chatComponentText = new ChatComponentText(Utils.formatColor("&7[&dR&7]&r &7" + (b ? "Received" : "Sent") + " packet (t:&b" + tick + "&7): "));
-        final ChatStyle chatStyle = new ChatStyle();
-        chatStyle.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText(Utils.formatColor(s))));
-        ((IChatComponent)chatComponentText).appendSibling(new ChatComponentText(Utils.formatColor(string)).setChatStyle(chatStyle));
-        mc.thePlayer.addChatMessage(chatComponentText);
+    private void sendMessage(Packet<?> packet, boolean receivedPacket) {
+        if (Utils.isnull()) return;
+        String base = receivedPacket ? ("&a" + packet.getClass().getSimpleName()) : getPacketInfo(packet);
+        String color = (compactC03.isToggled() && packet instanceof C03PacketPlayer) ? "&6" : "&d";
+        String label = color + packet.getClass().getSimpleName();
+
+        ChatComponentText msg = new ChatComponentText(Utils.formatColor("&7[&dR&7]&r &7" + (receivedPacket ? "Received" : "Sent") + " packet (t:&b" + tick + "&7): "));
+        ChatStyle style = new ChatStyle();
+        style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText(Utils.formatColor(base))));
+        msg.appendSibling(new ChatComponentText(Utils.formatColor(label)).setChatStyle(style));
+        mc.thePlayer.addChatMessage(msg);
     }
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent e) {
-        if (!sent.isToggled()) {
-            return;
+        if (!sent.isToggled()) return;
+
+        Packet<?> p = e.getNonStaticPacket();
+        if (singlePlayer.isToggled() && mc.isSingleplayer() && p.getClass().getSimpleName().charAt(0) == 'S') return;
+        if (e.isCanceled() && !includeCancelled.isToggled()) return;
+        if (ignoreC00.isToggled() && p instanceof C00PacketKeepAlive) return;
+        if (ignoreC0F.isToggled() && p instanceof C0FPacketConfirmTransaction) return;
+
+        if (p instanceof C03PacketPlayer) {
+            if (ignoreC03.isToggled()) return;
+            if (compactC03.isToggled() && (lastPacket == null || lastPacket instanceof C03PacketPlayer)) return;
         }
-        if (singlePlayer.isToggled() && mc.isSingleplayer() && e.getNonStaticPacket().getClass().getSimpleName().charAt(0) == 'S') {
-            return;
-        }
-        if (e.isCanceled() && !includeCancelled.isToggled()) {
-            return;
-        }
-        if (ignoreC00.isToggled() && e.getNonStaticPacket() instanceof C00PacketKeepAlive) {
-            return;
-        }
-        if (ignoreC0F.isToggled() && e.getNonStaticPacket() instanceof C0FPacketConfirmTransaction) {
-            return;
-        }
-        if (e.getNonStaticPacket() instanceof C03PacketPlayer && (ignoreC03.isToggled() || (compactC03.isToggled() && (packet == null || packet instanceof C03PacketPlayer)))) {
-            return;
-        }
-        sendMessage(packet = e.getNonStaticPacket(), false);
+
+        lastPacket = p;
+        sendMessage(p, false);
     }
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent e) {
-        if (!received.isToggled()) {
-            return;
-        }
-        if (singlePlayer.isToggled() && mc.isSingleplayer() && e.getNonStaticPacket().getClass().getSimpleName().charAt(0) == 'C') {
-            return;
-        }
-        sendMessage(e.getNonStaticPacket(), true);
+        if (!received.isToggled()) return;
+
+        Packet<?> p = e.getNonStaticPacket();
+        if (singlePlayer.isToggled() && mc.isSingleplayer() && p.getClass().getSimpleName().charAt(0) == 'C') return;
+
+        sendMessage(p, true);
     }
 
-    private String applyInfo(final Packet packet) {
-        String s = "&a" + packet.getClass().getSimpleName();
-        if (packet instanceof C07PacketPlayerDigging) {
-            final C07PacketPlayerDigging c07PacketPlayerDigging = (C07PacketPlayerDigging)packet;
-            final String string = s + "\n&7Status: &b" + c07PacketPlayerDigging.getStatus().name() + "\n&7Facing: &b" + c07PacketPlayerDigging.getFacing().name();
-            final BlockPos getPosition = c07PacketPlayerDigging.getPosition();
-            s = string + "\n&7Position: &b" + getPosition.getX() + "&7, &b" + getPosition.getY() + "&7, &b" + getPosition.getZ();
+    private String getPacketInfo(Packet<?> p) {
+        String s = "&a" + p.getClass().getSimpleName();
+
+        if (p instanceof C07PacketPlayerDigging) {
+            C07PacketPlayerDigging pk = (C07PacketPlayerDigging) p;
+            BlockPos pos = pk.getPosition();
+            s += "\n&7Status: &b" + pk.getStatus().name() + "\n&7Facing: &b" + pk.getFacing().name();
+            s += "\n" + POS + pos.getX() + SEP + pos.getY() + SEP + pos.getZ();
+        } else if (p instanceof C09PacketHeldItemChange) {
+            s += "\nSwap to slot: &b" + ((C09PacketHeldItemChange) p).getSlotId();
+        } else if (p instanceof C0BPacketEntityAction) {
+            C0BPacketEntityAction pk = (C0BPacketEntityAction) p;
+            s += ACT + pk.getAction().name() + "\n&7Aux data: &b" + pk.getAuxData();
+        } else if (p instanceof C08PacketPlayerBlockPlacement) {
+            C08PacketPlayerBlockPlacement pk = (C08PacketPlayerBlockPlacement) p;
+            BlockPos pos = pk.getPosition();
+            s += "\n" + ITEM + (pk.getStack() == null ? "null" : pk.getStack().getItem().getRegistryName().replace(MC, ""));
+            s += "\n" + DIR + pk.getPlacedBlockDirection();
+            s += "\n" + POS + pos.getX() + SEP + pos.getY() + SEP + pos.getZ();
+            s += "\n" + OFF + round(pk.getPlacedBlockOffsetX()) + SEP + round(pk.getPlacedBlockOffsetY()) + SEP + round(pk.getPlacedBlockOffsetZ());
+        } else if (p instanceof C02PacketUseEntity) {
+            C02PacketUseEntity pk = (C02PacketUseEntity) p;
+            Entity e = pk.getEntityFromWorld(mc.theWorld);
+            Vec3 hitVec = pk.getHitVec();
+            s += ACT + pk.getAction().name();
+            s += "\n&7Target: &b" + (e == null ? "null" : e.getName());
+            s += "\n&7Hit vec: &b" + (hitVec == null ? "null" : round(hitVec.xCoord) + SEP + round(hitVec.yCoord) + SEP + round(hitVec.zCoord));
+        } else if (p instanceof C01PacketChatMessage) {
+            s += "\n&7Length: &b" + ((C01PacketChatMessage) p).getMessage().length();
+        } else if (p instanceof C17PacketCustomPayload) {
+            s += "\n&7Channel: &b" + ((C17PacketCustomPayload) p).getChannelName();
+        } else if (p instanceof C15PacketClientSettings) {
+            C15PacketClientSettings pk = (C15PacketClientSettings) p;
+            s += "\n&7Language: &b" + pk.getLang() + "\n&7Chat visibility: &b" + pk.getChatVisibility().name();
+        } else if (p instanceof C00PacketKeepAlive) {
+            s += "\n&7Key: &b" + ((C00PacketKeepAlive) p).getKey();
+        } else if (p instanceof C16PacketClientStatus) {
+            s += "\n&7Status: &b" + ((C16PacketClientStatus) p).getStatus().name();
+        } else if (p instanceof C10PacketCreativeInventoryAction) {
+            C10PacketCreativeInventoryAction pk = (C10PacketCreativeInventoryAction) p;
+            s += "\n&7Slot: &b" + pk.getSlotId();
+            s += "\n" + ITEM + (pk.getStack() == null ? "null" : pk.getStack().getItem().getRegistryName().replace(MC, ""));
+        } else if (p instanceof C0EPacketClickWindow) {
+            C0EPacketClickWindow pk = (C0EPacketClickWindow) p;
+            s += "\n&7Window: &b" + pk.getWindowId();
+            s += "\n&7Slot: &b" + pk.getSlotId();
+            s += "\n&7Button: &b" + pk.getUsedButton();
+            s += ACT + pk.getActionNumber();
+            s += "\n&7Mode: &b" + pk.getMode();
+            s += "\n" + ITEM + (pk.getClickedItem() == null ? "null" : pk.getClickedItem().getItem().getRegistryName().replace(MC, ""));
+        } else if (p instanceof C0FPacketConfirmTransaction) {
+            s += "\n&7Window: &b" + ((C0FPacketConfirmTransaction) p).getWindowId();
+            s += "\n&7Uid: &b" + ((C0FPacketConfirmTransaction) p).getUid();
+        } else if (p instanceof C03PacketPlayer) {
+            C03PacketPlayer pk = (C03PacketPlayer) p;
+            s += "\n" + POS + round(pk.getPositionX()) + SEP + round(pk.getPositionY()) + SEP + round(pk.getPositionZ());
+            s += "\n&7Rotations: &b" + round(pk.getYaw()) + SEP + round(pk.getPitch());
+            s += "\n&7Ground: " + boolColor(pk.isOnGround());
+            s += "\n&7Moving: " + boolColor(pk.isMoving());
+            s += "\n&7Rotating: " + boolColor(pk.getRotating());
         }
-        else if (packet instanceof C09PacketHeldItemChange) {
-            s = s + "\n&7Swap to slot: &b" + ((C09PacketHeldItemChange)packet).getSlotId();
-        }
-        else if (packet instanceof C0BPacketEntityAction) {
-            s = s + "\n&7Action: &b" + ((C0BPacketEntityAction)packet).getAction().name() + "\n&7Aux data: &b" + ((C0BPacketEntityAction)packet).getAuxData();
-        }
-        else if (packet instanceof C08PacketPlayerBlockPlacement) {
-            final C08PacketPlayerBlockPlacement c08PacketPlayerBlockPlacement = (C08PacketPlayerBlockPlacement)packet;
-            final String string2 = s + "\n&7Item: &b" + ((c08PacketPlayerBlockPlacement.getStack() == null) ? "null" : c08PacketPlayerBlockPlacement.getStack().getItem().getRegistryName().replace("minecraft:", "")) + "\n&7Direction: &b" + c08PacketPlayerBlockPlacement.getPlacedBlockDirection();
-            final BlockPos getPosition = c08PacketPlayerBlockPlacement.getPosition();
-            s = string2 + "\n&7Position: &b" + getPosition.getX() + "&7, &b" + getPosition.getY() + "&7, &b" + getPosition.getZ() + "\n&7Offset: &b" + round(c08PacketPlayerBlockPlacement.getPlacedBlockOffsetX()) + "&7, &b" + round(c08PacketPlayerBlockPlacement.getPlacedBlockOffsetY()) + "&7, &b" + round(c08PacketPlayerBlockPlacement.getPlacedBlockOffsetZ());
-        }
-        else if (packet instanceof C02PacketUseEntity) {
-            final C02PacketUseEntity c02PacketUseEntity = (C02PacketUseEntity)packet;
-            final String string3 = s + "\n&7Action: &b" + c02PacketUseEntity.getAction().name();
-            final Entity getEntityFromWorld = c02PacketUseEntity.getEntityFromWorld(mc.theWorld);
-            final String string4 = string3 + "\n&7Target: &b" + ((getEntityFromWorld == null) ? "null" : getEntityFromWorld.getName());
-            final Vec3 getHitVec = c02PacketUseEntity.getHitVec();
-            if (getHitVec == null) {
-                s = string4 + "\n&7Hit vec: &bnull";
-            }
-            else {
-                s = string4 + "\n&7Hit vec: &b" + round(getHitVec.xCoord) + "&7, &b" + round(getHitVec.yCoord) + "&7, &b" + round(getHitVec.zCoord);
-            }
-        }
-        else if (packet instanceof C01PacketChatMessage) {
-            s = s + "\n&7Length: &b" + ((C01PacketChatMessage)packet).getMessage().length();
-        }
-        else if (packet instanceof C17PacketCustomPayload) {
-            s = s + "\n&7Channel: &b" + ((C17PacketCustomPayload)packet).getChannelName();
-        }
-        else if (packet instanceof C15PacketClientSettings) {
-            s = s + "\n&7Language: &b" + ((C15PacketClientSettings)packet).getLang() + "\n&7Chat visibility: &b" + ((C15PacketClientSettings)packet).getChatVisibility().name();
-        }
-        else if (packet instanceof C00PacketKeepAlive) {
-            s = s + "\n&7Key: &b" + ((C00PacketKeepAlive)packet).getKey();
-        }
-        else if (packet instanceof C16PacketClientStatus) {
-            s = s + "\n&7Status: &b" + ((C16PacketClientStatus)packet).getStatus().name();
-        }
-        else if (packet instanceof C10PacketCreativeInventoryAction) {
-            s = s + "\n&7Slot: &b" + ((C10PacketCreativeInventoryAction)packet).getSlotId() + "\n&7Item: &b" + ((((C10PacketCreativeInventoryAction)packet).getStack() == null) ? "null" : ((C10PacketCreativeInventoryAction)packet).getStack().getItem().getRegistryName().replace("minecraft:", ""));
-        }
-        else if (packet instanceof C0EPacketClickWindow) {
-            final C0EPacketClickWindow c0EPacketClickWindow = (C0EPacketClickWindow)packet;
-            s = s + "\n&7Window: &b" + c0EPacketClickWindow.getWindowId() + "\n&7Slot: &b" + c0EPacketClickWindow.getSlotId() + "\n&7Button: &b" + c0EPacketClickWindow.getUsedButton() + "\n&7Action: &b" + c0EPacketClickWindow.getActionNumber() + "\n&7Mode: &b" + c0EPacketClickWindow.getMode() + "\n&7Item: &b" + ((c0EPacketClickWindow.getClickedItem() == null) ? "null" : c0EPacketClickWindow.getClickedItem().getItem().getRegistryName().replace("minecraft:", ""));
-        }
-        else if (packet instanceof C0FPacketConfirmTransaction) {
-            s = s + "\n&7Window: &b" + ((C0FPacketConfirmTransaction)packet).getWindowId() + "\n&7Uid: &b" + ((C0FPacketConfirmTransaction)packet).getUid();
-        }
-        else if (packet instanceof C03PacketPlayer) {
-            final C03PacketPlayer c03PacketPlayer = (C03PacketPlayer)packet;
-            s = s + "\n&7Position: &b" + round(c03PacketPlayer.getPositionX()) + "&7, &b" + round(c03PacketPlayer.getPositionY()) + "&7, &b" + round(c03PacketPlayer.getPositionZ()) + "\n&7Rotations: &b" + round(c03PacketPlayer.getYaw()) + "&7, &b" + round(c03PacketPlayer.getPitch()) + "\n&7Ground: " + formatBoolean(c03PacketPlayer.isOnGround()) + "\n&7Moving: " + formatBoolean(c03PacketPlayer.isMoving()) + "\n&7Rotating: " + formatBoolean(c03PacketPlayer.getRotating());
-        }
+
         return s + "\n&7Client tick: &e" + tick;
     }
 
-    private static double round(final double n) {
+    private static double round(double n) {
         return Utils.rnd(n, 3);
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent e) {
-        if (e.phase == TickEvent.Phase.START) {
-            ++tick;
-        }
+        if (e.phase == TickEvent.Phase.START) tick++;
     }
 }

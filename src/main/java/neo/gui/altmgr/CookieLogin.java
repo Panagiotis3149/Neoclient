@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 
 public class CookieLogin extends GuiScreen {
 
-    private static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/mainmenu.frag");
+    private static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/background.frag");
     private BackgroundShader bgShader;
     private final GuiScreen parent;
     String status = "Webview Login";

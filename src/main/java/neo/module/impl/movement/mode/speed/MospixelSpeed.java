@@ -27,7 +27,7 @@ public class MospixelSpeed {
         if (mc.thePlayer.hurtTime > 0) {
             speed = MoveUtil.getSpeed() + 0.09f;
             mc.thePlayer.posY += 0.2;
-        } else if (mc.thePlayer.hurtTime == 0 && offGroundTicks == 6) {
+        } else if (mc.thePlayer.hurtTime == 0 && offGroundTicks == 5) {
             mc.thePlayer.motionY = -0.09800000190734863;
         }
 
@@ -36,7 +36,7 @@ public class MospixelSpeed {
         if (MoveUtil.isMoving()) {
             switch (offGroundTicks) {
                 case 0:
-                    speed = base * 1.625f;
+                    speed = base * 1.62f;
                     break;
 
                 case 1:
@@ -48,7 +48,7 @@ public class MospixelSpeed {
                     break;
             }
 
-            Utils.getTimer().timerSpeed = 1.05f;
+            Utils.getTimer().timerSpeed = 1.15f;
             reset = false;
             Utils.setSpeed(speed);
         } else if (!reset) {
@@ -56,6 +56,7 @@ public class MospixelSpeed {
             Utils.getTimer().timerSpeed = 1;
             reset = true;
         }
+        if (!mc.thePlayer.onGround && MoveUtil.getSpeed() > base * 1.45 + MoveUtil.BUNNY_SLOPE + (Utils.bypassValue)) speed -= (MoveUtil.BUNNY_SLOPE / 8.32);
     }
 }
 

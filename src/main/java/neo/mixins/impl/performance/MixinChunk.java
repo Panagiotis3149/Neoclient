@@ -1,6 +1,7 @@
 package neo.mixins.impl.performance;
 
 import com.google.common.collect.Iterators;
+import neo.util.other.java.mixin.WorldExt;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;

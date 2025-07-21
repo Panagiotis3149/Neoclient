@@ -18,7 +18,7 @@ import java.io.IOException;
 public class MainMenu extends GuiScreen {
 
     public static final ResourceLocation CUSTOM_LOGO = new ResourceLocation("neo", "textures/gui/Logo.png");
-    public static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/mainmenu.frag");
+    public static final ResourceLocation FRAG_SHADER = new ResourceLocation("neo", "shaders/background.frag");
 
     private static final float SCALE_FACTOR = 0.25f;
     private static final int BUTTON_OFFSET_Y = 130;

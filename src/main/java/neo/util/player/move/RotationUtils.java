@@ -227,6 +227,44 @@ public class RotationUtils {
         return new Vec2(yaw, pitch >= 90 ? 90 : pitch <= -90 ? -90 : pitch);
     }
 
+    public static Vec2 getRotations(EntityLivingBase theEntity, RotationAt rotationAt, boolean noParkinsons) {
+        if (theEntity == null || rotationAt == null || mc.thePlayer == null) return new Vec2(0, 0);
+
+        if (noParkinsons) {
+            double dx = theEntity.posX - mc.thePlayer.posX;
+            double dz = theEntity.posZ - mc.thePlayer.posZ;
+            double dy = (theEntity.posY + theEntity.getEyeHeight()) - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
+
+            double dist = Math.sqrt(dx * dx + dz * dz);
+            float yaw = (float) -Math.toDegrees(Math.atan2(dx, dz));
+            float pitch = (float) -Math.toDegrees(Math.atan2(dy, dist));
+
+            pitch = Math.max(-90f, Math.min(90f, pitch));
+            return new Vec2(yaw, pitch);
+        }
+
+        float rotationTypeValue = 3;
+        if (rotationAt.equals(RotationAt.HEAD)) rotationTypeValue = 1.314f;
+        if (rotationAt.equals(RotationAt.LEGS)) rotationTypeValue = 9.7236f;
+        if (rotationAt.equals(RotationAt.FEET)) rotationTypeValue = 194.472f;
+
+        double x = theEntity.posX - mc.thePlayer.posX;
+        double z = theEntity.posZ - mc.thePlayer.posZ;
+        double y = theEntity.posY + (theEntity.getEyeHeight() - 0.1D) / rotationTypeValue - mc.thePlayer.posY - mc.thePlayer.getEyeHeight() / 1.4D;
+
+        double horizontalDist = MathHelper.sqrt_double(x * x + z * z);
+        float yaw = (float) Math.toDegrees(-Math.atan(x / z));
+        float pitch = (float) -Math.toDegrees(Math.atan(y / horizontalDist));
+        double v = Math.toDegrees(Math.atan(z / x));
+
+        if ((z < 0.0D) && (x < 0.0D)) yaw = (float) (90.0D + v);
+        else if ((z < 0.0D) && (x > 0.0D)) yaw = (float) (-90.0D + v);
+
+        pitch = Math.max(-90f, Math.min(90f, pitch));
+        return new Vec2(yaw, pitch);
+    }
+
+
     @Contract("_, _ -> new")
     public static @NotNull neo.script.classes.Vec3 getNearestPoint(@NotNull AxisAlignedBB from, @NotNull neo.script.classes.Vec3 to) {
         double pointX, pointY, pointZ;

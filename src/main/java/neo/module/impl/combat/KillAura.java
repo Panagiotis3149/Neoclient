@@ -245,8 +245,13 @@ public class KillAura extends Module {
         if (target == null) return;
 
         RotationAt rotationAt = RotationAt.values()[RandomUtil.nextInt(0, RotationAt.values().length - 1)];
+        Vec2 newRotation;
 
-        Vec2 newRotation = RotationUtils.getRotations(target, rotationAt);
+        if (rotationMode.getInput() != 4 || rotationMode.getInput() != 5) {
+            newRotation = RotationUtils.getRotations(target, rotationAt);
+        } else {
+            newRotation = RotationUtils.getRotations(target, rotationAt, true);  // parkinsons prevention
+        }
 
         float sensitivity = mc.gameSettings.mouseSensitivity;
         float f = sensitivity * 0.6F + 0.2F;
@@ -417,8 +422,6 @@ public class KillAura extends Module {
                                 * (1.5f * Math.exp(-0.05f * ((System.currentTimeMillis() % 10000L) / 1000f))) + 0f)
                 );
 
-                newRotation.setX((float) MathUtil.atanh(newRotation.getX()));
-                newRotation.setY((float) MathUtil.atanh(newRotation.getY()));
 
                 e.setYaw(newYaw);
                 e.setPitch(newPitch);

@@ -1,5 +1,6 @@
 package neo.mixins.impl.performance;
 
+import neo.util.other.java.mixin.VisGraphExt;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import org.spongepowered.asm.mixin.Mixin;

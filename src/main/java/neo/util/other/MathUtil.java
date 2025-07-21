@@ -34,9 +34,17 @@ public final class MathUtil {
         return max - (val - min);
     }
 
-    public static boolean isInAnyOffsetRange(int n, int base, int range) {
+    public static boolean goofA(int n, int base, int range) {
         return n >= (n / base) * base && n < (n / base) * base + range || n >= ((n / base) - 1) * base && n < ((n / base) - 1) * base + range;
     }
+
+    public static boolean goofB(int ticks, int interval, int buffer) {
+        return Math.abs(ticks - (Math.round(ticks / (float) interval) * interval)) <= buffer;
+    }
+
+    public static double avg(double... nums) {
+        return nums.length == 0 ? 0 : java.util.stream.DoubleStream.of(nums).average().orElse(0);
+    } // goofy ahh Math class doesnt have this as far as i know
 
     public static double atanh(double a) {
         boolean negative = false;

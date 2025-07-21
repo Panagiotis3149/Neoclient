@@ -124,6 +124,8 @@ public class FontRenderer extends CharRenderer implements IFont {
         }
     }
 
+
+
     public double drawString(String text, double x, double y, int color, boolean shadow) {
         ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
 

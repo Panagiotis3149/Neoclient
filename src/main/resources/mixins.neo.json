@@ -23,6 +23,7 @@
     "client.MixinMovementInputFromOptions",
     "client.MixinMinecraft",
     "client.MinecraftAccessor",
+    "client.GuiDisconnectedAccessor",
     "performance.MixinEnumFacing",
     "performance.MixinTextureManager",
     "performance.MixinMathHelper",

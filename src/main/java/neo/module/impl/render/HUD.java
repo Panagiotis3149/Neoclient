@@ -48,12 +48,12 @@ public class HUD extends Module {
     public static int hudY = 70;
     public static float heightAddition;
     private final ButtonSetting srndr;
-    public String[] coloredBGS = new String[]{"None", "Light", "Normal", "Heavy"};
-    public String[] sidebarsS = new String[]{"None", "Sidebar", "NewSidebar"}; // , "AllOutline"};
-    public String[] blursS = new String[]{"None", "Light", "Normal", "Heavy"};
-    public String[] bgS = new String[]{"None", "Transparent", "Normal", "Opaque"};
-    public String[] blooms = new String[]{"None", "Shadow", "Glow", "Both"};
-    public String[] fontsS = new String[]{"Minecraft", "Helvetica Neue", "Product Sans", "Google", "Apple UI", "Greycliff CF", "Product Sans Light", "Poppins Bold", "Proxima Nova", "Comfortaa"};
+    public static String[] coloredBGS = new String[]{"None", "Light", "Normal", "Heavy"};
+    public static String[] sidebarsS = new String[]{"None", "Sidebar", "NewSidebar"}; // , "AllOutline"};
+    public static String[] blursS = new String[]{"None", "Light", "Normal", "Heavy"};
+    public static String[] bgS = new String[]{"None", "Transparent", "Normal", "Opaque"};
+    public static String[] blooms = new String[]{"None", "Shadow", "Glow", "Both"};
+    public static String[] fontsS = new String[]{"Minecraft", "Helvetica Neue", "Product Sans", "Google", "Apple UI", "Greycliff CF", "Product Sans Light", "Poppins Bold", "Proxima Nova", "Comfortaa"};
     private boolean isAlphabeticalSort;
     private boolean canShowInfo;
 

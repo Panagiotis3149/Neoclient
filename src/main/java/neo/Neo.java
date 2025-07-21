@@ -90,6 +90,7 @@ public class Neo {
     public void preInit(FMLPreInitializationEvent e) {
         Display.setTitle(Variables.clientName + " " + Variables.clientVersion);
 
+
         ByteBuffer[] icons = new ByteBuffer[4];
         try (
                 InputStream icon16 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico1.png"));
