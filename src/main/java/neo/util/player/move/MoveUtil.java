@@ -60,6 +60,43 @@ public class MoveUtil {
     public static void strafe(final double speed) {
         strafe(speed, mc.thePlayer);
     }
+
+    public static void setFSpeed(final double n) {
+        if (n == 0.0) {
+            mc.thePlayer.motionZ = 0;
+            mc.thePlayer.motionX = 0;
+            return;
+        }
+        double n3 = mc.thePlayer.movementInput.moveForward;
+        double n4 = mc.thePlayer.movementInput.moveStrafe;
+        float rotationYaw = mc.thePlayer.rotationYaw;
+        if (n3 == 0.0 && n4 == 0.0) {
+            mc.thePlayer.motionZ = 0;
+            mc.thePlayer.motionX = 0;
+        }
+        else {
+            if (n3 != 0.0) {
+                if (n4 > 0.0) {
+                    rotationYaw += ((n3 > 0.0) ? -45 : 45);
+                }
+                else if (n4 < 0.0) {
+                    rotationYaw += ((n3 > 0.0) ? 45 : -45);
+                }
+                n4 = 0.0;
+                if (n3 > 0.0) {
+                    n3 = 1.0;
+                }
+                else if (n3 < 0.0) {
+                    n3 = -1.0;
+                }
+            }
+            final double radians = Math.toRadians(rotationYaw + 90.0f);
+            final double sin = Math.sin(radians);
+            final double cos = Math.cos(radians);
+            mc.thePlayer.motionX = n3 * n * cos + n4 * n * sin;
+            mc.thePlayer.motionZ = n3 * n * sin - n4 * n * cos;
+        }
+    }
     
     public static List<Double> getWaterValues() {
         WATER_VALUES.add(0.05999999821185753);
