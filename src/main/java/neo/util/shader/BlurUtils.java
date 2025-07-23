@@ -36,7 +36,7 @@ public class BlurUtils {
          */
         public static void bloomEnd(int passes, float radius) {
             stencilFrameBufferBloom.unbindFramebuffer();
-            KawaseBloom.renderBlur(stencilFrameBufferBloom.framebufferTexture, passes, radius);
+            KawaseBloom.renderBloom(stencilFrameBufferBloom.framebufferTexture, passes, radius);
         }
 
 }

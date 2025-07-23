@@ -44,7 +44,7 @@ public class KawaseBloom {
     }
 
 
-    public static void renderBlur(int framebufferTexture, int iterations, float offset) {
+    public static void renderBloom(int framebufferTexture, int iterations, float offset) {
         if (currentIterations != iterations || (framebuffer.framebufferWidth != mc.displayWidth || framebuffer.framebufferHeight != mc.displayHeight)) {
             initFramebuffers(iterations);
             currentIterations = iterations;
