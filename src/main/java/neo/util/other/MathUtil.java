@@ -13,13 +13,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class MathUtil {
 
-    public final SecureRandom RANDOM = new SecureRandom();
-
-    public static final DecimalFormat DF_0 = new DecimalFormat("0");
-    public static final DecimalFormat DF_1 = new DecimalFormat("0.0");
-    public static final DecimalFormat DF_2 = new DecimalFormat("0.00");
-    public static final DecimalFormat DF_1D = new DecimalFormat("0.#");
-    public static final DecimalFormat DF_2D = new DecimalFormat("0.##");
     private static final double F_1_3 = 1d / 3d;
     private static final double F_1_5 = 1d / 5d;
     private static final double F_1_7 = 1d / 7d;
@@ -38,13 +31,13 @@ public final class MathUtil {
         return n >= (n / base) * base && n < (n / base) * base + range || n >= ((n / base) - 1) * base && n < ((n / base) - 1) * base + range;
     }
 
-    public static boolean goofB(int ticks, int interval, int buffer) {
-        return Math.abs(ticks - (Math.round(ticks / (float) interval) * interval)) <= buffer;
+    public static boolean goofB(int n, int base, int range) {
+        return Math.abs(n - (Math.round(n / (float) base) * base)) <= range;
     }
 
     public static double avg(double... nums) {
         return nums.length == 0 ? 0 : java.util.stream.DoubleStream.of(nums).average().orElse(0);
-    } // goofy ahh Math class doesnt have this as far as i know
+    } // goofy ahh Math class doesn't have this as far as I know
 
     public static double atanh(double a) {
         boolean negative = false;

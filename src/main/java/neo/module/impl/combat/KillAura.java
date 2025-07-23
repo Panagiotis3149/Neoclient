@@ -31,7 +31,9 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Mouse;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
@@ -43,7 +45,7 @@ public class KillAura extends Module {
 
     // strings
     private final String[] autoBlockModes = new String[]{"Manual", "Vanilla", "Post", "Swap", "Interact A", "Interact B", "Fake", "Partial", "Test"};
-    private final String[] rotationModes = {"None", "Normal", "Legit", "Lock View", "Modulo1", "Test" ,"Autistic Anticheat"};
+    private final String[] rotationModes = {"None", "Normal", "Legit", "Lock View", "Modulo1", "Test", "Autistic Anticheat"};
     private final String[] clickerModes = {"Basic", "Normal", "Legit"};
     private final String[] sortModes = {"Health", "HurtTime", "Distance", "Yaw"};
 
@@ -87,6 +89,12 @@ public class KillAura extends Module {
     private boolean multActive = false;
     private final Random rand = new Random();
     private long nextClickTimeBasic = 0L;
+
+    private final SecureRandom secureRandom = new SecureRandom();
+    private long startTime = System.currentTimeMillis();
+    private long nextClickTime = 0L;
+    private double lastCps = -1;
+    private String lastCpsStr = "";
 
     // rots
     private Vec2 lastRotation = new Vec2(0, 0);
@@ -133,8 +141,8 @@ public class KillAura extends Module {
     public void onEnable() {
         resetTimers();
         if (mc.thePlayer != null) {
-            this.rots = new float[] { mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch };
-            this.lastRots = new float[] { mc.thePlayer.prevRotationYaw, mc.thePlayer.prevRotationPitch };
+            this.rots = new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch};
+            this.lastRots = new float[]{mc.thePlayer.prevRotationYaw, mc.thePlayer.prevRotationPitch};
         }
     }
 
@@ -157,7 +165,9 @@ public class KillAura extends Module {
                 this.lastRotation = new Vec2(packet.getYaw(), packet.getPitch());
             }
         }
-    };
+    }
+
+    ;
 
     @SubscribeEvent
     public void onPreUpdate(PreUpdateEvent e) {
@@ -262,7 +272,6 @@ public class KillAura extends Module {
         float deltaPitch = newRotation.getY() - lastRotation.getY();
 
 
-
         switch ((int) rotationMode.getInput()) {
             case 0:
                 // yes
@@ -290,19 +299,18 @@ public class KillAura extends Module {
                     }
                     if (this.rots == null || this.rots.length < 2) {
                         if (this.lastRots == null || this.lastRots.length < 2) {
-                            this.rots = new float[] {0f, 0f};
+                            this.rots = new float[]{0f, 0f};
                         } else {
                             this.rots = this.lastRots;
                         }
                     }
-                    final float[] floats = QuantumAim.faceEntityCustom(target, dY, dP, this.rots[0], this.rots[1], "Doubled", true, true, false, (float)1.9712f, best, false, true, true, true, true);
+                    final float[] floats = QuantumAim.faceEntityCustom(target, dY, dP, this.rots[0], this.rots[1], "Doubled", true, true, false, (float) 1.9712f, best, false, true, true, true, true);
                     if (floats == null) {
                         this.rots = this.lastRots;
                         if (!ModuleManager.scaffold.isEnabled()) {
                             e.setYaw(this.rots[0]);
                             e.setPitch(this.rots[1]);
-                        }
-                        else {
+                        } else {
                             this.resetRotation();
                         }
                         this.lastRots = this.rots;
@@ -314,8 +322,7 @@ public class KillAura extends Module {
                     if (!ModuleManager.scaffold.isEnabled()) {
                         e.setYaw(this.rots[0]);
                         e.setPitch(this.rots[1]);
-                    }
-                    else {
+                    } else {
                         this.resetRotation();
                     }
                 } else {
@@ -323,8 +330,7 @@ public class KillAura extends Module {
                         if (this.rots[0] % 360.0f <= YawPitchHelper.realYaw % 360.0f + 20.0f && this.rots[0] % 360.0f > YawPitchHelper.realYaw % 360.0f - 20.0f && this.rots[1] % 360.0f <= YawPitchHelper.realPitch % 360.0f + 20.0f && this.rots[1] % 360.0f > YawPitchHelper.realPitch % 360.0f - 20.0f) {
                             this.backRotate = false;
                             this.resetRotation();
-                        }
-                        else {
+                        } else {
                             final float[] fa = QuantumAim.backRotate(dY, dP, this.rots[0], this.rots[1], YawPitchHelper.realYaw, YawPitchHelper.realPitch);
                             this.lastRots = this.rots;
                             this.rots = fa;
@@ -332,13 +338,11 @@ public class KillAura extends Module {
                                 e.setYaw(this.rots[0]);
                                 e.setPitch(this.rots[1]);
 
-                            }
-                            else {
+                            } else {
                                 this.resetRotation();
                             }
                         }
-                    }
-                    else {
+                    } else {
                         this.resetRotation();
                     }
                 }
@@ -413,12 +417,12 @@ public class KillAura extends Module {
                 newRotation.setY(newPitch);
 
                 newRotation.setX(newRotation.getX() +
-                        (float)(Math.sin(2f * Math.PI * 1f * ((System.currentTimeMillis() % 10000L) / 1000f) + 0f)
+                        (float) (Math.sin(2f * Math.PI * 1f * ((System.currentTimeMillis() % 10000L) / 1000f) + 0f)
                                 * (3f * Math.exp(-0.05f * ((System.currentTimeMillis() % 10000L) / 1000f))) + 0f)
                 );
 
                 newRotation.setY(newRotation.getY() +
-                        (float)(Math.sin(2f * Math.PI * 1.5f * ((System.currentTimeMillis() % 10000L) / 1000f) + 1f)
+                        (float) (Math.sin(2f * Math.PI * 1.5f * ((System.currentTimeMillis() % 10000L) / 1000f) + 1f)
                                 * (1.5f * Math.exp(-0.05f * ((System.currentTimeMillis() % 10000L) / 1000f))) + 0f)
                 );
 
@@ -505,13 +509,68 @@ public class KillAura extends Module {
             case 1:
                 return canAttackNormal();
             case 2:
+                return canAttackLegit();
             default:
                 return false;
         }
     }
 
 
-        private boolean canAttackBasic() {
+    public boolean canAttackLegit() {
+        long t = System.currentTimeMillis() - startTime;
+        double warmup = Math.min(1, t / 15000.0);
+        double exhaustion = t > 15000 ? Math.max(0, 1 - (t - 15000) / 30000.0) : 1;
+        double s1 = Math.sin(t * 0.002 * 2 * Math.PI);
+        double s2 = Math.sin(t * 0.005 * 2 * Math.PI + Math.PI / 4);
+        double s3 = Math.sin(t * 0.01 * 2 * Math.PI + Math.PI / 2);
+        double sineWave = 1 + 0.3 * s1 + 0.2 * s2 + 0.1 * s3;
+        double randChaos = secureRandom.nextDouble() * secureRandom.nextDouble() / secureRandom.nextDouble();
+        double cps = aps.getInput() * warmup * exhaustion * sineWave * randChaos;
+
+        String cpsStr;
+        do {
+            String noise = String.format("%03d", (int)(Math.random() * 999));
+            if (mc.thePlayer.hurtTime > 0 && secureRandom.nextFloat() > secureRandom.nextFloat()) {
+                String drop = String.format("-%03d", (int)(Math.random() * 999));
+                cpsStr = String.format("%.5f", cps) + drop + noise;
+            } else {
+                cpsStr = String.format("%.5f", cps) + noise;
+            }
+        } while (cpsStr.equals(lastCpsStr));
+        lastCpsStr = cpsStr;
+
+
+        double finalCps;
+        if (cpsStr.contains("-")) {
+            String[] parts = cpsStr.split("-");
+            finalCps = Double.parseDouble(parts[0] + parts[1]);
+            finalCps -= Math.random() * (Math.random() * 0.02);
+        } else {
+            finalCps = Double.parseDouble(cpsStr);
+        }
+
+        double safeAps = Double.parseDouble(whatv2(aps.getInput()) + what(String.valueOf((secureRandom.nextInt(9_999_999) + 1) / 10_000_000.0)) + what(String.valueOf(secureRandom.nextFloat())));
+        double cappedCps = Math.min(MathUtil.avg(finalCps, MathUtil.avg(aps.getInput() + 1, randChaos + (sineWave * Math.max(Math.random() * 10, 1)) + (randChaos / 10))) * 1.781678314217, safeAps);
+        Utils.sendRawMessage("CPS DEBUG: " + cappedCps);
+        long delay = (long) (1000.0 / cappedCps);
+        if (System.currentTimeMillis() >= nextClickTime) {
+            nextClickTime = System.currentTimeMillis() + delay;
+            return true;
+        }
+        return false;
+    }
+
+    static String what(String s) {
+        return s.replaceFirst(".*?\\.", "").replaceAll("\\.", "");
+    }
+
+    static String whatv2(double d) {
+        return String.valueOf(d).replaceFirst("\\.0$", ".");
+    }
+
+
+
+    private boolean canAttackBasic() {
         if (System.currentTimeMillis() < nextClickTimeBasic) return false;
         double cps = aps.getInput();
         double min = Math.max(1, cps - 2);
@@ -523,7 +582,7 @@ public class KillAura extends Module {
         return true;
     }
 
-        private boolean canAttackNormal() {
+    private boolean canAttackNormal() {
         if (nextClick > 0L && midClick > 0L) {
             if (System.currentTimeMillis() > nextClick) {
                 normalClick();
@@ -615,9 +674,13 @@ public class KillAura extends Module {
         nextClick = 0L;
         midClick = 0L;
         nextClickTimeBasic = 0L;
-        block();
+
+        mc.thePlayer.stopUsingItem();
+        mc.thePlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+
         resetBlinkState(true);
         swapped = false;
+
     }
 
 
@@ -639,7 +702,8 @@ public class KillAura extends Module {
         this.lastRots[1] = YawPitchHelper.realLastPitch;
     }
 
-    private boolean isSilent(int mode) {;
+    private boolean isSilent(int mode) {
+        ;
         boolean inputValid = IntStream.of(1, 2, 4, 5, 6).anyMatch(i -> i == mode);
 
 

@@ -21,7 +21,7 @@ public class BHop extends Module {
     private final ButtonSetting liquidDisable;
     private final ButtonSetting sneakDisable;
     private final ButtonSetting stopMotion;
-    public static String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "Ground2 (Hypixel)", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "BMC", "Matrix"};
+    public static String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "GroundV2", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "BMC", "Matrix"};
     public boolean hopping;
     private int SecondTicks = 0;
     private int longerTicks = 0;

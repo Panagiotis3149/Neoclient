@@ -2,7 +2,6 @@ package neo.module.impl.combat;
 
 import neo.event.ReceivePacketEvent;
 import neo.module.Module;
-import neo.module.ModuleManager;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.Utils;
@@ -13,7 +12,6 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.network.play.server.S27PacketExplosion;
 import net.minecraft.network.play.server.S32PacketConfirmTransaction;
 import net.minecraft.util.Vec3;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
@@ -28,7 +26,7 @@ public class Velocity extends Module {
     private final ButtonSetting onlyInAir;
     private boolean transaction = false;
 
-    private static final String[] modes = {"Custom", "CancelPacket", "Vulcan"};
+    private static final String[] modes = {"Packet", "Cancel", "Vulcan"};
 
     public Velocity() {
         super("Velocity", category.combat, 0);
@@ -54,18 +52,54 @@ public class Velocity extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent event) {
-        if (!this.isEnabled()) return;
         switch ((int) mode.getInput()) {
-            case 1: // CancelPacket
+            case 0:
+                Packet<?> p = ReceivePacketEvent.getPacket();
+                if (p instanceof S12PacketEntityVelocity) {
+                    S12PacketEntityVelocity orig = (S12PacketEntityVelocity) p;
+                    if (orig.getEntityID() == mc.thePlayer.getEntityId()
+                            && (!onlyInAir.isToggled() || !mc.thePlayer.onGround)
+                            && (chance.getInput() == 100 || Math.random() < chance.getInput() / 100.0)
+                            && (!onlyWhileTargeting.isToggled() || mc.objectMouseOver != null && mc.objectMouseOver.entityHit != null)
+                            && (!disableS.isToggled() || !Keyboard.isKeyDown(mc.gameSettings.keyBindBack.getKeyCode()))) {
+
+                        event.cancelEvent();
+
+                        double mx = orig.getMotionX() / 8000.0 * (horizontal.getInput() / 100.0);
+                        double my = orig.getMotionY() / 8000.0 * (vertical.getInput() / 100.0);
+                        double mz = orig.getMotionZ() / 8000.0 * (horizontal.getInput() / 100.0);
+
+                        mc.thePlayer.motionX += mx;
+                        mc.thePlayer.motionY += my;
+                        mc.thePlayer.motionZ += mz;
+                    }
+                }
+
+                if (p instanceof S27PacketExplosion) {
+                    S27PacketExplosion orig = (S27PacketExplosion) p;
+                    event.cancelEvent();
+
+                    float x = (float) (orig.func_149149_c() * horizontal.getInput() / 100f);
+                    float y = (float) (orig.func_149144_d() * vertical.getInput() / 100f);
+                    float z = (float) (orig.func_149147_e() * horizontal.getInput() / 100f);
+                    Vec3 vel = new Vec3(x, y, z);
+
+                    mc.thePlayer.motionX += vel.xCoord;
+                    mc.thePlayer.motionY += vel.yCoord;
+                    mc.thePlayer.motionZ += vel.zCoord;
+                }
+                break;
+            case 1:
                 Packet<?> packet = ReceivePacketEvent.getPacket();
                 if (packet instanceof S12PacketEntityVelocity) {
                     event.cancelEvent();
                 }
                 break;
             case 2:
-                Packet<?> p = ReceivePacketEvent.getPacket();
-                if (p instanceof S12PacketEntityVelocity) {
-                    S12PacketEntityVelocity original = (S12PacketEntityVelocity) p;
+                Packet<?> pa = ReceivePacketEvent.getPacket();
+                if (pa instanceof S12PacketEntityVelocity) {
+                    S12PacketEntityVelocity original = (S12PacketEntityVelocity) pa;
+
 
                     int id = original.getEntityID();
                     int motionX = original.getMotionX();
@@ -84,8 +118,8 @@ public class Velocity extends Module {
 
                     S12PacketEntityVelocity modified = new S12PacketEntityVelocity(id, motionX, motionY, motionZ);
                     event.setPacket(modified);
-                } else if (p instanceof S27PacketExplosion) {
-                    S27PacketExplosion original = (S27PacketExplosion) p;
+                } else if (pa instanceof S27PacketExplosion) {
+                    S27PacketExplosion original = (S27PacketExplosion) pa;
 
                     float x = original.func_149149_c() * (1f / 100f);
                     float y = original.func_149144_d() * (1f / 100f);
@@ -103,7 +137,7 @@ public class Velocity extends Module {
                     event.setPacket(modified);
                 }
 
-                if (p instanceof S32PacketConfirmTransaction && mc.thePlayer.hurtTime == 10) {
+                if (pa instanceof S32PacketConfirmTransaction && mc.thePlayer.hurtTime == 10) {
                     event.cancelEvent();
                     event.setCanceled(true);
                     PacketUtils.sendPacket(new C0FPacketConfirmTransaction(
@@ -112,35 +146,6 @@ public class Velocity extends Module {
                             transaction
                     ));
                     transaction = !transaction;
-                }
-                break;
-        }
-    }
-
-    @SubscribeEvent
-    public void onLivingUpdate(LivingUpdateEvent ev) {
-        if (!this.isEnabled()) return;
-        switch ((int) mode.getInput()) {
-            case 0:
-                if (Utils.isnull()) return;
-                if (!ModuleManager.bedAura.cancelKnockback()) return;
-                if (ModuleManager.antiKnockback.isEnabled()) return;
-                if (onlyInAir.isToggled() && mc.thePlayer.onGround) return;
-                if (mc.thePlayer.maxHurtTime <= 0 || mc.thePlayer.hurtTime != mc.thePlayer.maxHurtTime) return;
-                if (onlyWhileTargeting.isToggled()
-                        && (mc.objectMouseOver == null || mc.objectMouseOver.entityHit == null)) return;
-                if (disableS.isToggled()
-                        && Keyboard.isKeyDown(mc.gameSettings.keyBindBack.getKeyCode())) return;
-                if (chance.getInput() == 0) return;
-                if (chance.getInput() != 100
-                        && Math.random() >= chance.getInput() / 100.0D) return;
-
-                if (horizontal.getInput() != 100.0D) {
-                    mc.thePlayer.motionX *= horizontal.getInput() / 100;
-                    mc.thePlayer.motionZ *= horizontal.getInput() / 100;
-                }
-                if (vertical.getInput() != 100.0D) {
-                    mc.thePlayer.motionY *= vertical.getInput() / 100;
                 }
                 break;
         }

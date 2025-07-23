@@ -3,19 +3,18 @@ package neo.module.impl.movement;
 import neo.event.*;
 import neo.module.Module;
 import neo.module.ModuleManager;
+import neo.module.impl.movement.mode.fly.BMCFly;
+import neo.module.impl.movement.mode.fly.MospixelFly;
 import neo.module.impl.other.SlotHandler;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
 import neo.util.*;
 import neo.util.other.MathUtil;
-import neo.util.packet.PacketUtils;
 import neo.util.player.move.MoveUtil;
 import neo.util.player.move.RotationUtils;
 import neo.util.world.block.BlockUtils;
 import net.minecraft.block.BlockAir;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.network.play.client.C03PacketPlayer;
-import net.minecraft.potion.Potion;
+
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -25,28 +24,29 @@ import org.apache.commons.lang3.RandomUtils;
 import org.lwjgl.input.Keyboard;
 
 public class Fly extends Module {
+
     private final SliderSetting mode;
     public static SliderSetting horizontalSpeed;
     private final SliderSetting verticalSpeed;
     private final ButtonSetting showBPS;
     private final ButtonSetting stopMotion;
-    private double moveSpeed;
-    private boolean d;
-    private int stage, ticks, ticksl;
+    public static double moveSpeed;
+    private boolean isFlying;
+    public static int stage, ticks, ticksl;
     public static int offGroundTicks;
-    private int i;
-    private double floatPos;
-    private final String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus", "Mospixel", "BMC", "Test", "Test2"};
+    public static int index;
+    public static double floatPos;
     private double jumpGround = 0.0;
-    private boolean wE;
+    private boolean showCounter;
     private double sP;
     private double phase = 1;
-    int phasse = -1;
-    int sType = 0;
+    int phase1 = -1;
+    int speedType = 0;
     boolean time = true;
 
     public Fly() {
         super("Fly", category.movement);
+        String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus", "Mospixel", "BMC", "Test", "Test2"};
         registerSetting(mode = new SliderSetting("Fly", modes, 0));
         registerSetting(horizontalSpeed = new SliderSetting("Horizontal speed", 2.0, 1.0, 9.0, 0.1));
         registerSetting(verticalSpeed = new SliderSetting("Vertical speed", 2.0, 1.0, 9.0, 0.1));
@@ -55,18 +55,18 @@ public class Fly extends Module {
     }
 
     public void onEnable() {
-        d = mc.thePlayer.capabilities.isFlying;
+        isFlying = mc.thePlayer.capabilities.isFlying;
         sP = mc.thePlayer.posY;
         moveSpeed = 0;
         stage = mc.thePlayer.onGround ? 0 : -1;
         ticks = 0;
-        i = 0;
+        index = 0;
         floatPos = mc.thePlayer.posY;
-        wE = ModuleManager.bpsCounter.isEnabled();
-        if (!wE && showBPS.isToggled()) {
+        showCounter = ModuleManager.bpsCounter.isEnabled();
+        if (!showCounter && showBPS.isToggled()) {
             ModuleManager.bpsCounter.toggle();
         }
-        }
+    }
 
     public void onUpdate() {
         ticksl++;
@@ -98,7 +98,7 @@ public class Fly extends Module {
                 }
                 mc.thePlayer.capabilities.setFlySpeed(0.2f);
                 mc.thePlayer.capabilities.isFlying = true;
-                setSpeed(0.85 * horizontalSpeed.getInput());
+                MoveUtil.setFSpeed(0.85 * horizontalSpeed.getInput());
                 break;
             case 2:
                 double nextDouble = RandomUtils.nextDouble(1.0E-7, 1.2E-7);
@@ -109,7 +109,7 @@ public class Fly extends Module {
                     mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + nextDouble, mc.thePlayer.posZ);
                 }
                 mc.thePlayer.motionY = 0.0;
-                setSpeed(0.4 * horizontalSpeed.getInput());
+                MoveUtil.setFSpeed(0.4 * horizontalSpeed.getInput());
                 break;
             case 3:
                 double v = 0.01 + 1E-6;
@@ -158,90 +158,12 @@ public class Fly extends Module {
                     mc.thePlayer.motionY = constantMotionValue;
                     jumpGround = mc.thePlayer.posY;
                 }
+                break;
             case 7:
-                if (!MoveUtil.isMoving() || mc.thePlayer.isCollidedHorizontally) {
-                    stage = -1;
-                }
-
-
-                if (ticksl == 135) {
-                    stage = -1;
-                    ticks = 0;
-                    PacketUtils.sendPacketNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX + 5, mc.thePlayer.posY + 1, mc.thePlayer.posZ + 5, true));
-                    ticksl = 0;
-                }
-
-                switch (stage) {
-                    case -1:
-                        mc.thePlayer.motionY = (-0.00001);
-                        return;
-                    case 0:
-                        moveSpeed = 0.3;
-                        break;
-                    case 1:
-                        if (mc.thePlayer.onGround) {
-                            mc.thePlayer.motionY = 0.3999;
-                            moveSpeed *= 2.14;
-                        }
-                        break;
-                    case 2:
-                        moveSpeed = 1.5;
-                        break;
-                    default:
-                        moveSpeed -= moveSpeed / 109;
-                        mc.thePlayer.motionY = (-0.00001);
-                        break;
-                }
-
-                mc.thePlayer.jumpMovementFactor = 0F;
-                MoveUtil.strafe4(Math.max(moveSpeed, MoveUtil.getAllowedHorizontalDistance()));
-                stage++;
+                MospixelFly.MospixelFly();
                 break;
             case 8:
-                if (i == 6) {
-                    mc.thePlayer.posY = floatPos + 0.42;
-                }
-
-                if (mc.thePlayer.onGround && i == 5) {
-                    i++;
-
-                    if (MoveUtil.isMoving()) {
-                        mc.thePlayer.jump();
-                        MoveUtil.strafec(mc.thePlayer.isPotionActive(Potion.moveSpeed) ? 0.6 : 0.49);
-                    }
-
-                } else if (!mc.thePlayer.onGround && i == 5) {
-                    this.toggle();
-                }
-
-                if (offGroundTicks == 1) {
-                    Utils.getTimer().timerSpeed = 1.05F;
-                    MoveUtil.strafec(MoveUtil.getSpeed() * 1.08);
-                } else if (offGroundTicks == 2) {
-                    Utils.getTimer().timerSpeed = 1.15F;
-                    MoveUtil.strafec(MoveUtil.getSpeed() * 1.08);
-                } else if (offGroundTicks == 3) {
-                    Utils.getTimer().timerSpeed = 1.25F;
-                    MoveUtil.strafec(MoveUtil.getSpeed() * 1.06);
-                } else if (offGroundTicks >= 4) {
-                    Utils.getTimer().timerSpeed = 2.25F;
-                    MoveUtil.strafec(MoveUtil.getSpeed() * 1.02);
-                }
-
-                if (offGroundTicks >= 10) {this.toggle();}
-
-                if (i < 5) {
-                    i++;
-                }
-
-                if (i < 4) {
-                    Utils.getTimer().timerSpeed = 0.5F;
-                    mc.thePlayer.setSprinting(true);
-                    KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
-                } else {
-                    KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()));
-                }
-                MoveUtil.strafec(MoveUtil.getSpeed());
+                BMCFly.BMCFly();
                 break;
             case 9:
                 double lastY = mc.thePlayer.prevPosY;
@@ -251,7 +173,7 @@ public class Fly extends Module {
                     mc.thePlayer.motionZ = 0;
                     mc.thePlayer.motionX = 0;
                     for (double val : MoveUtil.getWaterValues()) {
-                        if (Math.abs((mc.thePlayer.posY - lastY) - val) < 1.0E-6) {
+                        if (Math.abs((mc.thePlayer.posY - lastY) - val) < 1.0E-14) {
                             targetDY = val;
                             break;
                         }
@@ -272,45 +194,49 @@ public class Fly extends Module {
                 }
 
                 break;
-                }
         }
+    }
 
-        @SubscribeEvent
-        public void onMove(MoveEvent e) {
+
+    @SubscribeEvent
+    public void onMove(MoveEvent e) {
         if (mode.getInput() == 10) {
-            if (phasse == -1) {
+            if (phase1 == -1) {
                 if (mc.thePlayer.onGround) {
                     mc.thePlayer.motionY = 0.3999;
                 } else {
                     if (mc.thePlayer.motionY < 0) {
-                        phasse = 1;
+                        phase1 = 1;
                     }
                 }
-                sType = 0;
-            } if (phasse == 1) {
+                speedType = 0;
+            }
+            if (phase1 == 1) {
                 if (time) {
                     e.y += .05;
                     time = false;
-                    sType = 0;
+                    speedType = 0;
                 }
                 mc.thePlayer.motionY = -0.00000001;
                 e.setY(mc.thePlayer.ticksExisted % 2 == 0 ? 1E-9 : -1E-9);
                 if (!time) {
-                    sType = 1;
+                    speedType = 1;
                 }
-            } if (sType == 1) {
+            }
+            if (speedType == 1) {
                 MoveUtil.strafe5(MoveUtil.getAllowedHorizontalDistance() + .01);
-            } if (sType == 0) {
+            }
+            if (speedType == 0) {
                 MoveUtil.strafe5(MoveUtil.getAllowedHorizontalDistance() + (Utils.getHorizontalSpeed() / 109));
             }
-            if (MathUtil.goofB(mc.thePlayer.ticksExisted, 40, 1) && sType == 1) {
+            if (MathUtil.goofB(mc.thePlayer.ticksExisted, 40, 1) && speedType == 1) {
                 MoveUtil.strafe5(1);
             }
-         }
         }
+    }
 
-        @SubscribeEvent
-        public void onBlockAABB(BlockAABBEvent event) {
+    @SubscribeEvent
+    public void onBlockAABB(BlockAABBEvent event) {
         if (mode.getInput() == 9 && phase == 2) {
             if (event.getBlock() instanceof BlockAir && !mc.thePlayer.isSneaking()) {
                 final double x = event.getBlockPos().getX(), y = event.getBlockPos().getY(), z = event.getBlockPos().getZ();
@@ -327,17 +253,16 @@ public class Fly extends Module {
         Utils.stopBlink();
         Utils.resetTimer();
         phase = 1;
-        phasse = -1;
-        sType = 0;
+        phase1 = -1;
+        speedType = 0;
         time = true;
         sP = Double.NaN;
         if (mc.thePlayer.capabilities.allowFlying) {
-            mc.thePlayer.capabilities.isFlying = d;
-        }
-        else {
+            mc.thePlayer.capabilities.isFlying = isFlying;
+        } else {
             mc.thePlayer.capabilities.isFlying = false;
         }
-        d = false;
+        isFlying = false;
         switch ((int) mode.getInput()) {
             case 0:
             case 1: {
@@ -355,55 +280,16 @@ public class Fly extends Module {
         }
         ticksl = 0;
         moveSpeed = 0;
-        if (!wE && showBPS.isToggled()) {
+        if (!showCounter && showBPS.isToggled()) {
             ModuleManager.bpsCounter.toggle();
         }
     }
 
 
-   @SubscribeEvent
-   public void onPreMotion(PreMotionEvent e) {
+    @SubscribeEvent
+    public void onPreMotion(PreMotionEvent e) {
         if (mode.getInput() == 7) {
             e.setOnGround(true);
         }
-   }
-
-
-    public static void setSpeed(final double n) {
-        if (n == 0.0) {
-            mc.thePlayer.motionZ = 0;
-            mc.thePlayer.motionX = 0;
-            return;
-        }
-        double n3 = mc.thePlayer.movementInput.moveForward;
-        double n4 = mc.thePlayer.movementInput.moveStrafe;
-        float rotationYaw = mc.thePlayer.rotationYaw;
-        if (n3 == 0.0 && n4 == 0.0) {
-            mc.thePlayer.motionZ = 0;
-            mc.thePlayer.motionX = 0;
-        }
-        else {
-            if (n3 != 0.0) {
-                if (n4 > 0.0) {
-                    rotationYaw += ((n3 > 0.0) ? -45 : 45);
-                }
-                else if (n4 < 0.0) {
-                    rotationYaw += ((n3 > 0.0) ? 45 : -45);
-                }
-                n4 = 0.0;
-                if (n3 > 0.0) {
-                    n3 = 1.0;
-                }
-                else if (n3 < 0.0) {
-                    n3 = -1.0;
-                }
-            }
-            final double radians = Math.toRadians(rotationYaw + 90.0f);
-            final double sin = Math.sin(radians);
-            final double cos = Math.cos(radians);
-            mc.thePlayer.motionX = n3 * n * cos + n4 * n * sin;
-            mc.thePlayer.motionZ = n3 * n * sin - n4 * n * cos;
-        }
     }
-
 }

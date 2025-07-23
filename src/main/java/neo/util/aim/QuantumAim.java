@@ -256,8 +256,8 @@ public class QuantumAim {
                     y = entityVec.yCoord - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
                     z = entityVec.zCoord - mc.thePlayer.posZ;
                 }
-                final float newCalcYaw = (float)(MathHelper.atan2(z, x) * 180.0 /3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679 - 90.0);
-                final float newCalcPitch = (float)(-(MathHelper.atan2(y, MathHelper.sqrt_double(x * x + z * z)) * 180.0 /3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679));
+                final float newCalcYaw = (float)(MathHelper.atan2(z, x) * 180.0 / 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679 - 90.0);
+                final float newCalcPitch = (float)(-(MathHelper.atan2(y, MathHelper.sqrt_double(x * x + z * z)) * 180.0 / 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679));
                 float diffY = MathHelper.wrapAngleTo180_float(newCalcYaw - currentYaw);
                 if (Math.abs(diffY) > -1.0f) {
                     if (diffY > speedYaw) {
