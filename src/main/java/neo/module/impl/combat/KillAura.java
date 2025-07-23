@@ -426,6 +426,14 @@ public class KillAura extends Module {
                                 * (1.5f * Math.exp(-0.05f * ((System.currentTimeMillis() % 10000L) / 1000f))) + 0f)
                 );
 
+                int deltaX2 = Math.round(newRotation.getX() / f1);
+                int deltaY2 = Math.round(newRotation.getY() / f1);
+
+                float smoothedF22 = (deltaX2 * f1) / 3f;
+                float smoothedF32 = (deltaY2 * f1) / 3f;
+
+                newRotation.setX((this.lastRotation.getX() + smoothedF22) + f1);
+                newRotation.setY((this.lastRotation.getY() + smoothedF32) + f1);
 
                 e.setYaw(newYaw);
                 e.setPitch(newPitch);
