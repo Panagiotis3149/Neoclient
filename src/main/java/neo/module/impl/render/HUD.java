@@ -243,6 +243,9 @@ public class HUD extends Module {
                             heightAddition = (float) ((float) font.height() + 0.5);
                             break;
                     }
+                    if (backgrounds.getInput() == 3) {
+                        heightAddition -= 0.05;
+                    }
                     {
                         String text = showInfo.isToggled() ? moduleName + moduleInfo : moduleName;
                         if (lowercase.isToggled()) {

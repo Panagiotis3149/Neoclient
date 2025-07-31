@@ -559,7 +559,6 @@ public class KillAura extends Module {
 
         double safeAps = Double.parseDouble(whatv2(aps.getInput()) + what(String.valueOf((secureRandom.nextInt(9_999_999) + 1) / 10_000_000.0)) + what(String.valueOf(secureRandom.nextFloat())));
         double cappedCps = Math.min(MathUtil.avg(finalCps, MathUtil.avg(aps.getInput() + 1, randChaos + (sineWave * Math.max(Math.random() * 10, 1)) + (randChaos / 10))) * 1.781678314217, safeAps);
-        Utils.sendRawMessage("CPS DEBUG: " + cappedCps);
         long delay = (long) (1000.0 / cappedCps);
         if (System.currentTimeMillis() >= nextClickTime) {
             nextClickTime = System.currentTimeMillis() + delay;
