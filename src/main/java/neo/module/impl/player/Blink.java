@@ -31,6 +31,7 @@ public class Blink extends Module {
     private final List<Packet> blinkedPackets = new ArrayList<>();
     private Vec3 pos;
     private final int color = new Color(0, 255, 0).getRGB();
+    private static final int colors = new Color(0, 255, 0).getRGB();
     private int blinkTicks;
     public Blink() {
         super("Blink", category.player);
@@ -56,7 +57,7 @@ public class Blink extends Module {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent e) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             this.disable();
             return;
         }
@@ -83,7 +84,7 @@ public class Blink extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (!Utils.isnull() || pos == null || !initialPosition.isToggled()) {
+        if (!Utils.isntnull() || pos == null || !initialPosition.isToggled()) {
             return;
         }
         drawBox(pos);
@@ -100,6 +101,32 @@ public class Blink extends Module {
         float r = (float) (color >> 16 & 255) / 255.0F;
         float g = (float) (color >> 8 & 255) / 255.0F;
         float b = (float) (color & 255) / 255.0F;
+        GL11.glBlendFunc(770, 771);
+        GL11.glEnable(3042);
+        GL11.glDisable(3553);
+        GL11.glDisable(2929);
+        GL11.glDepthMask(false);
+        GL11.glLineWidth(2.0F);
+        GL11.glColor4f(r, g, b, a);
+        RenderUtils.drawBoundingBox(axis, r, g, b);
+        GL11.glEnable(3553);
+        GL11.glEnable(2929);
+        GL11.glDepthMask(true);
+        GL11.glDisable(3042);
+        GlStateManager.popMatrix();
+    }
+
+    public static void drawBoxi(Vec3 pos) {
+        GlStateManager.pushMatrix();
+        double x = pos.xCoord - mc.getRenderManager().viewerPosX;
+        double y = pos.yCoord - mc.getRenderManager().viewerPosY;
+        double z = pos.zCoord - mc.getRenderManager().viewerPosZ;
+        AxisAlignedBB bbox = mc.thePlayer.getEntityBoundingBox().expand(0.1D, 0.1, 0.1);
+        AxisAlignedBB axis = new AxisAlignedBB(bbox.minX - mc.thePlayer.posX + x, bbox.minY - mc.thePlayer.posY + y, bbox.minZ - mc.thePlayer.posZ + z, bbox.maxX - mc.thePlayer.posX + x, bbox.maxY - mc.thePlayer.posY + y, bbox.maxZ - mc.thePlayer.posZ + z);
+        float a = (float) (colors >> 24 & 255) / 255.0F;
+        float r = (float) (colors >> 16 & 255) / 255.0F;
+        float g = (float) (colors >> 8 & 255) / 255.0F;
+        float b = (float) (colors & 255) / 255.0F;
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(3042);
         GL11.glDisable(3553);

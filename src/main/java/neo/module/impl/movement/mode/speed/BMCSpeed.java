@@ -15,7 +15,7 @@ public class BMCSpeed {
 
 
     public static void BMCSpeed() {
-        if (Utils.isnull()) {
+        if (Utils.isntnull()) {
             Utils.resetTimer();
             if (MoveUtil.isMoving()) {
                 MoveUtil.strafec(Math.max(MoveUtil.getSpeed(), MoveUtil.getAllowedHorizontalDistance()));

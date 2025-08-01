@@ -170,7 +170,7 @@ public class Neo {
     @SubscribeEvent
     public void onTick(ClientTickEvent e) {
         if (e.phase == Phase.END) {
-            if (Utils.isnull()) {
+            if (Utils.isntnull()) {
                 if (Reflection.sendMessage) {
                     Utils.sendMessage("&cewwor, pwease rewaunch");
                     Reflection.sendMessage = false;

@@ -17,6 +17,7 @@
     "render.MixinItemRenderer",
     "render.MixinGuiInGame",
     "entity.MixinRenderEntityItem",
+    "entity.S14PacketEntityAccessor",
     "render.MixinEntityRenderer",
     "network.MixinModList",
     "client.PlayerControllerMPAccessor",

@@ -49,7 +49,7 @@ public class ViewPackets extends Module {
     }
 
     private void sendMessage(Packet<?> packet, boolean receivedPacket) {
-        if (Utils.isnull()) return;
+        if (Utils.isntnull()) return;
         String base = receivedPacket ? ("&a" + packet.getClass().getSimpleName()) : getPacketInfo(packet);
         String color = (compactC03.isToggled() && packet instanceof C03PacketPlayer) ? "&6" : "&d";
         String label = color + packet.getClass().getSimpleName();

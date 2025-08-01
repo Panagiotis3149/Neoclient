@@ -25,7 +25,7 @@ public class AutoWho extends Module {
 
     @SubscribeEvent
     public void onChatReceive(ClientChatReceivedEvent e) {
-        if (e.type == 2 || !Utils.isnull()) {
+        if (e.type == 2 || !Utils.isntnull()) {
             return;
         }
         final String r = Utils.stripColor(e.message.getUnformattedText());

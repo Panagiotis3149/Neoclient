@@ -41,7 +41,7 @@ public class FakeLag extends Module {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             sendPacket(false);
             return;
         }
@@ -51,7 +51,7 @@ public class FakeLag extends Module {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onSendPacket(SendPacketEvent e) {
         long receiveTime = System.currentTimeMillis();
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             sendPacket(false);
             return;
         }
@@ -62,7 +62,7 @@ public class FakeLag extends Module {
         if (packet instanceof C00Handshake || packet instanceof C00PacketLoginStart || packet instanceof C00PacketServerQuery || packet instanceof C01PacketEncryptionResponse) {
             return;
         }
-        if (SendPacketEvent.getPacket() != null && !Utils.isnull()) {
+        if (SendPacketEvent.getPacket() != null && !Utils.isntnull()) {
             delayedPackets.put(SendPacketEvent.getPacket(), receiveTime);
         }
         e.setCanceled(true);

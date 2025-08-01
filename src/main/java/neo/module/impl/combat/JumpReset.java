@@ -24,7 +24,7 @@ public class JumpReset extends Module {
 
     @SubscribeEvent
     public void onLivingUpdate(LivingEvent.LivingUpdateEvent ev) {
-        if (Utils.isnull()) {
+        if (Utils.isntnull()) {
             if (chance.getInput() == 0) {
                 return;
             }
@@ -54,7 +54,7 @@ public class JumpReset extends Module {
 
     @SubscribeEvent
     public void onJump(JumpEvent e) {
-        if (!Utils.isnull() || !jump) {
+        if (!Utils.isntnull() || !jump) {
             return;
         }
         if (motion.getInput() != 0.42) {

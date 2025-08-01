@@ -12,8 +12,6 @@ import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.awt.*;
-
 public class ChestESP extends Module {
 
     private final ButtonSetting outline;
@@ -31,7 +29,7 @@ public class ChestESP extends Module {
 
     @SubscribeEvent
     public void o(RenderWorldLastEvent ev) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return;
         }
         for (TileEntity tileEntity : mc.theWorld.loadedTileEntityList) {

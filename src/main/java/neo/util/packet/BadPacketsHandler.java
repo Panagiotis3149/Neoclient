@@ -1,8 +1,10 @@
 package neo.util.packet;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import neo.event.PostUpdateEvent;
 import neo.event.ReceivePacketEvent;
 import neo.event.SendPacketEvent;
+import neo.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.network.Packet;
@@ -11,6 +13,9 @@ import net.minecraft.network.play.server.S09PacketHeldItemChange;
 import net.minecraft.network.play.server.S0CPacketSpawnPlayer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 public class BadPacketsHandler {
 
@@ -22,6 +27,24 @@ public class BadPacketsHandler {
 
     public static boolean bad() {
         return bad(true, true, true, true, true);
+    }
+
+    public static void onBadPacket(@NotNull Packet<?> packet, @NotNull Exception e) {
+        try {
+            final StringBuilder stackTraces = new StringBuilder();
+
+                Arrays.stream(e.getStackTrace())
+                        .limit(7)
+                        .parallel()
+                        .map(s -> "\n  " + ChatFormatting.RED + "at " + ChatFormatting.AQUA + s)
+                        .forEach(stackTraces::append);
+
+                Utils.sendMessage(String.format(
+                        "%sCatch %s on processing packet <%s>.%s",
+                        ChatFormatting.RED, e.getClass(), packet, stackTraces
+                ));
+        } catch (Throwable ignored) {
+        }
     }
 
     public static boolean bad(final boolean slot, final boolean attack, final boolean swing, final boolean block, final boolean inventory) {

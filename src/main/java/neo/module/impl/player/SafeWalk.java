@@ -51,7 +51,7 @@ public class SafeWalk extends Module {
         if (e.phase != TickEvent.Phase.END) {
             return;
         }
-        if (!shift.isToggled() || !Utils.isnull()) {
+        if (!shift.isToggled() || !Utils.isntnull()) {
             return;
         }
         if (mc.thePlayer.onGround && BlockUtils.overAir()) {

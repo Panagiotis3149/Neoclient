@@ -23,6 +23,7 @@ import neo.util.shader.RoundedUtils;
 import neo.util.world.block.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemBlock;
@@ -64,11 +65,12 @@ public class Scaffold extends Module {
     private final ButtonSetting bypass;
     private MovingObjectPosition placeBlock;
     private final ButtonSetting moveFix;
+    private final ButtonSetting smartTowerMove;
     private int lastSlot;
     private final String[] rotationModes = new String[]{"None", "Simple", "Strict", "Precise", "Legit"};
     private final String[] fastScaffoldModes = new String[]{"Disabled", "Sprint", "Edge", "Jump A", "Jump B", "Jump C", "KeepY", "Verus", "VerusFast", "Legit (T)", "BMC"};
     private final String[] precisionModes = new String[]{"Very low", "Low", "Moderate", "High", "Very high"};
-    private final String[] towerModes = new String[]{"None", "Vanilla", "NCP"};
+    private final String[] towerModes = new String[]{"None", "Vanilla", "NCP", "BMC"};
     private final String[] multiPlaceModes = new String[]{"Disabled", "1 extra", "2 extra"};
     public float placeYaw;
     public float placePitch;
@@ -110,6 +112,8 @@ public class Scaffold extends Module {
     private float[] rots = new float[] { 0.0f, 0.0f };
     private double[] xyz = new double[3];
     private final HashMap<float[], MovingObjectPosition> hashMap = new HashMap<float[], MovingObjectPosition>();;
+    private int setback;
+    public int startY;
 
     public Scaffold() {
         super("Scaffold", category.player);
@@ -120,6 +124,7 @@ public class Scaffold extends Module {
         this.registerSetting(multiPlace = new SliderSetting("Multi-place", multiPlaceModes, 0));
         this.registerSetting(theme = new SliderSetting("Theme (For Highlight)", Theme.themes, 0));
         this.registerSetting(tower = new SliderSetting("Tower Mode", towerModes, 0));
+        this.registerSetting(smartTowerMove = new ButtonSetting("Tower Move", false));
         this.registerSetting(autoSwap = new ButtonSetting("Auto Swap", true)); // Fixed (05/02/25)
         this.registerSetting(delayOnJump = new ButtonSetting("Delay on jump", true));
         this.registerSetting(fastOnRMB = new ButtonSetting("Fast on RMB", false));
@@ -205,6 +210,7 @@ public class Scaffold extends Module {
         placePitch = 85;
         previousRotation = null;
         placeYaw = 2000;
+        startY = (int) Math.floor(mc.thePlayer.posY);
         IBlockAccess blockAccess = mc.theWorld;
         BlockPos pos = new BlockPos(mc.thePlayer.posX, lastGroundY - 2, mc.thePlayer.posZ);
         if (!BlockUtils.getBlock(pos).isAir(blockAccess, pos)) {
@@ -246,13 +252,35 @@ public class Scaffold extends Module {
         }
     }
 
+    public boolean shouldMoveTower() {
+        if (keepYPosition()) {
+            return mc.thePlayer.posY > (startY + 2.5);
+        } else {
+            return true;
+        }
+    }
 
-    public boolean canTower() {return totalBlocks() > 0 && mc.currentScreen == null && !MoveUtil.isMoving() && Utils.isnull() && Utils.jumpDown() && mc.thePlayer.hurtTime < 9;}
+    private boolean canTower() {
+        return Utils.isntnull() && mc.currentScreen == null &&
+                totalBlocks() > 0 &&
+                mc.thePlayer.hurtTime < 9 &&
+                Utils.jumpDown();
+    }
 
+
+    public boolean canTowerMove() {
+        return smartTowerMove.isToggled() && canTower();
+    }
+
+    public boolean spb() {
+            BlockPos blockPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.0, mc.thePlayer.posZ);;
+            Block blockUnder = mc.theWorld.getBlockState(blockPos).getBlock();
+            return blockUnder instanceof BlockAir || blockUnder instanceof BlockLiquid;
+    }
 
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return;
         }
 
@@ -273,7 +301,8 @@ public class Scaffold extends Module {
 
         place = true;
 
-        if (canTower()) {
+
+        if ((canTower() && !MoveUtil.isMoving()) || (canTowerMove() && shouldMoveTower())) {
             switch ((int) tower.getInput()) {
                 case 0:
                     break;
@@ -293,6 +322,21 @@ public class Scaffold extends Module {
                             mc.thePlayer.setPosition(mc.thePlayer.posX, Math.floor(mc.thePlayer.posY), mc.thePlayer.posZ);
                         }
                     }
+                        case 3:
+                            if (mc.thePlayer.onGround) {
+                                MoveUtil.strafe(0.3);
+                                mc.thePlayer.motionY = 0.42;
+                            } else if (offGroundTicks == 3) {
+                                if (!spb()) {
+                                    mc.thePlayer.motionY = mc.thePlayer.posY % 1.0;
+                                    towerTick = 0;
+                                } else {
+                                    towerTick = 1;
+                                }
+                            } else if (offGroundTicks == 4 && towerTick == 1) {
+                                mc.thePlayer.motionY -= 0.07;
+                            }
+                            break;
             }
         }
     }
@@ -315,6 +359,7 @@ public class Scaffold extends Module {
     public void onPreUpdate(PreUpdateEvent e) {
         ticks++;
         unlticks++;
+        --setback;
         if (ticks > 40) ticks = 0;
         if (mc.thePlayer.isAirBorne) {
             offGroundTicks++;
@@ -351,7 +396,7 @@ public class Scaffold extends Module {
             }
             if (MoveUtil.isMoving()) {
                 is++;
-                if(ground && mc.thePlayer.onGround) {
+                if (ground && mc.thePlayer.onGround) {
                     mc.thePlayer.motionY = 0.42F;
                     MoveUtil.strafec(0.47);
                     ground = false;
@@ -643,7 +688,7 @@ public class Scaffold extends Module {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (!Utils.isnull() || !showBlockCount.isToggled()) {
+        if (!Utils.isntnull() || !showBlockCount.isToggled()) {
             return;
         }
         if (ev.phase == TickEvent.Phase.END) {
@@ -791,7 +836,7 @@ public class Scaffold extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (!Utils.isnull() || !highlightBlocks.isToggled() || highlight.isEmpty()) {
+        if (!Utils.isntnull() || !highlightBlocks.isToggled() || highlight.isEmpty()) {
             return;
         }
         Iterator<Map.Entry<BlockPos, Timer>> iterator = highlight.entrySet().iterator();

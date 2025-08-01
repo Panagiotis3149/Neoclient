@@ -140,7 +140,7 @@ public class OldAura extends Module {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return;
         }
         if (ev.phase != TickEvent.Phase.START) {
@@ -364,7 +364,7 @@ public class OldAura extends Module {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onSendPacket(SendPacketEvent e) {
-        if (!Utils.isnull() || !blinking) {
+        if (!Utils.isntnull() || !blinking) {
             return;
         }
         Packet packet = SendPacketEvent.getPacket();
@@ -582,7 +582,7 @@ public class OldAura extends Module {
     }
 
     public static boolean basicCondition() {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return false;
         }
         return !mc.thePlayer.isDead;

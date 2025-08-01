@@ -1,7 +1,6 @@
 package neo.module.impl.render;
 
 import neo.module.Module;
-import neo.module.ModuleManager;
 import neo.module.impl.combat.KillAura;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.DescriptionSetting;
@@ -70,7 +69,7 @@ public class TargetHUD extends Module {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             reset();
             return;
         }

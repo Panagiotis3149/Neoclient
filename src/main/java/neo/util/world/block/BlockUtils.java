@@ -129,7 +129,7 @@ public class BlockUtils {
     }
 
     public static boolean replaceable(BlockPos blockPos) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return true;
         }
         return getBlock(blockPos).isReplaceable(mc.theWorld, blockPos);

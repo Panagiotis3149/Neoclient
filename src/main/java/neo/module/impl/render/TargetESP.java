@@ -1,7 +1,6 @@
 package neo.module.impl.render;
 
 import neo.module.Module;
-import neo.module.ModuleManager;
 import neo.module.impl.combat.KillAura;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.SliderSetting;
@@ -23,17 +22,16 @@ import java.awt.*;
 
 public class TargetESP extends Module {
 
-    private final SliderSetting alpha;
-    private final String[] modes = new String[]{"Ring", "Vape", "Raven", "Both", "Ghost"};
-    private final String[] speeds = new String[]{"250", "500", "750", "850", "1000", "1250"};
-    private final SliderSetting mode;
-    private final SliderSetting speed;
+    public final SliderSetting alpha;
+    public final String[] modes = new String[]{"Ring", "Vape", "Raven", "Both", "Ghost"};
+    public final String[] speeds = new String[]{"250", "500", "750", "850", "1000", "1250"};
+    public final SliderSetting mode;
+    public final SliderSetting speed;
     public static SliderSetting theme;
     public static ButtonSetting white;
     public Color color;
-    private final ResourceLocation glowCircle = new ResourceLocation("neo", "textures/glow_circle.png");
-    private final long lastTime = System.currentTimeMillis();
-    private Object aura;
+    public final ResourceLocation glowCircle = new ResourceLocation("neo", "textures/glow_circle.png");
+    public final long lastTime = System.currentTimeMillis();
 
     public TargetESP() {
         super("TargetESP", category.render);

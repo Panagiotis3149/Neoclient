@@ -32,7 +32,7 @@ public class Animations extends Module {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent event) {
-        if (Utils.isnull() && swingWhileDigging.isToggled() && clientSide.isToggled() && SendPacketEvent.getPacket() instanceof C0APacketAnimation && mc.thePlayer.isUsingItem()) {
+        if (Utils.isntnull() && swingWhileDigging.isToggled() && clientSide.isToggled() && SendPacketEvent.getPacket() instanceof C0APacketAnimation && mc.thePlayer.isUsingItem()) {
             event.setCanceled(true);
         }
     }

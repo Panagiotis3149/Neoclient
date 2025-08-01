@@ -15,7 +15,6 @@ import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.vector.Quaternion;
 
 import java.awt.*;
 
@@ -145,7 +144,7 @@ public class Freecam extends Module {
 
     @SubscribeEvent
     public void re(RenderWorldLastEvent e) {
-        if (Utils.isnull()) {
+        if (Utils.isntnull()) {
             if (!showArm.isToggled()) {
                 mc.thePlayer.renderArmPitch = mc.thePlayer.prevRenderArmPitch = 700.0F;
             }
@@ -157,7 +156,7 @@ public class Freecam extends Module {
 
     @SubscribeEvent
     public void m(MouseEvent e) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return;
         }
         if ((e.button == 0 && !allowDigging.isToggled() || e.button == 1 && !allowPlacing.isToggled()) && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
@@ -172,7 +171,7 @@ public class Freecam extends Module {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent e) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return;
         }
         if (!allowDigging.isToggled()) {

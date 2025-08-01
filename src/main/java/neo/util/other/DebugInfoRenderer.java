@@ -13,7 +13,7 @@ public class DebugInfoRenderer extends net.minecraft.client.gui.Gui {
 
     @SubscribeEvent
     public void onRenderTick(RenderTickEvent ev) {
-        if (!Neo.debugger || ev.phase != TickEvent.Phase.END || !Utils.isnull()) {
+        if (!Neo.debugger || ev.phase != TickEvent.Phase.END || !Utils.isntnull()) {
             return;
         }
         if (mc.currentScreen == null) {

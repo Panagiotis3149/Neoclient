@@ -44,13 +44,13 @@ public class Reach extends Module {
 
     @SubscribeEvent
     public void e(MouseEvent ev) {
-        if (ev.button >= 0 && ev.buttonstate && Utils.isnull() && (!ModuleManager.autoClicker.isEnabled() || !AutoClicker.leftClick.isToggled() || !Mouse.isButtonDown(0))) {
+        if (ev.button >= 0 && ev.buttonstate && Utils.isntnull() && (!ModuleManager.autoClicker.isEnabled() || !AutoClicker.leftClick.isToggled() || !Mouse.isButtonDown(0))) {
             call();
         }
     }
 
     public static boolean call() {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return false;
         } else if (weaponOnly.isToggled() && !Utils.holdingWeapon()) {
             return false;

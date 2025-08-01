@@ -51,7 +51,7 @@ public class Nametags extends Module {
 
     @SubscribeEvent
     public void onRenderTick(RenderGameOverlayEvent.Post ev) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return;
         }
         if (ev.type != RenderGameOverlayEvent.ElementType.ALL) {
@@ -141,7 +141,7 @@ public class Nametags extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent renderWorldLastEvent) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return;
         }
         updatePositions();

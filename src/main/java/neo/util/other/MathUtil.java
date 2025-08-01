@@ -205,13 +205,12 @@ public final class MathUtil {
         return (oldValue + (newValue - oldValue) * interpolationValue);
     }
 
-    public static Vec3 interpolate(Vec3 end, Vec3 start, float multiple) {
+    public static Vec3 interpolate(Vec3 end, Vec3 start, float t) {
         return new Vec3(
-                interpolate(end.xCoord, start.xCoord, multiple),
-                interpolate(end.yCoord, start.yCoord, multiple),
-                interpolate(end.zCoord, start.zCoord, multiple));
+                interpolate(start.xCoord, end.xCoord, t),
+                interpolate(start.yCoord, end.yCoord, t),
+                interpolate(start.zCoord, end.zCoord, t));
     }
-
 
 
     public static float interpolateFloat(float oldValue, float newValue, double interpolationValue) {

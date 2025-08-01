@@ -63,7 +63,7 @@ public class ClickAssist extends Module {
         if (disableInCreative.isToggled() && mc.thePlayer.capabilities.isCreativeMode) {
             return;
         }
-        if (ev.button >= 0 && ev.buttonstate && Utils.isnull()) {
+        if (ev.button >= 0 && ev.buttonstate && Utils.isntnull()) {
             if (mc.currentScreen == null && !mc.thePlayer.isEating()) {
                 double ch;
                 if (ev.button == 0 && leftClick.isToggled() && chanceLeft.getInput() != 0.0D) {

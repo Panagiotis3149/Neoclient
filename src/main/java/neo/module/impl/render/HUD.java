@@ -83,7 +83,7 @@ public class HUD extends Module {
 
     @SubscribeEvent
     public void onRenderTick(RenderTickEvent ev) {
-        if (ev.phase != TickEvent.Phase.END || !Utils.isnull()) return;
+        if (ev.phase != TickEvent.Phase.END || !Utils.isntnull()) return;
         if (isAlphabeticalSort != alphabeticalSort.isToggled()) {
             isAlphabeticalSort = alphabeticalSort.isToggled();
             ModuleManager.sort();
@@ -130,11 +130,11 @@ public class HUD extends Module {
                         if (alignRight.isToggled()) {
                             n3 -= width - MinecraftFontRenderer.INSTANCE.width("ModuleExample");
                         }
-                        if (bloomType.getInput() == 3 || bloomType.getInput() == 1) {
-                            BlurUtils.prepareBloom();
-                            drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), heightAddition, 0, Color.black);
-                            BlurUtils.bloomEnd(2, 2F);
-                        }
+                            if (bloomType.getInput() == 3 || bloomType.getInput() == 1) {
+                                BlurUtils.prepareBloom();
+                                drawRound((float) (n3 - 1.5), n - 1, (float) (width + 3), heightAddition, 0, Color.black);
+                                BlurUtils.bloomEnd(2, 2F);
+                            }
                         switch ((int) blurs.getInput()) {
                             case 0:
                                 break;

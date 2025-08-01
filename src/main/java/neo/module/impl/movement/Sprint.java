@@ -19,7 +19,7 @@ public class Sprint extends Module {
 
     @SubscribeEvent
     public void p(PlayerTickEvent e) {
-        if (Utils.isnull() && mc.inGameHasFocus) {
+        if (Utils.isntnull() && mc.inGameHasFocus) {
             KeyBinding.setKeyBindState(mc.gameSettings.keyBindSprint.getKeyCode(), true);
         }
     }

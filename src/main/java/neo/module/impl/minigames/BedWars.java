@@ -62,7 +62,7 @@ public class BedWars extends Module {
 
     @SubscribeEvent
     public void onBlock(BlockEvent.PlaceEvent e) {
-        if (!Utils.isnull() || !obsidian.isToggled()) {
+        if (!Utils.isntnull() || !obsidian.isToggled()) {
             return;
         }
         if (!(e.state.getBlock() instanceof BlockObsidian)) {
@@ -79,7 +79,7 @@ public class BedWars extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (Utils.isnull()) {
+        if (Utils.isntnull()) {
             if (this.obsidianPos.isEmpty()) {
                 return;
             }
@@ -100,7 +100,7 @@ public class BedWars extends Module {
 
     @SubscribeEvent
     public void onEntityJoinWorld(EntityJoinWorldEvent e) {
-        if (!Utils.isnull() || e.entity == null) {
+        if (!Utils.isntnull() || e.entity == null) {
             return;
         }
         if (e.entity == mc.thePlayer) {
@@ -167,7 +167,7 @@ public class BedWars extends Module {
 
     @SubscribeEvent
     public void onChat(ClientChatReceivedEvent c) {
-        if (!Utils.isnull()) {
+        if (!Utils.isntnull()) {
             return;
         }
         String strippedMessage = Utils.stripColor(c.message.getUnformattedText());

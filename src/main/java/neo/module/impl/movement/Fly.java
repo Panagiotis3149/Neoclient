@@ -43,10 +43,11 @@ public class Fly extends Module {
     int phase1 = -1;
     int speedType = 0;
     boolean time = true;
+    int ttks = 0;
 
     public Fly() {
         super("Fly", category.movement);
-        String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus", "Mospixel", "BMC", "Test", "Test2"};
+        String[] modes = new String[]{"Vanilla", "Fast", "Fast2", "Glide", "AirPlace", "VerusOld", "Verus", "Mospixel", "BMC", "VulcanTest", "Test"};
         registerSetting(mode = new SliderSetting("Fly", modes, 0));
         registerSetting(horizontalSpeed = new SliderSetting("Horizontal speed", 2.0, 1.0, 9.0, 0.1));
         registerSetting(verticalSpeed = new SliderSetting("Vertical speed", 2.0, 1.0, 9.0, 0.1));
@@ -166,6 +167,16 @@ public class Fly extends Module {
                 BMCFly.BMCFly();
                 break;
             case 9:
+                // VulcanTest fly, Mode 9:
+                // Tested On: eu.loyisa.cn
+                // Works for: ~60 ticks
+                // Vulcan Ver: 2.9.7.1
+                // Only works if: you dont spam it
+                // Best if you dont sprint
+                ttks++;
+                if (ttks >= 55) {
+                    this.disable();
+                }
                 double lastY = mc.thePlayer.prevPosY;
                 double targetDY = 0.05999999821185753;
                 Utils.getTimer().timerSpeed = 0.9f;
@@ -196,6 +207,7 @@ public class Fly extends Module {
                 break;
         }
     }
+
 
 
     @SubscribeEvent
@@ -235,6 +247,8 @@ public class Fly extends Module {
         }
     }
 
+    // VulcanTest fly, Mode 9:
+    // Tested On: eu.loyisa.cn
     @SubscribeEvent
     public void onBlockAABB(BlockAABBEvent event) {
         if (mode.getInput() == 9 && phase == 2) {
@@ -253,6 +267,7 @@ public class Fly extends Module {
         Utils.stopBlink();
         Utils.resetTimer();
         phase = 1;
+        ttks = 0;
         phase1 = -1;
         speedType = 0;
         time = true;

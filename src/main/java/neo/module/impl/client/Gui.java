@@ -15,7 +15,7 @@ public class Gui extends Module {
     }
 
     public void onEnable() {
-        if (Utils.isnull() && mc.currentScreen != Neo.clickGui) {
+        if (Utils.isntnull() && mc.currentScreen != Neo.clickGui) {
             mc.displayGuiScreen(Neo.clickGui);
             Neo.clickGui.initMain();
         }
