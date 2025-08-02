@@ -17,10 +17,9 @@ import net.minecraft.item.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
-
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class InvManager extends Module {
     private final ButtonSetting autoArmor;
@@ -47,7 +46,7 @@ public class InvManager extends Module {
     private int lastSort;
     private int lastArmor;
     private int lastClean;
-    private final Random random = new Random(); // for randomizing chest delay
+    private final SecureRandom random = new SecureRandom();
 
     public InvManager() {
         super("InvManager", category.player);

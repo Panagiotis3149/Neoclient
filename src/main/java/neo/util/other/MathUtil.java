@@ -213,6 +213,7 @@ public final class MathUtil {
     }
 
 
+
     public static float interpolateFloat(float oldValue, float newValue, double interpolationValue) {
         return interpolate(oldValue, newValue, (float) interpolationValue).floatValue();
     }

@@ -111,7 +111,7 @@ public class QuantumAim {
         float yaw = updateRotation(currentYaw, calcYaw, yawSpeed + RandomUtil.nextFloat(0.0f, 15.0f));
         final double diffYaw = MathHelper.wrapAngleTo180_float(calcYaw - currentYaw);
         if (-yawSpeed > diffYaw || diffYaw > yawSpeed) {
-            yaw += (float)(RandomUtil.nextFloat(1.0f, 2.0f) * Math.sin(mc.thePlayer.rotationPitch *3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679));
+            yaw += (float)(RandomUtil.nextFloat(1.0f, 2.0f) * Math.sin(mc.thePlayer.rotationPitch *Math.PI));
         }
         if (yaw == currentYaw) {
             return currentYaw;
@@ -256,8 +256,8 @@ public class QuantumAim {
                     y = entityVec.yCoord - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
                     z = entityVec.zCoord - mc.thePlayer.posZ;
                 }
-                final float newCalcYaw = (float)(MathHelper.atan2(z, x) * 180.0 / 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679 - 90.0);
-                final float newCalcPitch = (float)(-(MathHelper.atan2(y, MathHelper.sqrt_double(x * x + z * z)) * 180.0 / 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679));
+                final float newCalcYaw = (float)(MathHelper.atan2(z, x) * 180.0 / Math.PI - 90.0);
+                final float newCalcPitch = (float)(-(MathHelper.atan2(y, MathHelper.sqrt_double(x * x + z * z)) * 180.0 / Math.PI));
                 float diffY = MathHelper.wrapAngleTo180_float(newCalcYaw - currentYaw);
                 if (Math.abs(diffY) > -1.0f) {
                     if (diffY > speedYaw) {
@@ -448,8 +448,8 @@ public class QuantumAim {
         final double x = ePos.xCoord - mc.thePlayer.posX;
         final double y = ePos.yCoord - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
         final double z = ePos.zCoord - mc.thePlayer.posZ;
-        final float calcYaw = (float)(MathHelper.atan2(z, x) * 180.0 /3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679 - 90.0);
-        final float calcPitch = (float)(-(MathHelper.atan2(y, MathHelper.sqrt_double(x * x + z * z)) * 180.0 /3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679));
+        final float calcYaw = (float)(MathHelper.atan2(z, x) * 180.0 /Math.PI - 90.0);
+        final float calcPitch = (float)(-(MathHelper.atan2(y, MathHelper.sqrt_double(x * x + z * z)) * 180.0 /Math.PI));
         float yaw = updateRotation(currentYaw, calcYaw, 180.0f);
         float pitch = updateRotation(currentPitch, calcPitch, 180.0f);
         if (random) {
@@ -559,8 +559,8 @@ public class QuantumAim {
             y = ey - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
             z = ez - mc.thePlayer.posZ;
         }
-        final float calcYaw = (float)(Math.atan2(z, x) * 180.0 / 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679 - 90.0);
-        final float calcPitch = (float)(-(MathHelper.atan2(y, MathHelper.sqrt_double(x * x + z * z)) * 180.0 /3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679));
+        final float calcYaw = (float)(Math.atan2(z, x) * 180.0 / Math.PI - 90.0);
+        final float calcPitch = (float)(-(MathHelper.atan2(y, MathHelper.sqrt_double(x * x + z * z)) * 180.0 /Math.PI));
         if (stopOnTarget && mc.objectMouseOver != null && mc.objectMouseOver.entityHit == entity) {
             yawSpeed = 0.0f;
             pitchSpeed = 0.0f;
@@ -584,14 +584,14 @@ public class QuantumAim {
         }
         switch (randomMode) {
             case "Basic": {
-                yaw += (float)(intave ? (RandomUtil.nextSecureFloat(1.0, 2.0) * Math.sin(pitch *3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679) * randomStrength) : (ThreadLocalRandom.current().nextGaussian() * randomStrength));
-                pitch += (float)(intave ? (RandomUtil.nextSecureFloat(1.0, 2.0) * Math.sin(yaw *3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679) * randomStrength) : (ThreadLocalRandom.current().nextGaussian() * randomStrength));
+                yaw += (float)(intave ? (RandomUtil.nextSecureFloat(1.0, 2.0) * Math.sin(pitch *Math.PI) * randomStrength) : (ThreadLocalRandom.current().nextGaussian() * randomStrength));
+                pitch += (float)(intave ? (RandomUtil.nextSecureFloat(1.0, 2.0) * Math.sin(yaw *Math.PI) * randomStrength) : (ThreadLocalRandom.current().nextGaussian() * randomStrength));
                 break;
             }
             case "OnlyRotation": {
                 if (-yawSpeed > diffYaw || diffYaw > yawSpeed || -pitchSpeed > diffPitch || diffPitch > pitchSpeed) {
-                    yaw += (float)(intave ? (RandomUtil.nextSecureFloat(1.0, 2.0) * Math.sin(pitch *3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679) * randomStrength) : (ThreadLocalRandom.current().nextGaussian() * randomStrength));
-                    pitch += (float)(intave ? (RandomUtil.nextSecureFloat(1.0, 2.0) * Math.sin(yaw *3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679) * randomStrength) : (ThreadLocalRandom.current().nextGaussian() * randomStrength));
+                    yaw += (float)(intave ? (RandomUtil.nextSecureFloat(1.0, 2.0) * Math.sin(pitch *Math.PI) * randomStrength) : (ThreadLocalRandom.current().nextGaussian() * randomStrength));
+                    pitch += (float)(intave ? (RandomUtil.nextSecureFloat(1.0, 2.0) * Math.sin(yaw *Math.PI) * randomStrength) : (ThreadLocalRandom.current().nextGaussian() * randomStrength));
                     break;
                 }
                 break;

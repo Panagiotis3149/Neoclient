@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class BackgroundShader {
+    // Hours spent on this class:
+    // 8 hrs.
     private int shaderProgram = 0;
     private final ResourceLocation fragShader;
     Minecraft mc = Minecraft.getMinecraft();

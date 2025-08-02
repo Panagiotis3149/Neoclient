@@ -1,7 +1,6 @@
 package neo.module.impl.other;
 
 import neo.module.Module;
-import neo.module.impl.client.ClientTheme;
 import neo.module.impl.combat.AntiBot;
 import neo.module.impl.other.anticheat.AnticheatComponent;
 import neo.module.impl.other.anticheat.impl.*;

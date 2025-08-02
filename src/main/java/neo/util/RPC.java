@@ -55,11 +55,11 @@ public class RPC {
             } else if (mc.currentScreen instanceof GuiMultiplayer) {
                 p.setDetails("Hmm... Which server should i destroy today?");
             } else if (mc.currentScreen instanceof ClickGui) {
-                p.setDetails("Configuring Modules... (ClickGUI)");
+                p.setDetails("Configuring Modules... ");
             } else if (mc.currentScreen instanceof GuiChat) {
                 p.setDetails("Talking... (Chat)");
             } else if (mc.currentScreen instanceof DisconnectedGui) {
-                p.setDetails("Most likely bad config. (Disconnected)");
+                p.setDetails("Most likely bad config. ");
             } else if (mc.currentScreen instanceof GuiVideoSettings) {
                 p.setDetails("I need to change my video settings, I'm lagging.");
             } else if (mc.currentScreen instanceof GuiConnecting || mc.currentScreen instanceof GuiDownloadTerrain) {
@@ -75,16 +75,18 @@ public class RPC {
               p.setDetails("Adding Alts...");
             } else if (mc.currentScreen instanceof GuiYesNo) {
                 p.setDetails("Questioning life choices (GuiY/N)");
-            }  else {
+            } else {
                 p.setDetails("Other GUIs");
             }
         } else {
             if (mc.currentScreen instanceof ClickGui) {
-                p.setDetails("Configuring Modules... (ClickGUI)");
+                p.setDetails("Configuring Modules... ");
             } else if (mc.currentScreen instanceof GuiChat) {
-                p.setDetails("Talking... (Chat)");
+                p.setDetails("Talking...");
             } else if (!ingameGuis) {
                 p.setDetails("Destroying " + ip + " With " + clientName + "!");
+            } else if (mc.currentScreen instanceof GuiVideoSettings) {
+                p.setDetails("I need to change my video settings, I'm lagging.");
             }
         }
 
