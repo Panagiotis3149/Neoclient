@@ -14,7 +14,7 @@ public class NoRotate extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent event) { // from croat
-        if (!Utils.isntnull()) {
+        if (!Utils.isnull()) {
             return;
         }
         if (ReceivePacketEvent.getPacket() instanceof S08PacketPlayerPosLook) {

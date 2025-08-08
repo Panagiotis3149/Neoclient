@@ -57,7 +57,7 @@ public class Blink extends Module {
 
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent e) {
-        if (!Utils.isntnull()) {
+        if (!Utils.isnull()) {
             this.disable();
             return;
         }
@@ -84,7 +84,7 @@ public class Blink extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (!Utils.isntnull() || pos == null || !initialPosition.isToggled()) {
+        if (!Utils.isnull() || pos == null || !initialPosition.isToggled()) {
             return;
         }
         drawBox(pos);

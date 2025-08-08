@@ -83,7 +83,7 @@ public class HUD extends Module {
 
     @SubscribeEvent
     public void onRenderTick(RenderTickEvent ev) {
-        if (ev.phase != TickEvent.Phase.END || !Utils.isntnull()) return;
+        if (ev.phase != TickEvent.Phase.END || !Utils.isnull()) return;
         if (isAlphabeticalSort != alphabeticalSort.isToggled()) {
             isAlphabeticalSort = alphabeticalSort.isToggled();
             ModuleManager.sort();

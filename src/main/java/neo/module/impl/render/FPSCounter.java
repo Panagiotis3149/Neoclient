@@ -42,7 +42,7 @@ public class FPSCounter extends Module {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (ev.phase != TickEvent.Phase.END || !Utils.isntnull()) return;
+        if (ev.phase != TickEvent.Phase.END || !Utils.isnull()) return;
         if ((mc.currentScreen != null || mc.gameSettings.showDebugInfo) && !(mc.currentScreen instanceof FPSCounter.EditScreen)) return;
         int FPS = ScriptDefaults.client.getFPS();
         String text = xt.isToggled() ? "FPS: " + FPS : String.valueOf(FPS);

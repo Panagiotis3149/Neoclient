@@ -47,7 +47,7 @@ public class MurderMystery extends Module {
 
     @SubscribeEvent
     public void o(RenderWorldLastEvent e) {
-        if (Utils.isntnull()) {
+        if (Utils.isnull()) {
             if (!this.isMurderMystery()) {
                 this.clear();
             } else {

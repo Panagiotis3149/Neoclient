@@ -18,7 +18,7 @@ public class DelayRemover extends Module { // from b4 src
 
     @SubscribeEvent
     public void onTick(final TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || !mc.inGameHasFocus || !Utils.isntnull()) {
+        if (event.phase != TickEvent.Phase.END || !mc.inGameHasFocus || !Utils.isnull()) {
             return;
         }
         if (oldReg.isToggled()) {

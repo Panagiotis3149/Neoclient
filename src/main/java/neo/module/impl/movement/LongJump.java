@@ -58,7 +58,7 @@ public class LongJump extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent e) {
-        if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity && Utils.isntnull()) {
+        if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity && Utils.isnull()) {
             if (((S12PacketEntityVelocity) ReceivePacketEvent.getPacket()).getEntityID() == mc.thePlayer.getEntityId() && threw) {
                 ticks = 0;
                 setSpeed = true;
@@ -70,7 +70,7 @@ public class LongJump extends Module {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPreMotion(PreMotionEvent e) {
-        if ( !Utils.isntnull() ) {
+        if ( !Utils.isnull() ) {
             return;
         }
         if ( mode.getInput() == 1 ) {

@@ -26,7 +26,7 @@ public class ScriptEvents {
 
     @SubscribeEvent
     public void onChat(ClientChatReceivedEvent e) {
-        if (e.type == 2 || !Utils.isntnull()) {
+        if (e.type == 2 || !Utils.isnull()) {
             return;
         }
         final String r = Utils.stripColor(e.message.getUnformattedText());
@@ -65,7 +65,7 @@ public class ScriptEvents {
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent e) {
-        if (!Utils.isntnull()) {
+        if (!Utils.isnull()) {
             return;
         }
         Neo.scriptManager.invoke("onRenderWorld", module, e.partialTicks);
@@ -83,7 +83,7 @@ public class ScriptEvents {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent e) {
-        if (e.phase != TickEvent.Phase.END || !Utils.isntnull()) {
+        if (e.phase != TickEvent.Phase.END || !Utils.isnull()) {
             return;
         }
         Neo.scriptManager.invoke("onRenderTick", module, e.renderTickTime);

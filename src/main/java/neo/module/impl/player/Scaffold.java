@@ -261,7 +261,7 @@ public class Scaffold extends Module {
     }
 
     private boolean canTower() {
-        return Utils.isntnull() && mc.currentScreen == null &&
+        return Utils.isnull() && mc.currentScreen == null &&
                 totalBlocks() > 0 &&
                 mc.thePlayer.hurtTime < 9 &&
                 Utils.jumpDown();
@@ -280,7 +280,7 @@ public class Scaffold extends Module {
 
     @SubscribeEvent
     public void onPreMotion(PreMotionEvent event) {
-        if (!Utils.isntnull()) {
+        if (!Utils.isnull()) {
             return;
         }
 
@@ -688,7 +688,7 @@ public class Scaffold extends Module {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (!Utils.isntnull() || !showBlockCount.isToggled()) {
+        if (!Utils.isnull() || !showBlockCount.isToggled()) {
             return;
         }
         if (ev.phase == TickEvent.Phase.END) {
@@ -836,7 +836,7 @@ public class Scaffold extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (!Utils.isntnull() || !highlightBlocks.isToggled() || highlight.isEmpty()) {
+        if (!Utils.isnull() || !highlightBlocks.isToggled() || highlight.isEmpty()) {
             return;
         }
         Iterator<Map.Entry<BlockPos, Timer>> iterator = highlight.entrySet().iterator();

@@ -37,7 +37,7 @@ public class AntiKnockback extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent e) {
-        if (!Utils.isntnull() || LongJump.stopModules || e.isCanceled()) {
+        if (!Utils.isnull() || LongJump.stopModules || e.isCanceled()) {
             return;
         }
         if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity) {

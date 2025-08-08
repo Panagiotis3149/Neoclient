@@ -32,7 +32,7 @@ public class BreakProgress extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (this.progress == 0.0f || this.block == null || !Utils.isntnull()) {
+        if (this.progress == 0.0f || this.block == null || !Utils.isnull()) {
             return;
         }
         final double n = this.block.getX() + 0.5 - mc.getRenderManager().viewerPosX;

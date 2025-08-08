@@ -85,7 +85,7 @@ public class BedESP extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent e) {
-        if (Utils.isntnull()) {
+        if (Utils.isnull()) {
             if (firstBed.isToggled() && this.bed != null) {
                 if (!(mc.theWorld.getBlockState(bed[0]).getBlock() instanceof BlockBed)) {
                     this.bed = null;

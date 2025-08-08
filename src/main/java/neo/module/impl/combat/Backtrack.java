@@ -217,7 +217,7 @@ public class Backtrack extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(@NotNull ReceivePacketEvent e) {
-        if (!Utils.isntnull()) return;
+        if (!Utils.isnull()) return;
         Packet<?> p = e.getPacket();
         if (skipPackets.contains(p)) {
             skipPackets.remove(p);

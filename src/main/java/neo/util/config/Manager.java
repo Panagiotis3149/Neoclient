@@ -24,7 +24,7 @@ public class Manager extends Module {
         this.registerSetting(createProfile = new ButtonSetting("Create config", new Runnable() {
             @Override
             public void run() {
-                if (Utils.isntnull() && Neo.configManager != null) {
+                if (Utils.isnull() && Neo.configManager != null) {
                     String baseName = "cfg-";
                     for (int i = 1; i <= 100; i++) {
                         String name = baseName + i;
@@ -43,7 +43,7 @@ public class Manager extends Module {
         this.registerSetting(loadConfigs = new ButtonSetting("Load configs", new Runnable() {
             @Override
             public void run() {
-                if (Utils.isntnull() && Neo.configManager != null) {
+                if (Utils.isnull() && Neo.configManager != null) {
                     List<String> onlineConfigs = fetchConfigList();
                     for (String cfg : onlineConfigs) {
                         downloadConfig(cfg);

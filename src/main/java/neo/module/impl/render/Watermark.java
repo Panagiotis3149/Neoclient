@@ -40,7 +40,7 @@ public class Watermark extends Module {
 
     @SubscribeEvent
     public void onRenderTick(RenderTickEvent ev) {
-        if (ev.phase != TickEvent.Phase.END || !Utils.isntnull()) {
+        if (ev.phase != TickEvent.Phase.END || !Utils.isnull()) {
             return;
         }
 

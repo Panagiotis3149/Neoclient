@@ -106,7 +106,7 @@ public class BedAura extends Module {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPreUpdate(PreUpdateEvent e) {
-        if (!Utils.isntnull()) {
+        if (!Utils.isnull()) {
             return;
         }
         if (ModuleManager.bedwars != null && ModuleManager.bedwars.isEnabled() && BedWars.whitelistOwnBed.isToggled() && !BedWars.outsideSpawn) {
@@ -169,7 +169,7 @@ public class BedAura extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent e) {
-        if (!Utils.isntnull() || !cancelKnockback.isToggled() || currentBlock == null) {
+        if (!Utils.isnull() || !cancelKnockback.isToggled() || currentBlock == null) {
             return;
         }
         if (ReceivePacketEvent.getPacket() instanceof S12PacketEntityVelocity) {
@@ -205,7 +205,7 @@ public class BedAura extends Module {
 
     @SubscribeEvent
     public void onRenderWorld(RenderWorldLastEvent renderWorldLastEvent) {
-        if (!renderOutline.isToggled() || currentBlock == null || !Utils.isntnull()) {
+        if (!renderOutline.isToggled() || currentBlock == null || !Utils.isnull()) {
             return;
         }
         if (ModuleManager.bedESP != null && ModuleManager.bedESP.isEnabled()) {

@@ -29,7 +29,7 @@ public class ChestESP extends Module {
 
     @SubscribeEvent
     public void o(RenderWorldLastEvent ev) {
-        if (!Utils.isntnull()) {
+        if (!Utils.isnull()) {
             return;
         }
         for (TileEntity tileEntity : mc.theWorld.loadedTileEntityList) {

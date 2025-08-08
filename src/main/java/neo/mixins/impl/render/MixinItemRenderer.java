@@ -66,7 +66,7 @@ public abstract class MixinItemRenderer {
     @SuppressWarnings("deprecation")
     @Inject(method = "renderItemInFirstPerson", at = @At("HEAD"), cancellable = true)
     public void renderItemInFirstPerson(final float partialTicks, @NotNull CallbackInfo ci) {
-        if (!Utils.isntnull() || !ModuleManager.animations.isEnabled()) {
+        if (!Utils.isnull() || !ModuleManager.animations.isEnabled()) {
             return;
         }
         ci.cancel();

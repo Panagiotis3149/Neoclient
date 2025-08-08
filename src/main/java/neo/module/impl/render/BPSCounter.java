@@ -41,7 +41,7 @@ public class BPSCounter extends Module {
 
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (ev.phase != TickEvent.Phase.END || !Utils.isntnull()) return;
+        if (ev.phase != TickEvent.Phase.END || !Utils.isnull()) return;
         if ((mc.currentScreen != null || mc.gameSettings.showDebugInfo) && !(mc.currentScreen instanceof BPSCounter.EditScreen)) return;
         double bps = Utils.round2(Utils.rawBPS(mc.thePlayer));
         String text = xt.isToggled() ? "BPS: " + bps : String.valueOf(bps);

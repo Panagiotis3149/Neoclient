@@ -35,7 +35,7 @@ public class FastMine extends Module { // from b4 src
 
     @SubscribeEvent
     public void a(TickEvent.PlayerTickEvent e) {
-        if (e.phase != TickEvent.Phase.END || !mc.inGameHasFocus || !Utils.isntnull()) {
+        if (e.phase != TickEvent.Phase.END || !mc.inGameHasFocus || !Utils.isnull()) {
             return;
         }
         if (creativeDisable.isToggled() && mc.thePlayer.capabilities.isCreativeMode) {

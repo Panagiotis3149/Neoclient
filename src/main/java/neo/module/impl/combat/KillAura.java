@@ -236,7 +236,7 @@ public class KillAura extends Module {
 
     // funcs and shit
     private boolean canRun() {
-        if (!Utils.isntnull()) return false;
+        if (!Utils.isnull()) return false;
         if (mc.thePlayer.isDead) return false;
         if (!Mouse.isButtonDown(0) && requireMouseDown.isToggled()) return false;
         if (!Utils.holdingWeapon() && weaponOnly.isToggled()) return false;

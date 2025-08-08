@@ -229,14 +229,14 @@ public class Utils {
     }
 
     public static void sendMessage(String txt) {
-        if (isntnull()) {
+        if (isnull()) {
             String msg = Theme.wrap(clientName) + " » §r" + txt;
             mc.thePlayer.addChatMessage(new ChatComponentText(formatColor(msg)));
         }
     }
 
     public static void sendDebugMessage(String message) {
-        if (isntnull()) {
+        if (isnull()) {
             String msg = Theme.wrap(clientName) + " » §r" + message;
             mc.thePlayer.addChatMessage(new ChatComponentText(formatColor(msg)));
         }
@@ -268,7 +268,7 @@ public class Utils {
     }
 
     public static void sendRawMessage(String txt) {
-        if (isntnull()) {
+        if (isnull()) {
             mc.thePlayer.addChatMessage(new ChatComponentText(formatColor(txt)));
         }
     }
@@ -369,7 +369,7 @@ public class Utils {
         return a.getInput() == b.getInput() ? a.getInput() : a.getInput() + r.nextDouble() * (b.getInput() - a.getInput());
     }
 
-    public static boolean isntnull() {
+    public static boolean isnull() {
         return mc.thePlayer != null && mc.theWorld != null;
     }
 
@@ -500,7 +500,7 @@ public class Utils {
     }
 
     public static boolean inInventory() {
-        if (!Utils.isntnull()) {
+        if (!Utils.isnull()) {
             return false;
         }
         return (mc.currentScreen != null) && (mc.thePlayer.inventoryContainer != null) && (mc.thePlayer.inventoryContainer instanceof ContainerPlayer) && (mc.currentScreen instanceof GuiInventory);
@@ -514,7 +514,7 @@ public class Utils {
     }
 
     public static int getBedwarsStatus() {
-        if (!Utils.isntnull()) {
+        if (!Utils.isnull()) {
             return -1;
         }
         final Scoreboard scoreboard = mc.theWorld.getScoreboard();
