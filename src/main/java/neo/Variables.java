@@ -2,7 +2,7 @@ package neo;
 
 public class Variables {
         public static boolean OUTDATED = false;
-        public static boolean DEVELOPMENT_SWITCH = false;
+        public static boolean DEVELOPMENT_SWITCH = true;
 
         public static String clientVersion = "V2.0 Dev";
         public static String clientVersionNV = "2.0 Dev";
