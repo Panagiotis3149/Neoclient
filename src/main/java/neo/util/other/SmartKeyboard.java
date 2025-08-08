@@ -145,16 +145,20 @@ public class SmartKeyboard {
     private static final String[] keyName = new String[256];
     private static final Map<String, Integer> keyMap = new HashMap(253);
 
+
     public static synchronized int getKeyIndex(String keyName) {
         Integer ret = keyMap.get(keyName);
         return ret == null ? 0 : ret;
     }
 
     public static synchronized int getKeyIndexLoose(String keyName) {
-        String clean = keyName.replaceAll("_", "").toUpperCase();
+        String clean = keyName.toUpperCase().replaceAll("_", "");
+        if (clean.startsWith("KEY")) clean = clean.substring(3);
         Integer exact = null;
         for (String key : keyMap.keySet()) {
-            if (key.replaceAll("_", "").equalsIgnoreCase(clean)) {
+            String cleanKey = key.toUpperCase().replaceAll("_", "");
+            if (cleanKey.startsWith("KEY")) cleanKey = cleanKey.substring(3);
+            if (cleanKey.equals(clean)) {
                 exact = keyMap.get(key);
                 break;
             }
@@ -163,8 +167,9 @@ public class SmartKeyboard {
         String bestMatch = null;
         int bestScore = Integer.MAX_VALUE;
         for (String key : keyMap.keySet()) {
-            String keyClean = key.replaceAll("_", "").toUpperCase();
-            int dist = levenshtein(clean, keyClean);
+            String cleanKey = key.toUpperCase().replaceAll("_", "");
+            if (cleanKey.startsWith("KEY")) cleanKey = cleanKey.substring(3);
+            int dist = levenshtein(clean, cleanKey);
             if (dist < bestScore) {
                 bestScore = dist;
                 bestMatch = key;
@@ -198,13 +203,14 @@ public class SmartKeyboard {
         return keyName[code];
     }
 
-
     public static synchronized String getGuess(String inpt) {
-        String cleanInput = inpt.replaceAll("_", "").toUpperCase();
+        String cleanInput = inpt.toUpperCase().replaceAll("_", "");
+        if (cleanInput.startsWith("KEY")) cleanInput = cleanInput.substring(3);
         String bestMatch = null;
         int bestScore = Integer.MAX_VALUE;
         for (String key : keyMap.keySet()) {
-            String cleanKey = key.replaceAll("_", "").toUpperCase();
+            String cleanKey = key.toUpperCase().replaceAll("_", "");
+            if (cleanKey.startsWith("KEY")) cleanKey = cleanKey.substring(3);
             int dist = levenshtein(cleanInput, cleanKey);
             if (dist < bestScore) {
                 bestScore = dist;
