@@ -10,6 +10,7 @@ import neo.util.Utils;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -31,7 +32,7 @@ public class AntiBot extends Module {
         this.registerSetting(delay = new SliderSetting("Delay", 7.0, 0.5, 15.0, 0.5, " second"));
         this.registerSetting(pitSpawn = new ButtonSetting("Pit spawn", false));
         this.registerSetting(tablist = new ButtonSetting("Tab list", false));
-        this.registerSetting(matrix = new ButtonSetting("MatrixTest", false));
+        this.registerSetting(matrix = new ButtonSetting("Matrix", false));
     }
 
     @SubscribeEvent
@@ -95,6 +96,18 @@ public class AntiBot extends Module {
         }
         if (entityPlayer.getName().isEmpty()) {
             return true;
+        }
+        if (matrix.isToggled()) {
+            String s = entityPlayer.getName();
+            if (s.length() >= 4 && s.length() <= 16 && s.equals(s.toLowerCase())) {
+                return true;
+            }
+            if (entityPlayer.getCurrentArmor(3) != null && entityPlayer.getCurrentArmor(3).getItem() == Items.diamond_helmet &&
+                    entityPlayer.getCurrentArmor(2) != null && entityPlayer.getCurrentArmor(2).getItem() == Items.diamond_chestplate &&
+                    entityPlayer.getCurrentArmor(1) != null && entityPlayer.getCurrentArmor(1).getItem() == Items.iron_leggings &&
+                    entityPlayer.getCurrentArmor(0) != null && entityPlayer.getCurrentArmor(0).getItem() == Items.iron_boots) {
+                return true;
+            }
         }
         if (tablist.isToggled() && !getTablist().contains(entityPlayer.getName())) {
             return true;

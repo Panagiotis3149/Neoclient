@@ -374,8 +374,14 @@ public class Utils {
     }
 
     public static boolean isHypixel() {
-        return !mc.isSingleplayer() && mc.getCurrentServerData() != null && mc.getCurrentServerData().serverIP.contains("hypixel.net");
+        return !isSingleplayer() && mc.getCurrentServerData() != null && mc.getCurrentServerData().serverIP.contains("hypixel.net");
     }
+
+    public static boolean isSingleplayer() {
+        return mc.isSingleplayer();
+    }
+
+
 
     public static net.minecraft.util.Timer getTimer() {
         return ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "timer", "field_71428_T");

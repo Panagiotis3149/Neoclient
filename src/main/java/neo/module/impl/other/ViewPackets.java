@@ -9,13 +9,15 @@ import net.minecraft.entity.Entity;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
-import net.minecraft.util.*;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class ViewPackets extends Module {
     private final ButtonSetting includeCancelled = new ButtonSetting("Include cancelled", true);
-    private final ButtonSetting singlePlayer = new ButtonSetting("Singleplayer", false);
     private final ButtonSetting sent = new ButtonSetting("Sent", false);
     private final ButtonSetting ignoreC00 = new ButtonSetting("Ignore C00", false);
     private final ButtonSetting ignoreC03 = new ButtonSetting("Ignore C03", false);
@@ -36,7 +38,7 @@ public class ViewPackets extends Module {
 
     public ViewPackets() {
         super("PacketViewer", category.other);
-        registerSetting(includeCancelled, singlePlayer, sent, ignoreC0F, ignoreC03, ignoreC00, received, compactC03);
+        registerSetting(includeCancelled, sent, ignoreC0F, ignoreC03, ignoreC00, received, compactC03);
     }
 
     public void onDisable() {
@@ -49,6 +51,10 @@ public class ViewPackets extends Module {
     }
 
     private void sendMessage(Packet<?> packet, boolean receivedPacket) {
+        if (Utils.isSingleplayer()) {
+            singleplayerMessage();
+            return;
+        }
         if (Utils.isnull()) return;
         String base = receivedPacket ? ("&a" + packet.getClass().getSimpleName()) : getPacketInfo(packet);
         String color = (compactC03.isToggled() && packet instanceof C03PacketPlayer) ? "&6" : "&d";
@@ -64,9 +70,11 @@ public class ViewPackets extends Module {
     @SubscribeEvent
     public void onSendPacket(SendPacketEvent e) {
         if (!sent.isToggled()) return;
-
-        Packet<?> p = e.getNonStaticPacket();
-        if (singlePlayer.isToggled() && mc.isSingleplayer() && p.getClass().getSimpleName().charAt(0) == 'S') return;
+        if (Utils.isSingleplayer()) {
+            singleplayerMessage();
+            return;
+        }
+        Packet<?> p = e.getPacket();
         if (e.isCanceled() && !includeCancelled.isToggled()) return;
         if (ignoreC00.isToggled() && p instanceof C00PacketKeepAlive) return;
         if (ignoreC0F.isToggled() && p instanceof C0FPacketConfirmTransaction) return;
@@ -82,10 +90,13 @@ public class ViewPackets extends Module {
 
     @SubscribeEvent
     public void onReceivePacket(ReceivePacketEvent e) {
+        if (Utils.isSingleplayer()) {
+            singleplayerMessage();
+            return;
+        }
         if (!received.isToggled()) return;
 
-        Packet<?> p = e.getNonStaticPacket();
-        if (singlePlayer.isToggled() && mc.isSingleplayer() && p.getClass().getSimpleName().charAt(0) == 'C') return;
+        Packet<?> p = e.getPacket();
 
         sendMessage(p, true);
     }
@@ -161,6 +172,15 @@ public class ViewPackets extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent e) {
+        if (Utils.isSingleplayer()) {
+            singleplayerMessage();
+            return;
+        }
+
         if (e.phase == TickEvent.Phase.START) tick++;
+    }
+
+    private void singleplayerMessage() {
+        Utils.sendMessage("§c You're in singleplayer! (Crash Fix)");
     }
 }

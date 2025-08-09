@@ -20,6 +20,8 @@ public class Settings extends Module {
     public static SliderSetting timeMultiplier;
     public static SliderSetting toggleSound;
     public static ButtonSetting sendMessage;
+    public static ButtonSetting spacednames;
+    public static ButtonSetting specialnames;
 
     public Settings() {
         super("Settings", category.client, 0);
@@ -39,6 +41,9 @@ public class Settings extends Module {
         this.registerSetting(new DescriptionSetting("Theme"));
         this.registerSetting(offset = new SliderSetting("Offset", 0.5, -3.0, 3.0, 0.1));
         this.registerSetting(timeMultiplier = new SliderSetting("Time multiplier", 0.5, 0.1, 4.0, 0.1));
+        this.registerSetting(new DescriptionSetting("Module Naming"));
+        this.registerSetting(spacednames = new ButtonSetting("Spaced Names", false));
+        this.registerSetting(specialnames = new ButtonSetting("Special Naming", false));
         this.canBeEnabled = false;
 
         }

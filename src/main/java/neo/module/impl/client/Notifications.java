@@ -18,7 +18,6 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;

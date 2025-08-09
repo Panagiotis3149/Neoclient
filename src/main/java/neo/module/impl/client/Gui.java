@@ -3,8 +3,8 @@ package neo.module.impl.client;
 import neo.Neo;
 import neo.module.Module;
 import neo.module.setting.impl.SliderSetting;
-import neo.util.render.Theme;
 import neo.util.Utils;
+import neo.util.render.Theme;
 
 public class Gui extends Module {
     public static SliderSetting theme;

@@ -1,6 +1,7 @@
 package neo.util.server.anticheat;
 
 import neo.script.ScriptDefaults;
+import neo.util.Utils;
 
 public class AnticheatUtils {
 
@@ -8,6 +9,7 @@ public class AnticheatUtils {
         if (a.length == 0) return "No data";
         b = (b == null || b.length <= 1) ? new long[0] : java.util.Arrays.copyOfRange(b, 1, b.length);
 
+        if (Utils.isSingleplayer()) return "None/Vanilla";
         if (isWatTheDog(a)) return "Watchdog";
         if (isAntigamingChair(a)) return "AGC";
         if (isGrim(a)) return "Grim";
@@ -115,7 +117,7 @@ public class AnticheatUtils {
 
 
     private static boolean isWatTheDog(int[] a) {
-        return ScriptDefaults.client.getServerIP().contains("hypixel.net");
+        return Utils.isHypixel();
     }
 
 

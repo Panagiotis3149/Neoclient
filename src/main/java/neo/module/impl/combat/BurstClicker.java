@@ -5,8 +5,8 @@ import neo.module.Module;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.DescriptionSetting;
 import neo.module.setting.impl.SliderSetting;
-import neo.util.other.java.Reflection;
 import neo.util.Utils;
+import neo.util.other.java.Reflection;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemBlock;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -25,9 +25,9 @@ public class BurstClicker extends Module {
     /**
      * @deprecated This class is replaced by {@link AutoClicker}
      */
-
+    @Deprecated
     public BurstClicker() {
-        super("DRAGCLICKER (DEPRECATED)", category.combat, 0);
+        super("DEPRECATED",category.combat, 0);
         this.registerSetting(new DescriptionSetting("Autoclicker that dragclicks. Best with delay remover."));
         this.registerSetting(clicks = new SliderSetting("Clicks", 0.0D, 0.0D, 50.0D, 1.0D));
         this.registerSetting(delay = new SliderSetting("Delay (ms)", 5.0D, 1.0D, 40.0D, 1.0D));

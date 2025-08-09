@@ -1,16 +1,21 @@
 package neo.module;
 
-import neo.module.impl.client.*;
+import neo.module.impl.client.ClientTheme;
+import neo.module.impl.client.Gui;
+import neo.module.impl.client.Notifications;
+import neo.module.impl.client.Settings;
 import neo.module.impl.combat.*;
-import neo.module.impl.minigames.*;
+import neo.module.impl.minigames.AutoWho;
+import neo.module.impl.minigames.BedWars;
+import neo.module.impl.minigames.MurderMystery;
 import neo.module.impl.movement.*;
 import neo.module.impl.other.*;
 import neo.module.impl.player.*;
 import neo.module.impl.render.*;
+import neo.util.config.Manager;
 import neo.util.font.FontManager;
 import neo.util.font.MinecraftFontRenderer;
 import neo.util.font.impl.FontRenderer;
-import neo.util.config.Manager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,6 +61,7 @@ public class ModuleManager {
     public static Velocity velocity;
     public static KillAura killAura;
     public static Strafe strafe;
+    public static Settings settings;
 
     public void register() {
         this.addModule(autoClicker = new AutoClicker());
@@ -66,7 +72,7 @@ public class ModuleManager {
         this.addModule(new DelayRemover());
         this.addModule(killAura = new KillAura());
         this.addModule(hitBox = new HitBox());
-        this.addModule(new Settings());
+        this.addModule(settings = new Settings());
         this.addModule(reach = new Reach());
         this.addModule(velocity = new Velocity());
         this.addModule(bHop = new BHop());

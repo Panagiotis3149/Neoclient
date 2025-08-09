@@ -15,7 +15,7 @@ public class Speed extends Module {
     private final ButtonSetting strafeOnly;
 
     public Speed() {
-        super("Speed (DEPRECATED)", Module.category.movement, 0);
+        super("DEPRECATED", Module.category.movement, 0);
         this.registerSetting(speed = new SliderSetting("Speed", 1.2D, 1.0D, 1.5D, 0.01D));
         this.registerSetting(strafeOnly = new ButtonSetting("Strafe only", false));
     }
