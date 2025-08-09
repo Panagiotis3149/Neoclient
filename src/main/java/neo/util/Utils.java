@@ -851,7 +851,7 @@ public class Utils {
 
         try {
             List<String> lines = Files.readAllLines(file.toPath());
-            boolean foundGlErrors = false, foundFastMath = false, foundFastRender = false;
+            boolean foundGlErrors = false, foundFastMath = false, foundFastRender = false, foundAA = false;
 
             for (int i = 0; i < lines.size(); i++) {
                 String line = lines.get(i);
@@ -865,12 +865,16 @@ public class Utils {
                 } else if (line.startsWith("ofFastRender:")) {
                     lines.set(i, "ofFastRender:false");
                     foundFastRender = true;
+                } else if (line.startsWith("ofAaLevel:")) {
+                    lines.set(i, "ofAaLevel:0");
+                    foundAA = true;
                 }
             }
 
             if (!foundGlErrors) lines.add("ofShowGlErrors:false");
             if (!foundFastMath) lines.add("ofFastMath:false");
             if (!foundFastRender) lines.add("ofFastRender:false");
+            if (!foundAA) lines.add("ofAaLevel:0");
 
             Files.write(file.toPath(), lines);
         } catch (IOException ignored) {

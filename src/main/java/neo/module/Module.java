@@ -21,8 +21,9 @@ import java.util.Iterator;
 
 public class Module {
     protected ArrayList<Setting> settings;
-    private final String moduleName;
+    public String moduleName;
     private final Module.category moduleCategory;
+    public String rawModuleName;
     private boolean enabled;
     private int keycode;
     protected static Minecraft mc;
@@ -33,6 +34,7 @@ public class Module {
     public Script script = null;
 
     public Module(String moduleName, Module.category moduleCategory, int keycode) {
+        this.rawModuleName = moduleName;
         this.moduleName = moduleName;
         this.moduleCategory = moduleCategory;
         this.keycode = keycode;
@@ -40,8 +42,6 @@ public class Module {
         mc = Minecraft.getMinecraft();
         this.settings = new ArrayList();
     }
-
-
 
     public static Module getModule(Class<? extends Module> a) {
         Iterator var1 = ModuleManager.modules.iterator();
@@ -59,6 +59,7 @@ public class Module {
     }
 
     public Module(String name, Module.category moduleCategory) {
+        this.rawModuleName = name;
         this.moduleName = name;
         this.moduleCategory = moduleCategory;
         this.keycode = 0;
@@ -71,6 +72,7 @@ public class Module {
     public Module(Script script) {
         super();
         this.enabled = false;
+        this.rawModuleName = script.name;
         this.moduleName = script.name;
         this.script = script;
         this.keycode = 0;
@@ -106,6 +108,8 @@ public class Module {
             } catch (Exception e) {
                 e.printStackTrace();
                 Utils.sendMessage("&cFailed to check keybinding. Setting to none");
+                Utils.sendMessage("Debug: " + e.getMessage());
+               // Utils.sendRawMessage("DEBUG: " + new java.io.StringWriter() {{ e.printStackTrace(new java.io.PrintWriter(this)); }}.toString());
                 this.keycode = 0;
             }
         }
@@ -198,9 +202,18 @@ public class Module {
     }
 
     public String getName() {
-        return this.moduleName;
+        if (this.script != null || this.moduleCategory == category.config) {
+            return this.moduleName;
+        }
+        return Neo.i18n.get(this.moduleName);
     }
 
+    public void updateName() {
+        final String last = moduleName;
+        if (!(this.script != null || this.moduleCategory == category.config)) {
+            moduleName = Neo.i18n.get(last);
+        }
+    }
 
     public ArrayList<Setting> getSettings() {
         return this.settings;
@@ -233,12 +246,12 @@ public class Module {
             this.disable();
             if (Settings.toggleSound.getInput() != 0) mc.thePlayer.playSound(Settings.getToggleSound(false), 1, 1);
             if (Notifications.moduleToggled.isToggled() && !(this instanceof Gui))
-                Notifications.sendNotification(Notifications.NotificationTypes.INFO, "Disabled " + this.getName());
+                Notifications.sendNotification(Notifications.NotificationTypes.INFO, "Disabled " + this.moduleName);
         } else {
             this.enable();
             if (Settings.toggleSound.getInput() != 0) mc.thePlayer.playSound(Settings.getToggleSound(true), 1, 1);
             if (Notifications.moduleToggled.isToggled() && !(this instanceof Gui))
-                Notifications.sendNotification(Notifications.NotificationTypes.INFO, "Enabled " + this.getName());
+                Notifications.sendNotification(Notifications.NotificationTypes.INFO, "Enabled " + this.moduleName);
         }
 
     }
@@ -246,11 +259,10 @@ public class Module {
     public void onUpdate() {
     }
 
-
     public void guiUpdate() {
     }
 
-    public void guiButtonToggled(ButtonSetting b) {
+    public void onToggleSetting(ButtonSetting b) {
     }
 
     public int getKeycode() {
@@ -260,8 +272,6 @@ public class Module {
     public void setBind(int keybind) {
         this.keycode = keybind;
     }
-
-
 
     public enum category {
         combat,

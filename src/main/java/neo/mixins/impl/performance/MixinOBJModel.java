@@ -21,7 +21,7 @@ public class MixinOBJModel {
     private InputStreamReader mtlStream;
 
     @Inject(method = "parseMaterials", at = @At("TAIL"))
-    private void patcher$fixMemoryLeak(IResourceManager manager, String path, ResourceLocation from, CallbackInfo ci) {
+    private void fixMemoryLeak(IResourceManager manager, String path, ResourceLocation from, CallbackInfo ci) {
         IOUtils.closeQuietly(this.mtlReader);
         IOUtils.closeQuietly(this.mtlStream);
     }

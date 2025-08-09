@@ -101,7 +101,7 @@ public class HUD extends Module {
         for (Module module : ModuleManager.organizedModules) {
             if (module.isEnabled() && module != this) {
                 if (module.isHidden() || (module.moduleCategory().equals(category.render) && srndr.isToggled())) continue;
-                String moduleName = module.getName();
+                String moduleName = module.moduleName;
                 String moduleInfo = "";
                 if (module.getInfo() != null && !Objects.equals(module.getInfo(), "")) {
                     moduleInfo = "§7" + " " + module.getInfo();

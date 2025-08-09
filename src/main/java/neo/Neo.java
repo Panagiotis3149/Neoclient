@@ -59,6 +59,7 @@ public class Neo {
     public static Config currentConfig;
     public static BadPacketsHandler badPacketsHandler;
     public static File NeoDirectory = new File(mc.mcDataDir + File.separator + "neo");
+    public static I18n i18n = new I18n();
 
     public Neo() {
         moduleManager = new ModuleManager();
@@ -93,7 +94,7 @@ public class Neo {
 
         ByteBuffer[] icons = new ByteBuffer[4];
         try (
-                InputStream icon16 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico1.png"));
+                InputStream icon16 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico.png"));
                 InputStream icon32 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico2.png"));
                 InputStream icon128 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico3.png"));
                 InputStream icon256 = getInputStreamAssets(new ResourceLocation("neo", "textures/gui/ico4.png"))
@@ -158,6 +159,7 @@ public class Neo {
             mc.gameSettings.particleSetting = 2;
             mc.gameSettings.guiScale = 2;
         }
+       // moduleManager.updateModuleNames();
     }
 
     @SubscribeEvent

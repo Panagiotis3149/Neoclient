@@ -160,16 +160,22 @@ public class ModuleManager {
 
     public Module getModule(String moduleName) {
         for (Module module : modules) {
-            if (module.getName().equals(moduleName)) {
+            if (module.moduleName.equals(moduleName)) {
                 return module;
             }
         }
         return null;
     }
 
+    public void updateModuleNames() {
+        for (Module module : modules) {
+            module.updateName();
+        }
+    }
+
     public Module getModuleCI(String name) {
         for (Module module : modules) {
-            if (module.getName().equalsIgnoreCase(name)) {
+            if (module.moduleName.equalsIgnoreCase(name)) {
                 return module;
             }
         }
@@ -213,11 +219,11 @@ public class ModuleManager {
                 String nameWithInfo1 = "";
                 String nameWithInfo2 = "";
                 if (HUD.lowercase.isToggled()) {
-                    nameWithInfo1 = m1.getName().toLowerCase() + (HUD.showInfo.isToggled() && !m1.getInfo().isEmpty() ? " " + m1.getInfo().toLowerCase() : "");
-                    nameWithInfo2 = m2.getName().toLowerCase() + (HUD.showInfo.isToggled() && !m2.getInfo().isEmpty() ? " " + m2.getInfo().toLowerCase() : "");
+                    nameWithInfo1 = m1.moduleName.toLowerCase() + (HUD.showInfo.isToggled() && !m1.getInfo().isEmpty() ? " " + m1.getInfo().toLowerCase() : "");
+                    nameWithInfo2 = m2.moduleName.toLowerCase() + (HUD.showInfo.isToggled() && !m2.getInfo().isEmpty() ? " " + m2.getInfo().toLowerCase() : "");
                 } else if (!HUD.lowercase.isToggled()) {
-                    nameWithInfo1 = m1.getName() + (HUD.showInfo.isToggled() && !m1.getInfo().isEmpty() ? " " + m1.getInfo() : "");
-                    nameWithInfo2 = m2.getName() + (HUD.showInfo.isToggled() && !m2.getInfo().isEmpty() ? " " + m2.getInfo() : "");
+                    nameWithInfo1 = m1.moduleName + (HUD.showInfo.isToggled() && !m1.getInfo().isEmpty() ? " " + m1.getInfo() : "");
+                    nameWithInfo2 = m2.moduleName + (HUD.showInfo.isToggled() && !m2.getInfo().isEmpty() ? " " + m2.getInfo() : "");
                 }
 
                 double width1;

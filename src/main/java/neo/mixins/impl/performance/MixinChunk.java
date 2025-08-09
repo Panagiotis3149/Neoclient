@@ -49,6 +49,9 @@ public abstract class MixinChunk implements WorldExt {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;relightBlock(III)V", ordinal = 0),
             index = 1
     )
+    private int subtractOneFromY(int y) {
+        return y - 1;
+    }
 
     @Redirect(method = "onChunkUnload", at = @At(value = "INVOKE", target = "Ljava/util/Collection;iterator()Ljava/util/Iterator;", ordinal = 0))
     private Iterator unloadTileEntity(Collection instance) {

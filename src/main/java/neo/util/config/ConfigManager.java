@@ -21,6 +21,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class ConfigManager {
     public static Minecraft mc = Minecraft.getMinecraft();
@@ -73,7 +74,7 @@ public class ConfigManager {
 
     private static JsonObject getJsonObject(Module module) {
         JsonObject moduleInformation = new JsonObject();
-        moduleInformation.addProperty("name", (module.moduleCategory() == Module.category.scripts && !(module instanceof Manager)) ? "sc-" + module.getName() : module.getName());
+        moduleInformation.addProperty("name", (module.moduleCategory() == Module.category.scripts && !(module instanceof Manager)) ? "sc-" + module.rawModuleName : module.rawModuleName);
         if (module.canBeEnabled) {
             moduleInformation.addProperty("enabled", module.isEnabled());
             moduleInformation.addProperty("hidden", module.isHidden());
@@ -148,7 +149,7 @@ public class ConfigManager {
                     Module module = Neo.moduleManager.getModule(moduleName);
                     if (module == null && moduleName.startsWith("sc-") && Neo.scriptManager != null) {
                         for (Module module1 : Neo.scriptManager.scripts.values()) {
-                            if (module1.getName().equals(moduleName.substring(3))) {
+                            if (module1.rawModuleName.equals(moduleName.substring(3))) {
                                 module = module1;
                             }
                         }
@@ -177,7 +178,7 @@ public class ConfigManager {
                         }
                     }
 
-                    if (module.getName().equals("Arraylist")) { // fixed 28/06/25
+                    if (Objects.equals(module.rawModuleName, "Arraylist")) { // fixed 28/06/25 (bug with position saving) fixed 8/9/25 (I18n rawmodulename NPE)
                         if (moduleInformation.has("posX")) {
                             int hudX = moduleInformation.get("posX").getAsInt();
                             HUD.hudX = hudX;
@@ -187,7 +188,7 @@ public class ConfigManager {
                             HUD.hudY = hudY;
                         }
                     }
-                    if (module.getName().equals("FPSCounter")) {
+                    if (Objects.equals(module.rawModuleName, "FPSCounter")) {
                         if (moduleInformation.has("posX")) {
                             int hudX = moduleInformation.get("posX").getAsInt();
                             FPSCounter.X = hudX;
@@ -197,7 +198,7 @@ public class ConfigManager {
                             FPSCounter.Y = hudY;
                         }
                     }
-                    if (module.getName().equals("BPSCounter")) {
+                    if (Objects.equals(module.rawModuleName, "BPSCounter")) {
                         if (moduleInformation.has("posX")) {
                             int hudX = moduleInformation.get("posX").getAsInt();
                             BPSCounter.X = hudX;

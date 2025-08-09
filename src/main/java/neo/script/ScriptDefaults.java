@@ -519,13 +519,13 @@ public class ScriptDefaults {
         private Module getModule(String moduleName) {
             boolean found = false;
             for (Module module : Neo.getModuleManager().getModules()) {
-                if (module.getName().equals(moduleName)) {
+                if (module.moduleName.equals(moduleName)) {
                     return module;
                 }
             }
             if (!found) {
                 for (Module module : Neo.scriptManager.scripts.values()) {
-                    if (module.getName().equals(moduleName)) {
+                    if (module.moduleName.equals(moduleName)) {
                         return module;
                     }
                 }
@@ -535,7 +535,7 @@ public class ScriptDefaults {
 
         private Module getScript(String name) {
             for (Module module : Neo.scriptManager.scripts.values()) {
-                if (module.getName().equals(name)) {
+                if (module.moduleName.equals(name)) {
                     return module;
                 }
             }

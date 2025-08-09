@@ -120,10 +120,8 @@ public abstract class MixinGuiInGame {
                 RoundedUtils.drawRound(middleScreen - 91, height - 22, 16 * 11 + 4, height, 8, Color.BLACK);
                 BlurUtils.bloomEnd(2, 4);
                 BlurUtils.blurEnd(2, 1.5f);
-                RoundedUtils.drawRound(middleScreen - 91 + slot * 20 + 2, height - 22, 16, height - 23 - 1 + 24, 2, 0x22000000);
+                RoundedUtils.drawRound(middleScreen - 90 + slot * 20 + 2, height - 22, 16, height - 23 - 1 + 24, 2, 0x22000000);
                 glEnable(GL11.GL_DEPTH_TEST);
-                GL11.glPopMatrix();
-
                 enableRescaleNormal();
                 glEnable(GL_BLEND);
                 tryBlendFuncSeparate(770, 771, 1, 0);

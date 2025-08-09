@@ -8,22 +8,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ItemStack.class)
 public class MixinItemStack {
-    private String patcher$cachedDisplayName;
+    private String cachedDisplayName;
 
     @Inject(method = "getDisplayName", at = @At("HEAD"), cancellable = true)
     private void returnCachedDisplayName(CallbackInfoReturnable<String> cir) {
-        if (patcher$cachedDisplayName != null) {
-            cir.setReturnValue(patcher$cachedDisplayName);
+        if (cachedDisplayName != null) {
+            cir.setReturnValue(cachedDisplayName);
         }
     }
 
     @Inject(method = "getDisplayName", at = @At("RETURN"))
     private void cacheDisplayName(CallbackInfoReturnable<String> cir) {
-        patcher$cachedDisplayName = cir.getReturnValue();
+        cachedDisplayName = cir.getReturnValue();
     }
 
     @Inject(method = "setStackDisplayName", at = @At("HEAD"))
     private void resetCachedDisplayName(String displayName, CallbackInfoReturnable<ItemStack> cir) {
-        patcher$cachedDisplayName = null;
+        cachedDisplayName = null;
     }
 }

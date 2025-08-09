@@ -15,13 +15,13 @@ public class ConfigModule extends Module {
         super(name, category.config, bind);
         this.config = config;
         this.registerSetting(new ButtonSetting("Save config", () -> {
-            Utils.sendMessage("&7Saved config: &b" + getName());
+            Utils.sendMessage("&7Saved config: &b" + rawModuleName);
             Neo.configManager.saveConfig(this.config);
             saved = true;
         }));
         this.registerSetting(new ButtonSetting("Remove config", () -> {
-            Utils.sendMessage("&7Removed config: &b" + getName());
-            Neo.configManager.deleteConfig(getName());
+            Utils.sendMessage("&7Removed config: &b" + rawModuleName);
+            Neo.configManager.deleteConfig(rawModuleName);
         }));
     }
 
@@ -31,12 +31,12 @@ public class ConfigModule extends Module {
             if (this.config == Neo.currentConfig) {
                 return;
             }
-            Neo.configManager.loadConfig(this.getName());
+            Neo.configManager.loadConfig(rawModuleName);
 
             Neo.currentConfig = config;
 
             if (Settings.sendMessage.isToggled()) {
-                Utils.sendMessage("&7Enabled config: &b" + this.getName());
+                Utils.sendMessage("&7Enabled config: &b" + rawModuleName);
             }
             saved = true;
         }

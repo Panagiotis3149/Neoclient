@@ -1,6 +1,5 @@
 package neo.util.command;
 
-import neo.util.other.SmartKeyboard;
 import net.minecraft.network.play.client.C01PacketChatMessage;
 import neo.event.SendPacketEvent;
 import neo.module.Module;
@@ -44,7 +43,7 @@ public class BindCommand {
                 return;
             }
 
-            int keyIndex = SmartKeyboard.getKeyIndexLoose(keyName);
+            int keyIndex = Keyboard.getKeyIndex(keyName);
 
 
             if (keyName.equals("NONE")) {
@@ -54,7 +53,7 @@ public class BindCommand {
             }
 
             if (keyIndex == Keyboard.KEY_NONE) {
-                Utils.sendMessage("&cUnknown key: " + SmartKeyboard.getGuess(keyName) + " (Is it spelled right?)");
+                Utils.sendMessage("&cUnknown key: " + keyName + " (Is it spelled right?)");
                 return;
             }
 

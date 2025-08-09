@@ -199,14 +199,14 @@ public class ModuleComponent extends Component {
 
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glPushMatrix();
-        float textX = (float) (this.categoryComponent.getX() + (this.categoryComponent.getWidth() / 2f) - (font.width(this.mod.getName()) / 2f));
+        float textX = (float) (this.categoryComponent.getX() + (this.categoryComponent.getWidth() / 2f) - (font.width(this.mod.moduleName) / 2f));
 
         GlStateManager.enableBlend();
         GlStateManager.enableAlpha();
         GlStateManager.resetColor();
         GlStateManager.color(1f, 1f, 1f, 1f);
         GlStateManager.disableLighting();
-        font.drawString(this.mod.getName(), textX, this.categoryComponent.getY() + this.o + 4,  0xFFFFFFFF);
+        font.drawString(this.mod.moduleName, textX, this.categoryComponent.getY() + this.o + 4,  0xFFFFFFFF);
         GlStateManager.resetColor();
         GL11.glPopMatrix();
         GL11.glPopMatrix(); // FIXED I THINK
@@ -257,7 +257,7 @@ public class ModuleComponent extends Component {
     }
 
     public String getName() {
-        return mod.getName();
+        return mod.moduleName;
     }
 
     public boolean onClick(int x, int y, int b) {

@@ -73,7 +73,7 @@ public class ButtonComponent extends Component {
                 return false;
             }
             this.buttonSetting.toggle();
-            this.mod.guiButtonToggled(this.buttonSetting);
+            this.mod.onToggleSetting(this.buttonSetting);
             if (Neo.currentConfig != null) {
                 ((ConfigModule) Neo.currentConfig.getModule()).saved = false;
             }

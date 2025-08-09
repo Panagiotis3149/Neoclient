@@ -1,10 +1,14 @@
 package neo.module.impl.client;
 
+import neo.Neo;
 import neo.module.Module;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.DescriptionSetting;
 import neo.module.setting.impl.SliderSetting;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 
 public class Settings extends Module {
@@ -45,8 +49,14 @@ public class Settings extends Module {
         this.registerSetting(spacednames = new ButtonSetting("Spaced Names", false));
         this.registerSetting(specialnames = new ButtonSetting("Special Naming", false));
         this.canBeEnabled = false;
-
         }
+
+    @Override
+    public void onToggleSetting(ButtonSetting b) {
+        if (Objects.equals(b.getName(), "Spaced Names") || Objects.equals(b.getName(), "Special Naming")) {
+            Neo.moduleManager.updateModuleNames();
+        }
+    }
 
     public static @NotNull String getToggleSound(boolean enable) {
         final String startSuffix = "neo:toggle.";
