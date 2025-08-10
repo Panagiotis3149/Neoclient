@@ -1,5 +1,6 @@
 package neo.module.impl.render;
 
+import neo.Variables;
 import neo.module.Module;
 import neo.module.setting.impl.DescriptionSetting;
 import neo.module.setting.impl.SliderSetting;
@@ -78,16 +79,16 @@ public class Watermark extends Module {
             GL11.glPopMatrix();
         } else if (mode.getInput() == 3) {
             FontRenderer font = FontManager.logoa;
-            font.drawString(Theme.mCCC("Neo", (int) Watermark.theme.getInput()), 4 * 2, 4 * 2, 0xFFFFFFFF, false);
+            font.drawString(Theme.mCCC(shortName, (int) Watermark.theme.getInput()), 4 * 2, 4 * 2, 0xFFFFFFFF, false);
         } else if (mode.getInput() == 4) {
             FontRenderer font = FontManager.googleSansBold;
-            font.drawString(Theme.mCCC("Neoclient", (int) Watermark.theme.getInput()), 4 * 2, 4 * 2, 0xFFFFFFFF, false);
+            font.drawString(Theme.mCCC(clientName, (int) Watermark.theme.getInput()), 4 * 2, 4 * 2, 0xFFFFFFFF, false);
         } else if (mode.getInput() == 5) {
             FontRenderer font = FontManager.productSansMedium36;
-            font.drawString(Theme.mCCC("Neo", (int) Watermark.theme.getInput()), 6, 6, 0xFFFFFFFF, false);
+            font.drawString(Theme.mCCC(shortName, (int) Watermark.theme.getInput()), 6, 6, 0xFFFFFFFF, false);
         } else if (mode.getInput() == 6) {
             FontRenderer font = FontManager.productSansMedium36;
-            font.drawString(Theme.mCCC("Neoclient", (int) Watermark.theme.getInput()), 6, 6, 0xFFFFFFFF, false);
+            font.drawString(Theme.mCCC(clientName, (int) Watermark.theme.getInput()), 6, 6, 0xFFFFFFFF, false);
         } else if (mode.getInput() == 7) {
             String textmodern = clientName + " §7|§r " + mc.thePlayer.getName() + " §7|§r " + ScriptDefaults.client.getFPS();
             FontRenderer font = FontManager.productSansLight22;
@@ -164,14 +165,14 @@ public class Watermark extends Module {
             FontRenderer fontneo = FontManager.productSansMedium36;
             FontRenderer fontver = FontManager.productSansMedium18;
             BlurUtils.prepareBloom();
-            fontneo.drawString("Neo", 6, 6, Theme.getGradient((int) theme.getInput(), 0.0));
+            fontneo.drawString(shortName, 6, 6, Theme.getGradient((int) theme.getInput(), 0.0));
             BlurUtils.bloomEnd(2, 4F);
-            fontneo.drawString("Neo", 6, 6, Theme.getGradient((int) theme.getInput(), 0.0));
+            fontneo.drawString(shortName, 6, 6, Theme.getGradient((int) theme.getInput(), 0.0));
             fontver.drawString(shortClientVersionNV, 6 + fontneo.getStringWidth("Neo") + 2, 6, 0xFFFFFFFF);
         } if (mode.getInput() == 10) {
             MinecraftFontRenderer font = MinecraftFontRenderer.INSTANCE;
-            font.drawString("N", 4, 4, Theme.getGradient((int) theme.getInput(), 0.0), true);
-            font.drawString("eoclient" + " [" + ScriptDefaults.client.getFPS() + " FPS]", 4 + font.width("N"), 4, 0xFFAAAAAA, true);
+            font.drawString(String.valueOf(clientName.charAt(0)), 4, 4, Theme.getGradient((int) theme.getInput(), 0.0), true);
+            font.drawString(clientName.substring(1) + " [" + ScriptDefaults.client.getFPS() + " FPS]", 4 + font.width(String.valueOf(clientName.charAt(0))), 4, 0xFFAAAAAA, true);
         }
     }
 }

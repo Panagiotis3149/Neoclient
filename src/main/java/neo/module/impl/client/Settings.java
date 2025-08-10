@@ -1,6 +1,7 @@
 package neo.module.impl.client;
 
 import neo.Neo;
+import neo.Variables;
 import neo.module.Module;
 import neo.module.setting.impl.ButtonSetting;
 import neo.module.setting.impl.DescriptionSetting;
@@ -26,6 +27,7 @@ public class Settings extends Module {
     public static ButtonSetting sendMessage;
     public static ButtonSetting spacednames;
     public static ButtonSetting specialnames;
+    public static ButtonSetting weedhack;
 
     public Settings() {
         super("Settings", category.client, 0);
@@ -48,6 +50,8 @@ public class Settings extends Module {
         this.registerSetting(new DescriptionSetting("Module Naming"));
         this.registerSetting(spacednames = new ButtonSetting("Spaced Names", false));
         this.registerSetting(specialnames = new ButtonSetting("Special Naming", false));
+        this.registerSetting(new DescriptionSetting("Special"));
+        this.registerSetting(weedhack = new ButtonSetting("Weedhack", false));
         this.canBeEnabled = false;
         }
 
@@ -55,6 +59,32 @@ public class Settings extends Module {
     public void onToggleSetting(ButtonSetting b) {
         if (Objects.equals(b.getName(), "Spaced Names") || Objects.equals(b.getName(), "Special Naming")) {
             Neo.moduleManager.updateModuleNames();
+            if (weedhack.isToggled()) {
+                if (!specialnames.isToggled()) {
+                    Variables.clientName = "weed hack premium beta";
+                    Variables.shortName = "weedhack";
+                } else {
+                    Variables.clientName = "Weedhack Premium Beta";
+                    Variables.shortName = "Weedhack";
+                }
+            } else {
+                Variables.clientName = "Neoclient";
+                Variables.shortName = "Neo";
+            }
+        }
+        if (Objects.equals(b.getName(), "Weedhack")) {
+            if (weedhack.isToggled()) {
+                if (!specialnames.isToggled()) {
+                    Variables.clientName = "weed hack premium beta";
+                    Variables.shortName = "weedhack";
+                } else {
+                    Variables.clientName = "Weedhack Premium Beta";
+                    Variables.shortName = "Weedhack";
+                }
+            } else {
+                Variables.clientName = "Neoclient";
+                Variables.shortName = "Neo";
+            }
         }
     }
 
