@@ -8,6 +8,7 @@ import neo.module.setting.impl.SliderSetting;
 import neo.util.player.move.MoveUtil;
 import neo.util.Utils;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import net.minecraft.util.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +22,7 @@ public class BHop extends Module {
     private final ButtonSetting liquidDisable;
     private final ButtonSetting sneakDisable;
     private final ButtonSetting stopMotion;
-    public static String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "GroundV2", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "BMC", "Matrix"};
+    public static String[] modes = new String[]{"Strafe", "Ground", "NCP", "Legit", "GroundV2", "Vulcan", "Strafe2", "Verus", "OldMiniblox", "Karhu", "VanillaX", "Mospixel", "BMC", "Matrix", "Test"};
     public boolean hopping;
     private int SecondTicks = 0;
     private int longerTicks = 0;
@@ -157,11 +158,28 @@ public class BHop extends Module {
             case 11: MospixelSpeed.MospixelSpeed(); break;
             case 12: BMCSpeed.BMCSpeed(); break;
             case 13: /* see onStrafe */ break;
+            case 14:
+                mc.thePlayer.setSprinting(true);
+                if (mc.thePlayer.onGround) {
+                    MoveUtil.strafec(MoveUtil.getSpeed());
+                    mc.thePlayer.motionY = 0.42;
+                    if (mc.thePlayer.isSprinting()) {
+                        float f = mc.thePlayer.rotationYaw * 0.017453292F;
+                        mc.thePlayer.motionX -= (MathHelper.sin(f) * 0.2F);
+                        mc.thePlayer.motionZ += (MathHelper.cos(f) * 0.2F);
+                    }
+                }
+                if (offGroundTicks == 3) {mc.thePlayer.motionY = MoveUtil.predictedMotion(mc.thePlayer.motionY, 5);}
+                break;
         }
     }
 
     @Override
     public void onDisable() {
+        if (mode.getInput() == 12) {
+            mc.thePlayer.motionX *= .95f;
+            mc.thePlayer.motionZ *= .95f;
+        }
         BMCSpeed.speed = 0;
         MospixelSpeed.speed = 0;
         Utils.resetTimer();
@@ -211,6 +229,6 @@ public class BHop extends Module {
         if (mc.thePlayer.onGround) offGroundTicks = 0; else offGroundTicks++;
         SecondTicks++; if (SecondTicks > 20) SecondTicks = 0;
         longerTicks++; if (longerTicks > 200) longerTicks = 0;
-        miniTicks++; if (miniTicks > 1) miniTicks = 0;
+        miniTicks++; if (miniTicks > 1) miniTicks = 1;
     }
 }

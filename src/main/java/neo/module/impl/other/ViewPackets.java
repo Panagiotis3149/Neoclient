@@ -74,7 +74,7 @@ public class ViewPackets extends Module {
             singleplayerMessage();
             return;
         }
-        Packet<?> p = e.getPacket();
+        Packet<?> p = e.getNonStaticPacket();
         if (e.isCanceled() && !includeCancelled.isToggled()) return;
         if (ignoreC00.isToggled() && p instanceof C00PacketKeepAlive) return;
         if (ignoreC0F.isToggled() && p instanceof C0FPacketConfirmTransaction) return;
@@ -96,7 +96,7 @@ public class ViewPackets extends Module {
         }
         if (!received.isToggled()) return;
 
-        Packet<?> p = e.getPacket();
+        Packet<?> p = e.getNonStaticPacket();
 
         sendMessage(p, true);
     }

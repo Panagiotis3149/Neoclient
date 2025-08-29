@@ -59,7 +59,8 @@ public class Nametags extends Module {
         }
         GlStateManager.pushMatrix();
         ScaledResolution scaledRes = new ScaledResolution(mc);
-        double twoDScale = scaledRes.getScaleFactor() / Math.pow(scaledRes.getScaleFactor(), 2.0D);
+        double perf = scaledRes.getScaleFactor() * scaledRes.getScaleFactor();
+        double twoDScale = (double) scaledRes.getScaleFactor() / perf ;
         GlStateManager.scale(twoDScale, twoDScale, twoDScale);
         for (EntityPlayer entityPlayer : entityPositions.keySet()) {
             GlStateManager.pushMatrix();
@@ -74,7 +75,7 @@ public class Nametags extends Module {
 
             double rawScaleSetting = scale.getInput();
             double scaleSetting = rawScaleSetting * 10;
-            double nameTagScale = scaledRes.getScaleFactor() / Math.pow(scaledRes.getScaleFactor(), 2.0D) * scaleSetting;
+            double nameTagScale = scaledRes.getScaleFactor() / perf * scaleSetting;
 
             final float renderPartialTicks = Utils.getTimer().renderPartialTicks;
             final EntityPlayer player = (Freecam.freeEntity == null) ? mc.thePlayer : Freecam.freeEntity;

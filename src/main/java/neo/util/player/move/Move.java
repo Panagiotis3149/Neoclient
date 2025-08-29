@@ -90,7 +90,7 @@ public enum Move {
         return bestMove;
     }
 
-    public Move reverse() {
+    public Move reserve() {
         switch (this) {
             case FORWARD:
                 return BACKWARD;

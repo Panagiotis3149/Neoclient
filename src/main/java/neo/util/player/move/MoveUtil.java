@@ -2,6 +2,7 @@ package neo.util.player.move;
 
 
 import neo.event.MoveEvent;
+import neo.event.PreMotionEvent;
 import neo.mixins.impl.entity.EntityAccessor;
 import neo.module.impl.movement.TargetStrafe;
 import neo.script.classes.Vec3;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static neo.Neo.mc;
+import static neo.Neo.moduleManager;
 
 
 public class MoveUtil {
@@ -266,7 +268,7 @@ public class MoveUtil {
     public double getTickDist() {
         double xDist = mc.thePlayer.posX - mc.thePlayer.lastTickPosX;
         double zDist = mc.thePlayer.posZ - mc.thePlayer.lastTickPosZ;
-        return Math.sqrt(Math.pow(xDist, 2) + Math.pow(zDist, 2));
+        return Math.sqrt(xDist * xDist + zDist * zDist);
     }
 
     public double movementDelta() {
@@ -328,6 +330,26 @@ public class MoveUtil {
     public static double getSpeed() {
         return mc.thePlayer == null ? 0 : Math.sqrt(mc.thePlayer.motionX * mc.thePlayer.motionX
                 + mc.thePlayer.motionZ * mc.thePlayer.motionZ);
+    }
+
+    public static void lookStrafe(PreMotionEvent e) {
+        if (!moduleManager.killAura.isEnabled()) {
+            float yaw = e.getYaw();
+            float mYaw = yaw;
+            boolean left = mc.gameSettings.keyBindLeft.isKeyDown();
+            boolean right = mc.gameSettings.keyBindRight.isKeyDown();
+            boolean forward = mc.gameSettings.keyBindForward.isKeyDown();
+            boolean back = mc.gameSettings.keyBindBack.isKeyDown();
+            if (forward && left) mYaw = yaw - 45;
+            else if (forward && right) mYaw = yaw + 45;
+            else if (back && left) mYaw = yaw - 135;
+            else if (back && right) mYaw = yaw + 135;
+            else if (forward) mYaw = yaw;
+            else if (back) mYaw = yaw + 180;
+            else if (left) mYaw = yaw - 90;
+            else if (right) mYaw = yaw + 90;
+            e.setYaw(Move.fromDeltaYaw(mYaw).getDeltaYaw());
+        }
     }
 
 
