@@ -17,6 +17,7 @@ import neo.util.render.Theme;
 import neo.util.world.block.BlockUtils;
 import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.enchantment.Enchantment;
@@ -822,6 +823,12 @@ public class Utils {
     public static int getChroma(long speed, long... delay) {
         long time = System.currentTimeMillis() + (delay.length > 0 ? delay[0] : 0L);
         return Color.getHSBColor((float) (time % (15000L / speed)) / (15000.0F / (float) speed), 1.0F, 1.0F).getRGB();
+    }
+
+
+    // DO NOT REMOVE THIS. THIS IS NOT UNUSED. THIS IS GITHUB PRONOUNS
+    public static String getPronouns(EntityPlayerSP thePlayer) {
+        return "He/Him";
     }
 
     public static String cFL(String input) {

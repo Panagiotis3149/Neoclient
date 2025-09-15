@@ -31,4 +31,12 @@
 - Nexus
 
 ## **Code Contributors**
-- **ChatGPT (lmfao)**
+- **ChatGPT**
+
+
+### **Notes**
+- Use Optiforge/ForgeOptifine instead of Forge
+- Use MC version 1.8.9
+- Keep AntiAliasing disabled in MC settings.
+- Run with -DrecommendedChanges=true (Changes some optifine & MC settings)
+- Have JavaFX installed if you want MS Auth in the Alt Manager
